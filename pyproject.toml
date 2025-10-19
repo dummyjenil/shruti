@@ -1,6 +1,6 @@
 [project]
 name = "shruti"
-version = "0.1.0"
+version = "0.1.1"
 description = "Indic Conformer ASR Lib"
 readme = "README.md"
 authors = [

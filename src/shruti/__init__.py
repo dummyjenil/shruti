@@ -88,6 +88,7 @@ def make_chunks(file_path, aggressiveness=2, min_chunk_sec=10, max_chunk_sec=20,
     return [c.float() / 32768.0 for c in chunks], times
 
 class ShrutiASR(torch.nn.Module):
+
     def __init__(self, model_path=None):
         super().__init__()
         if not model_path:
@@ -98,14 +99,17 @@ class ShrutiASR(torch.nn.Module):
         self.model.cur_decoder = "rnnt"
         self.denormalize = self.model.to_config_dict()['preprocessor']['window_stride'] * self.model.encoder.subsampling_factor
         self.language = list(self.model.tokenizer.tokenizers_dict.keys())
+
     def forward(self,audio_path,type_of_transcribe:Literal['sentence','char','word']='word',lang="gu",batch_size=4):
         chunks , ts = make_chunks(audio_path)
         hyp:list[Hypothesis] = self.model.transcribe(chunks, language_id=lang,batch_size=batch_size,return_hypotheses=True)[0]
         vocab:SentencePieceTokenizer = self.model.tokenizer.tokenizers_dict.get(lang).vocab
+
         if type_of_transcribe == "sentence":
-            return [{"text":i.text,"start":s,"end":e} for i,(s,e) in zip(hyp,ts)]
+            timestamp = [{"text":i.text,"start":s,"end":e} for i,(s,e) in zip(hyp,ts)]
+
         elif type_of_transcribe == "char":
-            srt = []
+            timestamp = []
             for h, (s, e) in zip(hyp, ts):
                 starts = s + np.array(h.timestep) * self.denormalize
                 texts = [vocab[int(y)] for y in h.y_sequence]
@@ -114,33 +118,29 @@ class ShrutiASR(torch.nn.Module):
                 ends = list(starts[1:]) + [e]
 
                 for txt, st, en in zip(texts, starts, ends):
-                    srt.append({"text": txt, "start": float(st), "end": float(en)})
+                    timestamp.append({"text": txt, "start": float(st), "end": float(en)})
 
                 # Optional newline marker at the end of the chunk
-                srt.append({"text": "\n", "start": float(e), "end": float(e)})
-            return srt
+                timestamp.append({"text": "<line>", "start": float(e), "end": float(e)})
+
         elif type_of_transcribe == "word":
-            srt = []
+            timestamp = []
             for h, (s, e) in zip(hyp, ts):
                 starts = s + np.array(h.timestep) * self.denormalize
                 texts = [vocab[int(y)] for y in h.y_sequence]
 
                 word, word_start = "", None
                 for txt, st in zip(texts, starts):
-                    if txt.startswith("▁"):  # start of new word
-                        if word:  # save previous word
-                            srt.append({"text": word.strip(), "start": float(word_start), "end": float(st)})
-                        word = txt.replace("▁", "")  # start new word
+                    if txt.startswith("▁"):
+                        if word and word_start is not None:
+                            timestamp.append({"text": word.strip(), "start": float(word_start), "end": float(st)})
+                        word = txt.replace("▁", "")
                         word_start = st
                     else:
-                        word += txt  # continue word
+                        word += txt
 
-                # last word in chunk
-                if word:
-                    srt.append({"text": word.strip(), "start": float(word_start), "end": float(e)})
-                srt.append({"text": "\n", "start": float(e), "end": float(e)})
-            return srt
+                if word and word_start is not None:
+                    timestamp.append({"text": word.strip(), "start": float(word_start), "end": float(e)})
+                timestamp.append({"text": "<line>", "start": float(e), "end": float(e)})
 
-
-def generate_srt(srt_list):
-    return srt.compose([srt.Subtitle(index,timedelta(seconds=i['start']),timedelta(seconds=i['end']),i['text']) for index,i in enumerate(srt_list,1)])
+        return srt.compose([srt.Subtitle(index,timedelta(seconds=i['start']),timedelta(seconds=i['end']),i['text']) for index,i in enumerate(timestamp,1)])
