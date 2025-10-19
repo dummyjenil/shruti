@@ -1,0 +1,60 @@
+[project]
+name = "shruti"
+version = "0.1.0"
+description = "Indic Conformer ASR Lib"
+readme = "README.md"
+authors = [
+    { name = "dummyjenil", email = "dummyjenil@gmail.com" }
+]
+dependencies = [
+ 'transformers',
+ 'sentencepiece',
+ 'torchaudio',
+ 'torchcodec',
+ 'onnx',
+ 'ruamel.yaml',
+ 'text-unidecode',
+ 'triton',
+ 'wget',
+ 'braceexpand',
+ 'editdistance',
+ 'g2p_en',
+ 'jiwer',
+ 'kaldi-python-io',
+ 'kaldiio',
+ 'lhotse',
+ 'pyannote.core',
+ 'pyannote.metrics',
+ 'pyloudnorm',
+ 'resampy',
+ 'ruamel.yaml',
+ 'sox',
+ 'texterrors',
+ 'huggingface_hub',
+ 'numba',
+ 'numpy',
+ 'python-dateutil',
+ 'scikit-learn',
+ 'setuptools',
+ 'tensorboard',
+ 'torch',
+ 'tqdm',
+ 'wrapt',
+ 'ipywidgets',
+ 'librosa',
+ 'marshmallow',
+ 'matplotlib',
+ 'packaging',
+ 'pydub',
+ 'scipy',
+ 'soundfile',
+ 'webdataset',
+ 'pytorch-lightning',
+ 'hydra-core',
+ 'webrtcvad',
+ 'srt',
+]
+
+[build-system]
+requires = ["uv_build>=0.8.17,<0.9.0"]
+build-backend = "uv_build"
