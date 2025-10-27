@@ -1,6 +1,6 @@
 [project]
 name = "shruti"
-version = "0.1.1"
+version = "0.1.2"
 description = "Indic Conformer ASR Lib"
 readme = "README.md"
 authors = [
@@ -14,7 +14,6 @@ dependencies = [
  'onnx',
  'ruamel.yaml',
  'text-unidecode',
- 'triton',
  'wget',
  'braceexpand',
  'editdistance',
@@ -29,7 +28,6 @@ dependencies = [
  'resampy',
  'ruamel.yaml',
  'sox',
- 'texterrors',
  'huggingface_hub',
  'numba',
  'numpy',
