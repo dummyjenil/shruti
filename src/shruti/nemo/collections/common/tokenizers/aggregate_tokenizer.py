@@ -16,8 +16,8 @@ from typing import Dict, List, Union
 
 import numpy as np
 
-from shruti.nemo.collections.common.tokenizers.tokenizer_spec import TokenizerSpec
-from shruti.nemo.utils import logging
+from nemo.collections.common.tokenizers.tokenizer_spec import TokenizerSpec
+from nemo.utils import logging
 
 __all__ = ['AggregateTokenizer']
 

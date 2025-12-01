@@ -17,8 +17,8 @@ import copy
 import torch
 import torch.nn as nn
 
-from shruti.nemo.collections.asr.modules.transformer.transformer_modules import MultiHeadAttention, PositionWiseFF
-from shruti.nemo.collections.common.parts import form_attention_mask
+from nemo.collections.asr.modules.transformer.transformer_modules import MultiHeadAttention, PositionWiseFF
+from nemo.collections.common.parts import form_attention_mask
 
 __all__ = ["TransformerDecoder"]
 

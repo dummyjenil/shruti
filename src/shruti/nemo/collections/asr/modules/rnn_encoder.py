@@ -18,11 +18,11 @@ import torch
 import torch.distributed
 import torch.nn as nn
 
-from shruti.nemo.collections.asr.parts.submodules.subsampling import ConvSubsampling, StackingSubsampling
-from shruti.nemo.core.classes.common import typecheck
-from shruti.nemo.core.classes.exportable import Exportable
-from shruti.nemo.core.classes.module import NeuralModule
-from shruti.nemo.core.neural_types import AcousticEncodedRepresentation, LengthsType, NeuralType, SpectrogramType
+from nemo.collections.asr.parts.submodules.subsampling import ConvSubsampling, StackingSubsampling
+from nemo.core.classes.common import typecheck
+from nemo.core.classes.exportable import Exportable
+from nemo.core.classes.module import NeuralModule
+from nemo.core.neural_types import AcousticEncodedRepresentation, LengthsType, NeuralType, SpectrogramType
 
 __all__ = ['RNNEncoder']
 

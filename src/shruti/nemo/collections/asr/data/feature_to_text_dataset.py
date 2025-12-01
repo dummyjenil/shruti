@@ -14,8 +14,8 @@
 
 from typing import Optional
 
-from shruti.nemo.collections.asr.data.feature_to_text import FeatureToBPEDataset, FeatureToCharDataset
-from shruti.nemo.utils import logging
+from nemo.collections.asr.data.feature_to_text import FeatureToBPEDataset, FeatureToCharDataset
+from nemo.utils import logging
 
 
 def get_char_dataset(config: dict, augmentor: Optional['FeatureAugmentor'] = None) -> FeatureToCharDataset:

@@ -21,7 +21,7 @@ from huggingface_hub import get_token as get_hf_token
 from huggingface_hub.hf_api import ModelInfo
 from huggingface_hub.utils import SoftTemporaryDirectory
 
-from shruti.nemo.utils import logging
+from nemo.utils import logging
 
 
 class HuggingFaceFileIO(ABC):
@@ -74,7 +74,7 @@ class HuggingFaceFileIO(ABC):
         .. code-block:: python
 
             # You can replace <DomainSubclass> with any subclass of ModelPT.
-            from shruti.nemo.core import ModelPT
+            from nemo.core import ModelPT
 
             # Get default ModelFilter
             filt = <DomainSubclass>.get_hf_model_filter()

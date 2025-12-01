@@ -27,9 +27,9 @@ from typing import List, Optional, Tuple, Union
 
 import wrapt
 
-from shruti.nemo.utils import AppState, logging
-from shruti.nemo.utils.data_utils import resolve_cache_dir  # imported for compatibility: model_utils.resolve_cache_dir()
-from shruti.nemo.utils.data_utils import is_datastore_path
+from nemo.utils import AppState, logging
+from nemo.utils.data_utils import resolve_cache_dir  # imported for compatibility: model_utils.resolve_cache_dir()
+from nemo.utils.data_utils import is_datastore_path
 
 # TODO @blisc: Perhaps refactor instead of import guarding
 

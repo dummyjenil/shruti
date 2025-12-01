@@ -23,12 +23,12 @@ from omegaconf import DictConfig, OmegaConf
 from torch.optim import adadelta, adagrad, adamax, rmsprop, rprop
 from torch.optim.optimizer import Optimizer
 
-from shruti.nemo.core.config import OptimizerParams, get_optimizer_config, register_optimizer_params
-from shruti.nemo.core.optim.adafactor import Adafactor
-from shruti.nemo.core.optim.adan import Adan
-from shruti.nemo.core.optim.novograd import Novograd
-from shruti.nemo.utils import logging
-from shruti.nemo.utils.model_utils import maybe_update_config_version
+from nemo.core.config import OptimizerParams, get_optimizer_config, register_optimizer_params
+from nemo.core.optim.adafactor import Adafactor
+from nemo.core.optim.adan import Adan
+from nemo.core.optim.novograd import Novograd
+from nemo.utils import logging
+from nemo.utils.model_utils import maybe_update_config_version
 
 AVAILABLE_OPTIMIZERS = {
     'sgd': optim.SGD,
@@ -58,7 +58,7 @@ HAVE_APEX_DISTRIBUTED_ADAM = False
 if HAVE_APEX:
     try:
         # Try importing wrapper for Apex distributed Adam optimizer
-        from shruti.nemo.core.optim.distributed_adam import MegatronDistributedFusedAdam
+        from nemo.core.optim.distributed_adam import MegatronDistributedFusedAdam
 
         HAVE_APEX_DISTRIBUTED_ADAM = True
 
@@ -68,7 +68,7 @@ if HAVE_APEX:
 
     try:
         # Try importing wrapper for Apex FusedAdam optimizer
-        from shruti.nemo.core.optim.megatron_fused_adam import MegatronFusedAdam
+        from nemo.core.optim.megatron_fused_adam import MegatronFusedAdam
 
         AVAILABLE_OPTIMIZERS['megatron_fused_adam'] = MegatronFusedAdam
     except (ImportError, ModuleNotFoundError):

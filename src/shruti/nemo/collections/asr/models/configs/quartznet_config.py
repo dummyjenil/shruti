@@ -17,13 +17,13 @@ from typing import Any, Callable, List, Optional
 
 from omegaconf import MISSING
 
-from shruti.nemo.collections.asr.models.configs import asr_models_config as ctc_cfg
-from shruti.nemo.collections.asr.modules.audio_preprocessing import (
+from nemo.collections.asr.models.configs import asr_models_config as ctc_cfg
+from nemo.collections.asr.modules.audio_preprocessing import (
     AudioToMelSpectrogramPreprocessorConfig,
     SpectrogramAugmentationConfig,
 )
-from shruti.nemo.collections.asr.modules.conv_asr import ConvASRDecoderConfig, ConvASREncoderConfig, JasperEncoderConfig
-from shruti.nemo.core.config import modelPT as model_cfg
+from nemo.collections.asr.modules.conv_asr import ConvASRDecoderConfig, ConvASREncoderConfig, JasperEncoderConfig
+from nemo.core.config import modelPT as model_cfg
 
 
 # fmt: off

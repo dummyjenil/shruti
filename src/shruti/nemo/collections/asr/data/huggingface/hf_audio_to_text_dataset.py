@@ -14,7 +14,7 @@
 
 from omegaconf import DictConfig
 
-from shruti.nemo.collections.asr.data.huggingface.hf_audio_to_text import (
+from nemo.collections.asr.data.huggingface.hf_audio_to_text import (
     HFAudioToBPEDataset,
     HFAudioToCharDataset,
     HFIterableAudioToBPEDataset,

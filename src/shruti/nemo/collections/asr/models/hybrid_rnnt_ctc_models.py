@@ -19,22 +19,22 @@ import tempfile
 from typing import Any, List, Optional, Tuple
 
 import torch
-from shruti.nemo.collections.asr.parts.utils.rnnt_utils import Hypothesis
+from nemo.collections.asr.parts.utils.rnnt_utils import Hypothesis
 from omegaconf import DictConfig, OmegaConf, open_dict
 from pytorch_lightning import Trainer
 from tqdm.auto import tqdm
 
-from shruti.nemo.collections.asr.data.audio_to_text_dali import DALIOutputs
-from shruti.nemo.collections.asr.losses.ctc import CTCLoss
-from shruti.nemo.collections.asr.metrics.wer import WER
-from shruti.nemo.collections.asr.models.rnnt_models import EncDecRNNTModel
-from shruti.nemo.collections.asr.parts.mixins import ASRBPEMixin, InterCTCMixin, TranscribeConfig
-from shruti.nemo.collections.asr.parts.mixins.transcription import TranscriptionReturnType
-from shruti.nemo.collections.asr.parts.submodules.ctc_decoding import CTCDecoding, CTCDecodingConfig
-from shruti.nemo.collections.asr.parts.utils.audio_utils import ChannelSelectorType
-from shruti.nemo.core.classes.common import PretrainedModelInfo
-from shruti.nemo.core.classes.mixins import AccessMixin
-from shruti.nemo.utils import logging, model_utils
+from nemo.collections.asr.data.audio_to_text_dali import DALIOutputs
+from nemo.collections.asr.losses.ctc import CTCLoss
+from nemo.collections.asr.metrics.wer import WER
+from nemo.collections.asr.models.rnnt_models import EncDecRNNTModel
+from nemo.collections.asr.parts.mixins import ASRBPEMixin, InterCTCMixin, TranscribeConfig
+from nemo.collections.asr.parts.mixins.transcription import TranscriptionReturnType
+from nemo.collections.asr.parts.submodules.ctc_decoding import CTCDecoding, CTCDecodingConfig
+from nemo.collections.asr.parts.utils.audio_utils import ChannelSelectorType
+from nemo.core.classes.common import PretrainedModelInfo
+from nemo.core.classes.mixins import AccessMixin
+from nemo.utils import logging, model_utils
 
 
 class EncDecHybridRNNTCTCModel(EncDecRNNTModel, ASRBPEMixin, InterCTCMixin):

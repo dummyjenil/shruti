@@ -31,8 +31,8 @@ import torch
 from torch.autograd import Function
 from torch.nn import Module
 
-from shruti.nemo.collections.asr.parts.numba.rnnt_loss import rnnt
-from shruti.nemo.collections.asr.parts.numba.rnnt_loss.utils.cpu_utils import cpu_rnnt
+from nemo.collections.asr.parts.numba.rnnt_loss import rnnt
+from nemo.collections.asr.parts.numba.rnnt_loss.utils.cpu_utils import cpu_rnnt
 
 __all__ = ['rnnt_loss', 'RNNTLossNumba', 'MultiblankRNNTLossNumba', 'TDTLossNumba']
 

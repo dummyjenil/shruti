@@ -23,13 +23,13 @@ import librosa
 import numpy as np
 import torch
 
-from shruti.nemo.collections.asr.parts.preprocessing.segment import AudioSegment
-from shruti.nemo.collections.asr.parts.utils.audio_utils import ChannelSelectorType
-from shruti.nemo.collections.common.parts.preprocessing import collections
-from shruti.nemo.collections.common.parts.utils import flatten
-from shruti.nemo.core.classes import Dataset
-from shruti.nemo.core.neural_types import AudioSignal, EncodedRepresentation, LengthsType, NeuralType
-from shruti.nemo.utils import logging
+from nemo.collections.asr.parts.preprocessing.segment import AudioSegment
+from nemo.collections.asr.parts.utils.audio_utils import ChannelSelectorType
+from nemo.collections.common.parts.preprocessing import collections
+from nemo.collections.common.parts.utils import flatten
+from nemo.core.classes import Dataset
+from nemo.core.neural_types import AudioSignal, EncodedRepresentation, LengthsType, NeuralType
+from nemo.utils import logging
 
 __all__ = [
     'AudioToTargetDataset',

@@ -17,8 +17,8 @@ from typing import Optional
 import torch
 from omegaconf import DictConfig
 
-from shruti.nemo.core.classes import NeuralModule
-from shruti.nemo.core.neural_types import LengthsType, LogprobsType, NeuralType, PredictionsType
+from nemo.core.classes import NeuralModule
+from nemo.core.neural_types import LengthsType, LogprobsType, NeuralType, PredictionsType
 
 
 class ViterbiDecoderWithGraph(NeuralModule):
@@ -113,11 +113,11 @@ class ViterbiDecoderWithGraph(NeuralModule):
         # we assume that self._blank + 1 == num_classes
         if backend == "k2":
             if self.dec_type == "topo":
-                from shruti.nemo.collections.asr.parts.k2.graph_decoders import CtcDecoder as Decoder
+                from nemo.collections.asr.parts.k2.graph_decoders import CtcDecoder as Decoder
             elif self.dec_type == "topo_rnnt_ali":
-                from shruti.nemo.collections.asr.parts.k2.graph_decoders import RnntAligner as Decoder
+                from nemo.collections.asr.parts.k2.graph_decoders import RnntAligner as Decoder
             elif self.dec_type == "token_lm":
-                from shruti.nemo.collections.asr.parts.k2.graph_decoders import TokenLMDecoder as Decoder
+                from nemo.collections.asr.parts.k2.graph_decoders import TokenLMDecoder as Decoder
             elif self.dec_type == "loose_ali":
                 raise NotImplementedError()
             elif self.dec_type == "tlg":

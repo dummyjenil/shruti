@@ -17,7 +17,7 @@ from typing import List, Optional, Union
 
 import torch
 
-from shruti.nemo.core.utils.k2_guard import k2  # import k2 from guard module
+from nemo.core.utils.k2_guard import k2  # import k2 from guard module
 
 
 def build_topo(name: str, tokens: List[int], blank_num: int, with_self_loops: bool = True) -> 'k2.Fsa':

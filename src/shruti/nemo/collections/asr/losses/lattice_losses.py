@@ -18,8 +18,8 @@ from typing import Optional
 import torch
 from omegaconf import DictConfig
 
-from shruti.nemo.core.classes import Loss, typecheck
-from shruti.nemo.core.neural_types import LabelsType, LengthsType, LogprobsType, LossType, NeuralType
+from nemo.core.classes import Loss, typecheck
+from nemo.core.neural_types import LabelsType, LengthsType, LogprobsType, LossType, NeuralType
 
 
 class LatticeLoss(Loss):
@@ -108,14 +108,14 @@ class LatticeLoss(Loss):
         if backend == "k2":
             if criterion_type == "ml":
                 if loss_type == "ctc":
-                    from shruti.nemo.collections.asr.parts.k2.ml_loss import CtcLoss as K2Loss
+                    from nemo.collections.asr.parts.k2.ml_loss import CtcLoss as K2Loss
                 elif loss_type == "rnnt":
-                    from shruti.nemo.collections.asr.parts.k2.ml_loss import RnntLoss as K2Loss
+                    from nemo.collections.asr.parts.k2.ml_loss import RnntLoss as K2Loss
                 else:
                     raise ValueError(f"Unsupported `loss_type`: {loss_type}.")
             elif criterion_type == "map":
                 if loss_type == "ctc":
-                    from shruti.nemo.collections.asr.parts.k2.map_loss import CtcMmiLoss as K2Loss
+                    from nemo.collections.asr.parts.k2.map_loss import CtcMmiLoss as K2Loss
                 else:
                     raise ValueError(f"Unsupported `loss_type`: {loss_type}.")
             else:
@@ -135,7 +135,7 @@ class LatticeLoss(Loss):
 
         if self.split_batch_size > 0:
             # don't need to guard grad_utils
-            from shruti.nemo.collections.asr.parts.k2.grad_utils import PartialGrad
+            from nemo.collections.asr.parts.k2.grad_utils import PartialGrad
 
             self._partial_loss = PartialGrad(self._loss)
 

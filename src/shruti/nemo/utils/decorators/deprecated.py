@@ -22,7 +22,7 @@ import inspect
 import time
 import wrapt
 
-from shruti.nemo.utils import logging
+from nemo.utils import logging
 
 # Remember which deprecation warnings have been printed already.
 _PRINTED_WARNING = {}

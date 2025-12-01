@@ -12,15 +12,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from shruti.nemo.collections.asr.parts.mixins.asr_adapter_mixins import ASRAdapterModelMixin
-from shruti.nemo.collections.asr.parts.mixins.interctc_mixin import InterCTCMixin
-from shruti.nemo.collections.asr.parts.mixins.mixins import (
+from nemo.collections.asr.parts.mixins.asr_adapter_mixins import ASRAdapterModelMixin
+from nemo.collections.asr.parts.mixins.interctc_mixin import InterCTCMixin
+from nemo.collections.asr.parts.mixins.mixins import (
     ASRAdapterModelMixin,
     ASRBPEMixin,
     ASRModuleMixin,
     DiarizationMixin,
 )
-from shruti.nemo.collections.asr.parts.mixins.transcription import (
+from nemo.collections.asr.parts.mixins.transcription import (
     ASRTranscriptionMixin,
     TranscribeConfig,
     TranscriptionMixin,

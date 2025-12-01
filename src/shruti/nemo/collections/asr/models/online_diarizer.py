@@ -20,16 +20,16 @@ from typing import Dict
 import torch
 from omegaconf import DictConfig
 
-from shruti.nemo.collections.asr.models import ClusteringDiarizer
-from shruti.nemo.collections.asr.parts.utils.offline_clustering import get_scale_interpolated_embs, split_input_data
-from shruti.nemo.collections.asr.parts.utils.online_clustering import OnlineSpeakerClustering
-from shruti.nemo.collections.asr.parts.utils.speaker_utils import (
+from nemo.collections.asr.models import ClusteringDiarizer
+from nemo.collections.asr.parts.utils.offline_clustering import get_scale_interpolated_embs, split_input_data
+from nemo.collections.asr.parts.utils.online_clustering import OnlineSpeakerClustering
+from nemo.collections.asr.parts.utils.speaker_utils import (
     OnlineSegmentor,
     audio_rttm_map,
     generate_cluster_labels,
     get_embs_and_timestamps,
 )
-from shruti.nemo.utils import logging, model_utils
+from nemo.utils import logging, model_utils
 
 __all__ = ['OnlineClusteringDiarizer']
 

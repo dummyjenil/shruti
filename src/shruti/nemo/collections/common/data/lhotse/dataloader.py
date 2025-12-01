@@ -32,7 +32,7 @@ from lhotse.lazy import LazyFlattener
 from lhotse.utils import fastcopy
 from omegaconf import DictConfig, OmegaConf
 
-from shruti.nemo.collections.common.data.lhotse.cutset import read_cutset_from_config
+from nemo.collections.common.data.lhotse.cutset import read_cutset_from_config
 
 
 @dataclass

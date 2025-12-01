@@ -17,10 +17,10 @@ from typing import Callable, Optional
 
 import torch
 
-from shruti.nemo.collections.asr.parts.submodules.multi_head_attention import MultiHeadAttention
-from shruti.nemo.core.classes import NeuralModule, typecheck
-from shruti.nemo.core.neural_types import AudioSignal, FloatType, NeuralType, SpectrogramType
-from shruti.nemo.utils import logging
+from nemo.collections.asr.parts.submodules.multi_head_attention import MultiHeadAttention
+from nemo.core.classes import NeuralModule, typecheck
+from nemo.core.neural_types import AudioSignal, FloatType, NeuralType, SpectrogramType
+from nemo.utils import logging
 
 try:
     import torchaudio

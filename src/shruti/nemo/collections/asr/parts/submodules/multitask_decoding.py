@@ -20,15 +20,15 @@ from typing import List, Optional, Tuple, Union
 import torch
 from omegaconf import OmegaConf
 
-from shruti.nemo.collections.asr.parts.submodules.multitask_beam_decoding import (
+from nemo.collections.asr.parts.submodules.multitask_beam_decoding import (
     AEDBeamInfer,
     AEDBeamInferConfig,
     TransformerAEDBeamInfer,
 )
-from shruti.nemo.collections.asr.parts.utils.rnnt_utils import Hypothesis, NBestHypotheses
-from shruti.nemo.collections.common.tokenizers.aggregate_tokenizer import AggregateTokenizer
-from shruti.nemo.collections.common.tokenizers.tokenizer_spec import TokenizerSpec
-from shruti.nemo.utils import logging
+from nemo.collections.asr.parts.utils.rnnt_utils import Hypothesis, NBestHypotheses
+from nemo.collections.common.tokenizers.aggregate_tokenizer import AggregateTokenizer
+from nemo.collections.common.tokenizers.tokenizer_spec import TokenizerSpec
+from nemo.utils import logging
 
 
 class AbstractMultiTaskDecoding(ABC):

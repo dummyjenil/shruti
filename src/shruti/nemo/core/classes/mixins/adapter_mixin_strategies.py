@@ -18,7 +18,7 @@ from typing import Any, Dict, List, Tuple, Union
 
 import torch
 
-from shruti.nemo.core.classes.mixins import AccessMixin
+from nemo.core.classes.mixins import AccessMixin
 
 
 class AbstractAdapterStrategy(ABC):

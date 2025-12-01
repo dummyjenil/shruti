@@ -21,7 +21,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 from omegaconf import MISSING, DictConfig, ListConfig, OmegaConf
 
-from shruti.nemo.collections.asr.parts.submodules.jasper import (
+from nemo.collections.asr.parts.submodules.jasper import (
     JasperBlock,
     MaskedConv1d,
     ParallelBlock,
@@ -29,18 +29,18 @@ from shruti.nemo.collections.asr.parts.submodules.jasper import (
     init_weights,
     jasper_activations,
 )
-from shruti.nemo.collections.asr.parts.submodules.tdnn_attention import (
+from nemo.collections.asr.parts.submodules.tdnn_attention import (
     AttentivePoolLayer,
     StatsPoolLayer,
     TDNNModule,
     TDNNSEModule,
 )
-from shruti.nemo.collections.asr.parts.utils import adapter_utils
-from shruti.nemo.core.classes.common import typecheck
-from shruti.nemo.core.classes.exportable import Exportable
-from shruti.nemo.core.classes.mixins import AccessMixin, adapter_mixins
-from shruti.nemo.core.classes.module import NeuralModule
-from shruti.nemo.core.neural_types import (
+from nemo.collections.asr.parts.utils import adapter_utils
+from nemo.core.classes.common import typecheck
+from nemo.core.classes.exportable import Exportable
+from nemo.core.classes.mixins import AccessMixin, adapter_mixins
+from nemo.core.classes.module import NeuralModule
+from nemo.core.neural_types import (
     AcousticEncodedRepresentation,
     LengthsType,
     LogitsType,
@@ -49,7 +49,7 @@ from shruti.nemo.core.neural_types import (
     SpectrogramType,
     StringType
 )
-from shruti.nemo.utils import logging
+from nemo.utils import logging
 
 __all__ = ['ConvASRDecoder', 'ConvASREncoder', 'ConvASRDecoderClassification']
 

@@ -14,7 +14,7 @@
 
 from dataclasses import dataclass, field
 
-from shruti.nemo.collections.asr.parts.k2.classes import GraphModuleConfig
+from nemo.collections.asr.parts.k2.classes import GraphModuleConfig
 
 
 @dataclass

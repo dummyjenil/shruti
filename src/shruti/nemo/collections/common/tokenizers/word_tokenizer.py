@@ -14,7 +14,7 @@
 
 from typing import Optional
 
-from shruti.nemo.collections.common.tokenizers.char_tokenizer import CharTokenizer
+from nemo.collections.common.tokenizers.char_tokenizer import CharTokenizer
 
 __all__ = ['WordTokenizer']
 

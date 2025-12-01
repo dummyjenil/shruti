@@ -18,8 +18,8 @@ import numpy as np
 import torch
 import torch.nn as nn
 
-from shruti.nemo.core.classes import Typing, typecheck
-from shruti.nemo.core.neural_types import LengthsType, NeuralType, SpectrogramType
+from nemo.core.classes import Typing, typecheck
+from nemo.core.neural_types import LengthsType, NeuralType, SpectrogramType
 
 
 class SpecAugment(nn.Module, Typing):

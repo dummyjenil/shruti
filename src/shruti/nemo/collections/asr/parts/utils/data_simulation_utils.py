@@ -23,17 +23,17 @@ import torch
 from scipy.stats import beta, gamma
 from tqdm import tqdm
 
-from shruti.nemo.collections.asr.parts.preprocessing.perturb import AudioAugmentor
-from shruti.nemo.collections.asr.parts.preprocessing.segment import AudioSegment
-from shruti.nemo.collections.asr.parts.utils.manifest_utils import (
+from nemo.collections.asr.parts.preprocessing.perturb import AudioAugmentor
+from nemo.collections.asr.parts.preprocessing.segment import AudioSegment
+from nemo.collections.asr.parts.utils.manifest_utils import (
     get_ctm_line,
     read_manifest,
     write_ctm,
     write_manifest,
     write_text,
 )
-from shruti.nemo.collections.asr.parts.utils.speaker_utils import labels_to_rttmfile
-from shruti.nemo.utils import logging
+from nemo.collections.asr.parts.utils.speaker_utils import labels_to_rttmfile
+from nemo.utils import logging
 
 
 def get_cleaned_base_path(output_dir: str, overwrite_output: bool = True) -> str:

@@ -26,7 +26,7 @@ from pytorch_lightning.loggers import Logger
 from pytorch_lightning.utilities.parsing import AttributeDict
 from torch import Tensor
 
-from shruti.nemo.utils import logging
+from nemo.utils import logging
 
 try:
     from clearml import OutputModel, Task

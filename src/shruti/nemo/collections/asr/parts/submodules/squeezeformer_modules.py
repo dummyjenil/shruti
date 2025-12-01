@@ -16,14 +16,14 @@ import torch
 from torch import nn as nn
 from torch.nn import LayerNorm
 
-from shruti.nemo.collections.asr.parts.submodules.conformer_modules import ConformerConvolution, ConformerFeedForward
-from shruti.nemo.collections.asr.parts.submodules.multi_head_attention import (
+from nemo.collections.asr.parts.submodules.conformer_modules import ConformerConvolution, ConformerFeedForward
+from nemo.collections.asr.parts.submodules.multi_head_attention import (
     MultiHeadAttention,
     RelPositionMultiHeadAttention,
 )
-from shruti.nemo.collections.common.parts import adapter_modules
-from shruti.nemo.core.classes.mixins import AccessMixin
-from shruti.nemo.core.classes.mixins.adapter_mixins import AdapterModuleMixin
+from nemo.collections.common.parts import adapter_modules
+from nemo.core.classes.mixins import AccessMixin
+from nemo.core.classes.mixins.adapter_mixins import AdapterModuleMixin
 
 __all__ = ['SqueezeformerLayer', 'ConformerFeedForward', 'SqueezeformerLayer']
 

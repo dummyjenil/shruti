@@ -46,10 +46,10 @@ import numpy as np
 import soundfile as sf
 from scipy import signal
 
-from shruti.nemo.collections.asr.parts.preprocessing.segment import AudioSegment
-from shruti.nemo.collections.common.parts.preprocessing import collections, parsers
-from shruti.nemo.core.classes import IterableDataset
-from shruti.nemo.utils import logging
+from nemo.collections.asr.parts.preprocessing.segment import AudioSegment
+from nemo.collections.common.parts.preprocessing import collections, parsers
+from nemo.core.classes import IterableDataset
+from nemo.utils import logging
 
 # TODO @blisc: Perhaps refactor instead of import guarding
 HAVE_OMEGACONG_WEBDATASET = True
@@ -57,13 +57,13 @@ try:
     import webdataset as wds
     from omegaconf import DictConfig, OmegaConf
 except ModuleNotFoundError:
-    from shruti.nemo.utils.exceptions import LightningNotInstalledException
+    from nemo.utils.exceptions import LightningNotInstalledException
 
     HAVE_OMEGACONG_WEBDATASET = False
 
 
 try:
-    from shruti.nemo.collections.asr.parts.utils import numba_utils
+    from nemo.collections.asr.parts.utils import numba_utils
 
     HAVE_NUMBA = True
 except (ImportError, ModuleNotFoundError):
@@ -624,7 +624,7 @@ class NoisePerturbationWithNormalization(Perturbation):
         epsilon=0.01,
     ):
         # import here to avoid circular import error
-        from shruti.nemo.collections.asr.data.audio_to_text import RandomizedChainDataset
+        from nemo.collections.asr.data.audio_to_text import RandomizedChainDataset
 
         self._manifest = collections.ASRAudioText(manifest_path, parser=parsers.make_parser([]), index_by_file_id=True)
         self._audiodataset = None
@@ -1171,7 +1171,7 @@ def process_augmentations(augmenter, global_rank=0, world_size=1) -> Optional[Au
     the declaring the augmentations in YAML, you can put additional keys in
     `perturbation_types` dictionary as follows.
     ```python
-    from shruti.nemo.collections.asr.parts import perturb
+    from nemo.collections.asr.parts import perturb
     # Define your own perturbation here
     class CustomPerturbation(perturb.Perturbation):
         ...
@@ -1264,7 +1264,7 @@ class AugmentationDataset(IterableDataset):
         shard_strategy: str = "replicate",
     ):
         # import here to avoid circular import error
-        from shruti.nemo.collections.asr.data.audio_to_text import expand_sharded_filepaths
+        from nemo.collections.asr.data.audio_to_text import expand_sharded_filepaths
 
         self._manifest = collections.ASRAudioText(manifest_path, parser=parsers.make_parser([]), index_by_file_id=True)
 

@@ -17,9 +17,9 @@ from typing import Dict, Optional
 import torch
 from torch import nn as nn
 
-from shruti.nemo.collections.common.parts import transformer_weights_init
-from shruti.nemo.core.classes import Exportable, NeuralModule
-from shruti.nemo.core.neural_types import ChannelType, NeuralType
+from nemo.collections.common.parts import transformer_weights_init
+from nemo.core.classes import Exportable, NeuralModule
+from nemo.core.neural_types import ChannelType, NeuralType
 
 __all__ = ['Classifier']
 

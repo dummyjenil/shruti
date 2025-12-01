@@ -12,9 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from shruti.nemo.collections.asr.parts.preprocessing.feature_loader import ExternalFeatureLoader
-from shruti.nemo.collections.asr.parts.preprocessing.features import FeaturizerFactory, FilterbankFeatures, WaveformFeaturizer
-from shruti.nemo.collections.asr.parts.preprocessing.perturb import (
+from nemo.collections.asr.parts.preprocessing.feature_loader import ExternalFeatureLoader
+from nemo.collections.asr.parts.preprocessing.features import FeaturizerFactory, FilterbankFeatures, WaveformFeaturizer
+from nemo.collections.asr.parts.preprocessing.perturb import (
     AudioAugmentor,
     AugmentationDataset,
     GainPerturbation,
@@ -33,4 +33,4 @@ from shruti.nemo.collections.asr.parts.preprocessing.perturb import (
     process_augmentations,
     register_perturbation,
 )
-from shruti.nemo.collections.asr.parts.preprocessing.segment import AudioSegment
+from nemo.collections.asr.parts.preprocessing.segment import AudioSegment

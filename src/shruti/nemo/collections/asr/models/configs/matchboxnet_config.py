@@ -17,18 +17,18 @@ from typing import Any, Callable, List, Optional
 
 from omegaconf import MISSING
 
-from shruti.nemo.collections.asr.models.configs import classification_models_config as clf_cfg
-from shruti.nemo.collections.asr.modules.audio_preprocessing import (
+from nemo.collections.asr.models.configs import classification_models_config as clf_cfg
+from nemo.collections.asr.modules.audio_preprocessing import (
     AudioToMFCCPreprocessorConfig,
     CropOrPadSpectrogramAugmentationConfig,
     SpectrogramAugmentationConfig,
 )
-from shruti.nemo.collections.asr.modules.conv_asr import (
+from nemo.collections.asr.modules.conv_asr import (
     ConvASRDecoderClassificationConfig,
     ConvASREncoderConfig,
     JasperEncoderConfig,
 )
-from shruti.nemo.core.config import modelPT as model_cfg
+from nemo.core.config import modelPT as model_cfg
 
 
 # fmt: off

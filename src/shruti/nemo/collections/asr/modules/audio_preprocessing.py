@@ -21,15 +21,15 @@ from typing import Any, Dict, Optional, Tuple
 import torch
 from packaging import version
 
-from shruti.nemo.collections.asr.parts.numba.spec_augment import SpecAugmentNumba, spec_augment_launch_heuristics
-from shruti.nemo.collections.asr.parts.preprocessing.features import (
+from nemo.collections.asr.parts.numba.spec_augment import SpecAugmentNumba, spec_augment_launch_heuristics
+from nemo.collections.asr.parts.preprocessing.features import (
     FilterbankFeatures,
     FilterbankFeaturesTA,
     make_seq_mask_like,
 )
-from shruti.nemo.collections.asr.parts.submodules.spectr_augment import SpecAugment, SpecCutout
-from shruti.nemo.core.classes import Exportable, NeuralModule, typecheck
-from shruti.nemo.core.neural_types import (
+from nemo.collections.asr.parts.submodules.spectr_augment import SpecAugment, SpecCutout
+from nemo.core.classes import Exportable, NeuralModule, typecheck
+from nemo.core.neural_types import (
     AudioSignal,
     LengthsType,
     MelSpectrogramType,
@@ -37,9 +37,9 @@ from shruti.nemo.core.neural_types import (
     NeuralType,
     SpectrogramType,
 )
-from shruti.nemo.core.utils import numba_utils
-from shruti.nemo.core.utils.numba_utils import __NUMBA_MINIMUM_VERSION__
-from shruti.nemo.utils import logging
+from nemo.core.utils import numba_utils
+from nemo.core.utils.numba_utils import __NUMBA_MINIMUM_VERSION__
+from nemo.utils import logging
 
 try:
     import torchaudio

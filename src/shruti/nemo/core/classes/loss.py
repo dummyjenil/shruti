@@ -14,7 +14,7 @@
 
 import torch
 
-from shruti.nemo.core.classes.common import Serialization, Typing
+from nemo.core.classes.common import Serialization, Typing
 
 __all__ = ['Loss']
 

@@ -22,30 +22,30 @@ import torch
 from omegaconf import DictConfig, OmegaConf, open_dict
 from pytorch_lightning import Trainer
 
-from shruti.nemo.collections.asr.data.audio_to_text_lhotse_prompted import (
+from nemo.collections.asr.data.audio_to_text_lhotse_prompted import (
     PromptedAudioToTextLhotseDataset,
     get_prompt_format_fn,
 )
-from shruti.nemo.collections.asr.metrics import BLEU, WER
-from shruti.nemo.collections.asr.models.asr_model import ASRModel, ExportableEncDecModel
-from shruti.nemo.collections.asr.parts.mixins import ASRBPEMixin, ASRTranscriptionMixin
-from shruti.nemo.collections.asr.parts.mixins.transcription import (
+from nemo.collections.asr.metrics import BLEU, WER
+from nemo.collections.asr.models.asr_model import ASRModel, ExportableEncDecModel
+from nemo.collections.asr.parts.mixins import ASRBPEMixin, ASRTranscriptionMixin
+from nemo.collections.asr.parts.mixins.transcription import (
     GenericTranscriptionType,
     InternalTranscribeConfig,
     TranscribeConfig,
 )
-from shruti.nemo.collections.asr.parts.submodules.multitask_decoding import MultiTaskDecoding, MultiTaskDecodingConfig
-from shruti.nemo.collections.asr.parts.submodules.token_classifier import TokenClassifier
-from shruti.nemo.collections.asr.parts.utils import manifest_utils
-from shruti.nemo.collections.asr.parts.utils.audio_utils import ChannelSelectorType
-from shruti.nemo.collections.asr.parts.utils.rnnt_utils import Hypothesis
-from shruti.nemo.collections.common import tokenizers
-from shruti.nemo.collections.common.data.lhotse import get_lhotse_dataloader_from_config
-from shruti.nemo.collections.common.metrics import GlobalAverageLossMetric
-from shruti.nemo.collections.common.parts import transformer_weights_init
-from shruti.nemo.collections.common.parts.preprocessing.manifest import get_full_path
-from shruti.nemo.core.classes.common import typecheck
-from shruti.nemo.core.neural_types import (
+from nemo.collections.asr.parts.submodules.multitask_decoding import MultiTaskDecoding, MultiTaskDecodingConfig
+from nemo.collections.asr.parts.submodules.token_classifier import TokenClassifier
+from nemo.collections.asr.parts.utils import manifest_utils
+from nemo.collections.asr.parts.utils.audio_utils import ChannelSelectorType
+from nemo.collections.asr.parts.utils.rnnt_utils import Hypothesis
+from nemo.collections.common import tokenizers
+from nemo.collections.common.data.lhotse import get_lhotse_dataloader_from_config
+from nemo.collections.common.metrics import GlobalAverageLossMetric
+from nemo.collections.common.parts import transformer_weights_init
+from nemo.collections.common.parts.preprocessing.manifest import get_full_path
+from nemo.core.classes.common import typecheck
+from nemo.core.neural_types import (
     AudioSignal,
     ChannelType,
     LabelsType,
@@ -55,7 +55,7 @@ from shruti.nemo.core.neural_types import (
     NeuralType,
     SpectrogramType,
 )
-from shruti.nemo.utils import logging, model_utils
+from nemo.utils import logging, model_utils
 
 __all__ = ['EncDecMultiTaskModel']
 

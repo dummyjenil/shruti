@@ -50,7 +50,7 @@ The model is available for use in the NeMo toolkit [3], and can be used as a pre
 **NOTE**: Please update the model class below to match the class of the model being uploaded.
 
 ```python
-import shruti.nemo.core import ModelPT
+import nemo.core import ModelPT
 model = ModelPT.from_pretrained("{repo_id}")
 ```
 

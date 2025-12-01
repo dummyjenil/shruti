@@ -17,11 +17,11 @@ from typing import Dict, List, Optional, Union
 import torch
 from pytorch_lightning.core.module import _jit_is_scripting
 
-from shruti.nemo.core.classes import typecheck
-from shruti.nemo.core.neural_types import NeuralType
-from shruti.nemo.core.utils.neural_type_utils import get_dynamic_axes, get_io_names
-from shruti.nemo.utils import logging
-from shruti.nemo.utils.export_utils import (
+from nemo.core.classes import typecheck
+from nemo.core.neural_types import NeuralType
+from nemo.core.utils.neural_type_utils import get_dynamic_axes, get_io_names
+from nemo.utils import logging
+from nemo.utils.export_utils import (
     ExportFormat,
     augment_filename,
     get_export_format,
@@ -37,7 +37,7 @@ __all__ = ['ExportFormat', 'Exportable']
 
 class Exportable(ABC):
     """
-    This Interface should be implemented by particular classes derived from shruti.nemo.core.NeuralModule or nemo.core.ModelPT.
+    This Interface should be implemented by particular classes derived from nemo.core.NeuralModule or nemo.core.ModelPT.
     It gives these entities ability to be exported for deployment to formats such as ONNX.
 
     Usage:

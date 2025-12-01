@@ -17,8 +17,8 @@ from typing import List
 
 import torch
 
-from shruti.nemo.core.classes import Loss
-from shruti.nemo.core.neural_types import LabelsType, LengthsType, LogprobsType, LossType, NeuralType
+from nemo.core.classes import Loss
+from nemo.core.neural_types import LabelsType, LengthsType, LogprobsType, LossType, NeuralType
 
 
 class RNNTLossPytorch(Loss):

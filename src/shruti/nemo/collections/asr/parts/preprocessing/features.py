@@ -41,9 +41,9 @@ import numpy as np
 import torch
 import torch.nn as nn
 
-from shruti.nemo.collections.asr.parts.preprocessing.perturb import AudioAugmentor
-from shruti.nemo.collections.asr.parts.preprocessing.segment import AudioSegment
-from shruti.nemo.utils import logging
+from nemo.collections.asr.parts.preprocessing.perturb import AudioAugmentor
+from nemo.collections.asr.parts.preprocessing.segment import AudioSegment
+from nemo.utils import logging
 
 try:
     import torchaudio

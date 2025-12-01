@@ -34,17 +34,17 @@ import numpy as np
 import torch
 from tqdm import tqdm
 
-from shruti.nemo.collections.asr.modules import rnnt_abstract
-from shruti.nemo.collections.asr.parts.utils.rnnt_utils import (
+from nemo.collections.asr.modules import rnnt_abstract
+from nemo.collections.asr.parts.utils.rnnt_utils import (
     HATJointOutput,
     Hypothesis,
     NBestHypotheses,
     is_prefix,
     select_k_expansions,
 )
-from shruti.nemo.core.classes import Typing, typecheck
-from shruti.nemo.core.neural_types import AcousticEncodedRepresentation, HypothesisType, LengthsType, NeuralType
-from shruti.nemo.utils import logging
+from nemo.core.classes import Typing, typecheck
+from nemo.core.neural_types import AcousticEncodedRepresentation, HypothesisType, LengthsType, NeuralType
+from nemo.utils import logging
 
 try:
     import kenlm
@@ -839,7 +839,7 @@ class BeamRNNTInfer(Typing):
             nbest_hyps: N-best decoding results
         """
         # delay this import here instead of at the beginning to avoid circular imports.
-        from shruti.nemo.collections.asr.modules.rnnt import RNNTDecoder, StatelessTransducerDecoder
+        from nemo.collections.asr.modules.rnnt import RNNTDecoder, StatelessTransducerDecoder
 
         if partial_hypotheses is not None:
             raise NotImplementedError("`partial_hypotheses` support is not supported")
@@ -1477,7 +1477,7 @@ class BeamRNNTInfer(Typing):
         # Please check train_kenlm.py in scripts/asr_language_modeling/ to find out why we need
         # TOKEN_OFFSET for BPE-based models
         if decoding_type == 'subword':
-            from shruti.nemo.collections.asr.parts.submodules.ctc_beam_decoding import DEFAULT_TOKEN_OFFSET
+            from nemo.collections.asr.parts.submodules.ctc_beam_decoding import DEFAULT_TOKEN_OFFSET
 
             self.token_offset = DEFAULT_TOKEN_OFFSET
 

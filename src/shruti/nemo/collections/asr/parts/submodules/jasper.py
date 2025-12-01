@@ -22,10 +22,10 @@ from torch import Tensor
 from torch.nn.init import _calculate_correct_fan
 from torch.nn.modules.utils import _single
 
-from shruti.nemo.collections.common.parts.utils import activation_registry
-from shruti.nemo.core.classes.mixins import AccessMixin
-from shruti.nemo.core.classes.mixins.adapter_mixins import AdapterModuleMixin
-from shruti.nemo.utils import logging
+from nemo.collections.common.parts.utils import activation_registry
+from nemo.core.classes.mixins import AccessMixin
+from nemo.core.classes.mixins.adapter_mixins import AdapterModuleMixin
+from nemo.utils import logging
 
 try:
     from pytorch_quantization import calib

@@ -19,8 +19,8 @@ from hydra.utils import instantiate
 from omegaconf import OmegaConf
 from torch import nn as nn
 
-from shruti.nemo.collections.common.parts.utils import activation_registry
-from shruti.nemo.core.classes.mixins import access_mixins, adapter_mixin_strategies
+from nemo.collections.common.parts.utils import activation_registry
+from nemo.core.classes.mixins import access_mixins, adapter_mixin_strategies
 
 
 class AdapterModuleUtil(access_mixins.AccessMixin):

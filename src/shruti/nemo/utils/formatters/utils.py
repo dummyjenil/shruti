@@ -15,8 +15,8 @@
 
 import sys
 
-from shruti.nemo.constants import NEMO_ENV_VARNAME_ENABLE_COLORING
-from shruti.nemo.utils.env_var_parsing import get_envbool
+from nemo.constants import NEMO_ENV_VARNAME_ENABLE_COLORING
+from nemo.utils.env_var_parsing import get_envbool
 
 __all__ = ["check_color_support", "to_unicode"]
 

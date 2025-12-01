@@ -19,7 +19,7 @@ from enum import Enum
 from pathlib import Path
 from typing import Dict, List, NewType, Optional, Union
 
-from shruti.nemo.collections.common.tokenizers.tokenizer_spec import TokenizerSpec
+from nemo.collections.common.tokenizers.tokenizer_spec import TokenizerSpec
 
 __all__ = ['CharTokenizer']
 

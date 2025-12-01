@@ -15,8 +15,8 @@ from typing import Dict, List, Optional, Tuple
 
 import torch
 
-from shruti.nemo.core.classes.mixins import AccessMixin
-from shruti.nemo.utils import logging
+from nemo.core.classes.mixins import AccessMixin
+from nemo.utils import logging
 
 
 class InterCTCMixin:

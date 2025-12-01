@@ -12,4 +12,4 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from shruti.nemo.core.utils import numba_utils, process_launcher
+from nemo.core.utils import numba_utils, process_launcher

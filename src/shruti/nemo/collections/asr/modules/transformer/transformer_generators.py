@@ -16,7 +16,7 @@ from contextlib import contextmanager
 
 import torch
 
-from shruti.nemo.collections.common.parts import NEG_INF, mask_padded_tokens
+from nemo.collections.common.parts import NEG_INF, mask_padded_tokens
 
 __all__ = [
     "GreedySequenceGenerator",

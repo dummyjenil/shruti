@@ -20,21 +20,21 @@ import torch
 from omegaconf import DictConfig, ListConfig, OmegaConf, open_dict
 from pytorch_lightning import Trainer
 
-from shruti.nemo.collections.asr.data import audio_to_text_dataset
-from shruti.nemo.collections.asr.data.audio_to_text_dali import AudioToBPEDALIDataset
-from shruti.nemo.collections.asr.data.audio_to_text_lhotse import LhotseSpeechToTextBpeDataset
-from shruti.nemo.collections.asr.losses.ctc import CTCLoss
-from shruti.nemo.collections.asr.losses.rnnt import RNNTLoss
-from shruti.nemo.collections.asr.metrics.wer import WER
-from shruti.nemo.collections.asr.models.hybrid_rnnt_ctc_models import EncDecHybridRNNTCTCModel
-from shruti.nemo.collections.asr.parts.mixins import ASRBPEMixin
-from shruti.nemo.core.classes.mixins import AccessMixin
-from shruti.nemo.collections.asr.parts.submodules.ctc_decoding import CTCBPEDecoding, CTCBPEDecodingConfig
-from shruti.nemo.collections.asr.parts.submodules.rnnt_decoding import RNNTBPEDecoding, RNNTBPEDecodingConfig
-from shruti.nemo.collections.common.data.lhotse import get_lhotse_dataloader_from_config
-from shruti.nemo.core.classes.common import PretrainedModelInfo
-from shruti.nemo.utils import logging, model_utils
-from shruti.nemo.collections.asr.data.audio_to_text_dali import DALIOutputs
+from nemo.collections.asr.data import audio_to_text_dataset
+from nemo.collections.asr.data.audio_to_text_dali import AudioToBPEDALIDataset
+from nemo.collections.asr.data.audio_to_text_lhotse import LhotseSpeechToTextBpeDataset
+from nemo.collections.asr.losses.ctc import CTCLoss
+from nemo.collections.asr.losses.rnnt import RNNTLoss
+from nemo.collections.asr.metrics.wer import WER
+from nemo.collections.asr.models.hybrid_rnnt_ctc_models import EncDecHybridRNNTCTCModel
+from nemo.collections.asr.parts.mixins import ASRBPEMixin
+from nemo.core.classes.mixins import AccessMixin
+from nemo.collections.asr.parts.submodules.ctc_decoding import CTCBPEDecoding, CTCBPEDecodingConfig
+from nemo.collections.asr.parts.submodules.rnnt_decoding import RNNTBPEDecoding, RNNTBPEDecodingConfig
+from nemo.collections.common.data.lhotse import get_lhotse_dataloader_from_config
+from nemo.core.classes.common import PretrainedModelInfo
+from nemo.utils import logging, model_utils
+from nemo.collections.asr.data.audio_to_text_dali import DALIOutputs
 
 
 class EncDecHybridRNNTCTCBPEModel(EncDecHybridRNNTCTCModel, ASRBPEMixin):

@@ -18,10 +18,10 @@ from typing import List, Optional, Tuple, Union
 import torch
 from omegaconf import DictConfig
 
-from shruti.nemo.collections.asr.parts.k2.classes import GraphIntersectDenseConfig
-from shruti.nemo.collections.asr.parts.k2.loss_mixins import CtcK2Mixin, RnntK2Mixin
-from shruti.nemo.collections.asr.parts.k2.utils import invert_permutation, load_graph
-from shruti.nemo.utils import logging
+from nemo.collections.asr.parts.k2.classes import GraphIntersectDenseConfig
+from nemo.collections.asr.parts.k2.loss_mixins import CtcK2Mixin, RnntK2Mixin
+from nemo.collections.asr.parts.k2.utils import invert_permutation, load_graph
+from nemo.utils import logging
 
 
 class BaseDecoder(object):
@@ -191,7 +191,7 @@ class CtcDecoder(BaseDecoder, CtcK2Mixin):
         super().__init__(
             num_classes, blank, cfg, intersect_pruned, intersect_conf, topo_type, topo_with_self_loops, device
         )
-        from shruti.nemo.collections.asr.parts.k2.graph_compilers import CtcTopologyCompiler
+        from nemo.collections.asr.parts.k2.graph_compilers import CtcTopologyCompiler
 
         self.graph_compiler = CtcTopologyCompiler(
             self.num_classes, self.blank, self.topo_type, self.topo_with_self_loops, self.device
@@ -232,7 +232,7 @@ class RnntAligner(BaseDecoder, RnntK2Mixin):
         )
         self.predictor_window_size = predictor_window_size
         self.predictor_step_size = predictor_step_size
-        from shruti.nemo.collections.asr.parts.k2.graph_compilers import RnntTopologyCompiler
+        from nemo.collections.asr.parts.k2.graph_compilers import RnntTopologyCompiler
 
         self.graph_compiler = RnntTopologyCompiler(
             self.num_classes,

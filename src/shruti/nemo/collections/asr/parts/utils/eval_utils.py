@@ -19,9 +19,9 @@ from typing import Optional, Tuple, Union
 from torchmetrics.text import SacreBLEUScore
 from torchmetrics.text.rouge import ROUGEScore
 
-from shruti.nemo.collections.asr.metrics.wer import word_error_rate_detail
-from shruti.nemo.utils import logging
-from shruti.nemo.utils.nemo_logging import LogMode
+from nemo.collections.asr.metrics.wer import word_error_rate_detail
+from nemo.utils import logging
+from nemo.utils.nemo_logging import LogMode
 
 TEXT_METRICS_MAPPING = {
     'bleu': SacreBLEUScore,

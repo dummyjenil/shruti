@@ -17,7 +17,7 @@ import hydra
 import omegaconf
 import pytorch_lightning
 
-from shruti.nemo.core.classes.common import (
+from nemo.core.classes.common import (
     FileIO,
     Model,
     PretrainedModelInfo,
@@ -26,10 +26,10 @@ from shruti.nemo.core.classes.common import (
     is_typecheck_enabled,
     typecheck,
 )
-from shruti.nemo.core.classes.dataset import Dataset, IterableDataset
-from shruti.nemo.core.classes.exportable import Exportable, ExportFormat
-from shruti.nemo.core.classes.loss import Loss
-from shruti.nemo.core.classes.mixins import access_mixins, adapter_mixins, hf_io_mixin
-from shruti.nemo.core.classes.modelPT import ModelPT
-from shruti.nemo.core.classes.module import NeuralModule
-from shruti.nemo.utils import exceptions
+from nemo.core.classes.dataset import Dataset, IterableDataset
+from nemo.core.classes.exportable import Exportable, ExportFormat
+from nemo.core.classes.loss import Loss
+from nemo.core.classes.mixins import access_mixins, adapter_mixins, hf_io_mixin
+from nemo.core.classes.modelPT import ModelPT
+from nemo.core.classes.module import NeuralModule
+from nemo.utils import exceptions

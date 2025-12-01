@@ -27,7 +27,7 @@ from lhotse.cut import Cut
 from lhotse.lazy import LazyIteratorChain, LazyJsonlIterator
 from lhotse.serialization import open_best
 from lhotse.utils import compute_num_samples
-from shruti.nemo.collections.common.parts.preprocessing.manifest import get_full_path
+from nemo.collections.common.parts.preprocessing.manifest import get_full_path
 
 
 class LazyNeMoIterator:
@@ -274,7 +274,7 @@ class LazyNeMoTarredIterator:
 
 def expand_sharded_filepaths(path: str | Path) -> list[str]:
     # local import to avoid circular imports
-    from shruti.nemo.collections.asr.data.audio_to_text import expand_sharded_filepaths as _expand_sharded_filepaths
+    from nemo.collections.asr.data.audio_to_text import expand_sharded_filepaths as _expand_sharded_filepaths
 
     return _expand_sharded_filepaths(str(path), shard_strategy="replicate", world_size=1, global_rank=0)
 

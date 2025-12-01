@@ -15,7 +15,7 @@
 """
 Guard for importing optional NeMo dependency k2.
 Contains checks for k2 availability and version.
-Use `from shruti.nemo.core.utils.k2_guard import k2` to import k2 instead of direct import.
+Use `from nemo.core.utils.k2_guard import k2` to import k2 instead of direct import.
 If there is an error, the module will raise an exception with a helpful message.
 """
 
@@ -23,7 +23,7 @@ import textwrap
 
 from packaging.version import Version
 from pytorch_lightning.utilities.imports import package_available
-from shruti.nemo.core.utils.k2_utils import K2_INSTALLATION_MESSAGE
+from nemo.core.utils.k2_utils import K2_INSTALLATION_MESSAGE
 
 __K2_MINIMUM_MAJOR_VERSION = 1
 __K2_MINIMUM_MINOR_VERSION = 14

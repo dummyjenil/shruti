@@ -34,7 +34,7 @@
 from typing import List, Tuple
 import torch
 
-from shruti.nemo.collections.asr.parts.utils.offline_clustering import (
+from nemo.collections.asr.parts.utils.offline_clustering import (
     NMESC,
     SpeakerClustering,
     SpectralClustering,
@@ -43,7 +43,7 @@ from shruti.nemo.collections.asr.parts.utils.offline_clustering import (
     getCosAffinityMatrix,
     split_input_data,
 )
-from shruti.nemo.collections.asr.parts.utils.optimization_utils import linear_sum_assignment
+from nemo.collections.asr.parts.utils.optimization_utils import linear_sum_assignment
 
 
 def get_lsa_speaker_mapping(

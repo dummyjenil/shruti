@@ -17,18 +17,18 @@ from typing import Any, Dict, List, Optional
 
 from omegaconf import MISSING
 
-import shruti.nemo.core.classes.dataset
-from shruti.nemo.collections.asr.modules.audio_preprocessing import (
+import nemo.core.classes.dataset
+from nemo.collections.asr.modules.audio_preprocessing import (
     AudioToMFCCPreprocessorConfig,
     CropOrPadSpectrogramAugmentationConfig,
     SpectrogramAugmentationConfig,
 )
-from shruti.nemo.collections.asr.modules.conv_asr import ConvASRDecoderClassificationConfig, ConvASREncoderConfig
-from shruti.nemo.core.config import modelPT as model_cfg
+from nemo.collections.asr.modules.conv_asr import ConvASRDecoderClassificationConfig, ConvASREncoderConfig
+from nemo.core.config import modelPT as model_cfg
 
 
 @dataclass
-class EncDecClassificationDatasetConfig(shruti.nemo.core.classes.dataset.DatasetConfig):
+class EncDecClassificationDatasetConfig(nemo.core.classes.dataset.DatasetConfig):
     manifest_filepath: Optional[str] = None
     sample_rate: int = MISSING
     labels: List[str] = MISSING

@@ -19,7 +19,7 @@ import numpy as np
 from numpy import ndarray
 from sklearn.preprocessing import PowerTransformer, QuantileTransformer, RobustScaler
 
-from shruti.nemo.utils import logging
+from nemo.utils import logging
 
 __all__ = ["IntCode", "FloatCode", "CategoryCode", "ColumnCodes"]
 

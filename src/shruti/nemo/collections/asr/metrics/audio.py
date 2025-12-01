@@ -22,7 +22,7 @@ from torchmetrics.audio.sdr import ScaleInvariantSignalDistortionRatio, SignalDi
 from torchmetrics.audio.snr import ScaleInvariantSignalNoiseRatio, SignalNoiseRatio
 from torchmetrics.audio.stoi import ShortTimeObjectiveIntelligibility
 
-from shruti.nemo.utils import logging
+from nemo.utils import logging
 
 __all__ = ['AudioMetricWrapper']
 

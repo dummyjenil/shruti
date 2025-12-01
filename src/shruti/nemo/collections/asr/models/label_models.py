@@ -27,21 +27,21 @@ from pytorch_lightning import Trainer
 from torchmetrics import Accuracy
 from tqdm import tqdm
 
-from shruti.nemo.collections.asr.data.audio_to_label import AudioToSpeechLabelDataset, cache_datastore_manifests
-from shruti.nemo.collections.asr.data.audio_to_label_dataset import (
+from nemo.collections.asr.data.audio_to_label import AudioToSpeechLabelDataset, cache_datastore_manifests
+from nemo.collections.asr.data.audio_to_label_dataset import (
     get_concat_tarred_speech_label_dataset,
     get_tarred_speech_label_dataset,
 )
-from shruti.nemo.collections.asr.data.audio_to_text_dataset import convert_to_config_list
-from shruti.nemo.collections.asr.models.asr_model import ExportableEncDecModel
-from shruti.nemo.collections.asr.parts.preprocessing.features import WaveformFeaturizer
-from shruti.nemo.collections.asr.parts.preprocessing.perturb import process_augmentations
-from shruti.nemo.collections.common.metrics import TopKClassificationAccuracy
-from shruti.nemo.collections.common.parts.preprocessing.collections import ASRSpeechLabel
-from shruti.nemo.core.classes import ModelPT
-from shruti.nemo.core.classes.common import PretrainedModelInfo, typecheck
-from shruti.nemo.core.neural_types import *
-from shruti.nemo.utils import logging
+from nemo.collections.asr.data.audio_to_text_dataset import convert_to_config_list
+from nemo.collections.asr.models.asr_model import ExportableEncDecModel
+from nemo.collections.asr.parts.preprocessing.features import WaveformFeaturizer
+from nemo.collections.asr.parts.preprocessing.perturb import process_augmentations
+from nemo.collections.common.metrics import TopKClassificationAccuracy
+from nemo.collections.common.parts.preprocessing.collections import ASRSpeechLabel
+from nemo.core.classes import ModelPT
+from nemo.core.classes.common import PretrainedModelInfo, typecheck
+from nemo.core.neural_types import *
+from nemo.utils import logging
 
 __all__ = ['EncDecSpeakerLabelModel']
 

@@ -13,7 +13,7 @@
 # limitations under the License.
 from typing import Optional
 
-from shruti.nemo.collections.asr.data import feature_to_label
+from nemo.collections.asr.data import feature_to_label
 
 
 def get_feature_seq_speakerlabel_dataset(

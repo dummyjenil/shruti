@@ -17,7 +17,7 @@ from contextlib import contextmanager
 import torch
 from torch.nn import Module
 
-from shruti.nemo.core.classes.common import FileIO, Serialization, Typing
+from nemo.core.classes.common import FileIO, Serialization, Typing
 
 __all__ = ['NeuralModule']
 

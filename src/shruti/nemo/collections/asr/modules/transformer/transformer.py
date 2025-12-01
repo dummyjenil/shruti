@@ -18,14 +18,14 @@ from typing import Dict, Optional
 import torch
 from omegaconf.omegaconf import MISSING
 
-from shruti.nemo.collections.asr.modules.transformer.decoder_module import DecoderModule
-from shruti.nemo.collections.asr.modules.transformer.encoder_module import EncoderModule
-from shruti.nemo.collections.asr.modules.transformer.transformer_decoders import TransformerDecoder
-from shruti.nemo.collections.asr.modules.transformer.transformer_encoders import TransformerEncoder
-from shruti.nemo.collections.asr.modules.transformer.transformer_modules import TransformerEmbedding
-from shruti.nemo.core.classes.common import typecheck
-from shruti.nemo.core.classes.exportable import Exportable
-from shruti.nemo.core.neural_types import ChannelType, NeuralType
+from nemo.collections.asr.modules.transformer.decoder_module import DecoderModule
+from nemo.collections.asr.modules.transformer.encoder_module import EncoderModule
+from nemo.collections.asr.modules.transformer.transformer_decoders import TransformerDecoder
+from nemo.collections.asr.modules.transformer.transformer_encoders import TransformerEncoder
+from nemo.collections.asr.modules.transformer.transformer_modules import TransformerEmbedding
+from nemo.core.classes.common import typecheck
+from nemo.core.classes.exportable import Exportable
+from nemo.core.neural_types import ChannelType, NeuralType
 
 
 @dataclass

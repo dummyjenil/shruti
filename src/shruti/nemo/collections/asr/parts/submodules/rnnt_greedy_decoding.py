@@ -33,15 +33,15 @@ import numpy as np
 import torch
 from omegaconf import DictConfig, OmegaConf
 
-from shruti.nemo.collections.asr.modules import rnnt_abstract
-from shruti.nemo.collections.asr.parts.submodules.rnnt_loop_labels_computer import GreedyBatchedRNNTLoopLabelsComputer
-from shruti.nemo.collections.asr.parts.submodules.tdt_loop_labels_computer import GreedyBatchedTDTLoopLabelsComputer
-from shruti.nemo.collections.asr.parts.utils import rnnt_utils
-from shruti.nemo.collections.asr.parts.utils.asr_confidence_utils import ConfidenceMethodConfig, ConfidenceMethodMixin
-from shruti.nemo.collections.common.parts.rnn import label_collate
-from shruti.nemo.core.classes import Typing, typecheck
-from shruti.nemo.core.neural_types import AcousticEncodedRepresentation, HypothesisType, LengthsType, NeuralType, StringType
-from shruti.nemo.utils import logging
+from nemo.collections.asr.modules import rnnt_abstract
+from nemo.collections.asr.parts.submodules.rnnt_loop_labels_computer import GreedyBatchedRNNTLoopLabelsComputer
+from nemo.collections.asr.parts.submodules.tdt_loop_labels_computer import GreedyBatchedTDTLoopLabelsComputer
+from nemo.collections.asr.parts.utils import rnnt_utils
+from nemo.collections.asr.parts.utils.asr_confidence_utils import ConfidenceMethodConfig, ConfidenceMethodMixin
+from nemo.collections.common.parts.rnn import label_collate
+from nemo.core.classes import Typing, typecheck
+from nemo.core.neural_types import AcousticEncodedRepresentation, HypothesisType, LengthsType, NeuralType, StringType
+from nemo.utils import logging
 
 
 def pack_hypotheses(hypotheses: List[rnnt_utils.Hypothesis], logitlen: torch.Tensor,) -> List[rnnt_utils.Hypothesis]:
@@ -629,7 +629,7 @@ class GreedyBatchedRNNTInfer(_GreedyRNNTInfer):
                     confidence_method_cfg=confidence_method_cfg,
                 )
             elif use_cuda_graph_decoder:
-                from shruti.nemo.collections.asr.parts.submodules.cuda_graph_rnnt_greedy_decoding import (
+                from nemo.collections.asr.parts.submodules.cuda_graph_rnnt_greedy_decoding import (
                     RNNTGreedyDecodeCudaGraph,
                 )
 

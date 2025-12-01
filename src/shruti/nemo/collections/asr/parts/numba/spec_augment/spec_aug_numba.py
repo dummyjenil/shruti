@@ -16,9 +16,9 @@ import torch
 import torch.nn as nn
 from numba import cuda
 
-from shruti.nemo.core.classes import Typing, typecheck
-from shruti.nemo.core.neural_types import LengthsType, NeuralType, SpectrogramType
-from shruti.nemo.utils import logging
+from nemo.core.classes import Typing, typecheck
+from nemo.core.neural_types import LengthsType, NeuralType, SpectrogramType
+from nemo.utils import logging
 
 MAX_THREAD_BUFFER = 512
 

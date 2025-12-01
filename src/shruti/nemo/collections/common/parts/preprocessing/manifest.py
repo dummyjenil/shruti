@@ -19,9 +19,9 @@ from collections import defaultdict
 from os.path import expanduser
 from typing import Any, Callable, Dict, Iterator, List, Optional, Union
 
-from shruti.nemo.utils import logging
-from shruti.nemo.utils.data_utils import DataStoreObject, datastore_path_to_local_path, is_datastore_path
-from shruti.nemo.utils.nemo_logging import LogMode
+from nemo.utils import logging
+from nemo.utils.data_utils import DataStoreObject, datastore_path_to_local_path, is_datastore_path
+from nemo.utils.nemo_logging import LogMode
 
 
 class ManifestBase:

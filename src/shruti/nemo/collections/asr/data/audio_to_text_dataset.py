@@ -24,14 +24,14 @@ from omegaconf.listconfig import ListConfig
 from pytorch_lightning.callbacks import BasePredictionWriter
 from torch.utils.data import ChainDataset
 
-from shruti.nemo.collections.asr.data import audio_to_text, audio_to_text_dali
-from shruti.nemo.collections.asr.data.huggingface.hf_audio_to_text_dataset import (
+from nemo.collections.asr.data import audio_to_text, audio_to_text_dali
+from nemo.collections.asr.data.huggingface.hf_audio_to_text_dataset import (
     get_hf_audio_to_text_bpe_dataset,
     get_hf_audio_to_text_char_dataset,
 )
-from shruti.nemo.collections.asr.parts.preprocessing.perturb import process_augmentations
-from shruti.nemo.collections.common.data.dataset import CodeSwitchedDataset, ConcatDataset
-from shruti.nemo.utils import logging
+from nemo.collections.asr.parts.preprocessing.perturb import process_augmentations
+from nemo.collections.common.data.dataset import CodeSwitchedDataset, ConcatDataset
+from nemo.utils import logging
 
 
 def inject_dataloader_value_from_model_config(model_cfg: dict, dataloader_cfg: DictConfig, key: str):

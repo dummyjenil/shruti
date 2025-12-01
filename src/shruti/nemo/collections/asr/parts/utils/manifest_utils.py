@@ -22,7 +22,7 @@ from typing import Dict, List, Union
 import librosa
 import numpy as np
 
-from shruti.nemo.collections.asr.parts.utils.speaker_utils import (
+from nemo.collections.asr.parts.utils.speaker_utils import (
     audio_rttm_map,
     get_subsegments,
     get_uniqname_from_filepath,
@@ -30,8 +30,8 @@ from shruti.nemo.collections.asr.parts.utils.speaker_utils import (
     segments_manifest_to_subsegments_manifest,
     write_rttm2manifest,
 )
-from shruti.nemo.utils import logging
-from shruti.nemo.utils.data_utils import DataStoreObject
+from nemo.utils import logging
+from nemo.utils.data_utils import DataStoreObject
 
 
 def get_rounded_str_float(num: float, output_precision: int, min_precision=1, max_precision=3) -> str:

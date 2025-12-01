@@ -14,7 +14,7 @@
 
 import torch
 
-from shruti.nemo.collections.asr.parts.k2.utils import make_non_pad_mask
+from nemo.collections.asr.parts.k2.utils import make_non_pad_mask
 
 
 class GradExpNormalize(torch.autograd.Function):

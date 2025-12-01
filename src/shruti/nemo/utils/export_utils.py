@@ -22,7 +22,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-from shruti.nemo.utils import CastToFloat, CastToFloatAll, logging
+from nemo.utils import CastToFloat, CastToFloatAll, logging
 
 try:
     import onnxruntime
@@ -363,7 +363,7 @@ def replace_MatchedScaleMaskSoftmax(n: nn.Module) -> Optional[nn.Linear]:
         exportable module
     """
     # including the import here to avoid circular imports
-    from shruti.nemo.collections.nlp.modules.common.megatron.fused_softmax import MatchedScaleMaskSoftmax
+    from nemo.collections.nlp.modules.common.megatron.fused_softmax import MatchedScaleMaskSoftmax
 
     # disabling fusion for the MatchedScaleMaskSoftmax
     mod = MatchedScaleMaskSoftmax(
@@ -464,7 +464,7 @@ def add_casts_around_norms(model: nn.Module):
     It was used with an extra post-parse script to have TRT preserve extra precision when --fp16 needed.
     Should not be needed with TRT 8.6.1 or later.
     """
-    from shruti.nemo.collections.tts.modules.submodules import MaskedInstanceNorm1d
+    from nemo.collections.tts.modules.submodules import MaskedInstanceNorm1d
 
     default_cast_replacements = {
         "BatchNorm1d": wrap_module(nn.BatchNorm1d, CastToFloat),

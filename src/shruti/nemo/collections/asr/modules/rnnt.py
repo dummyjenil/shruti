@@ -29,16 +29,16 @@
 from typing import Any, Dict, List, Optional, Tuple, Union
 
 import torch
-from omegaconf import DictConfig, OmegaConf
+from omegaconf import DictConfig
 
-from shruti.nemo.collections.asr.modules import rnnt_abstract
-from shruti.nemo.collections.asr.parts.submodules import stateless_net
-from shruti.nemo.collections.asr.parts.utils import adapter_utils, rnnt_utils
-from shruti.nemo.collections.common.parts import rnn
-from shruti.nemo.core.classes import adapter_mixins, typecheck
-from shruti.nemo.core.classes.exportable import Exportable
-from shruti.nemo.core.classes.mixins import AdapterModuleMixin
-from shruti.nemo.core.neural_types import (
+from nemo.collections.asr.modules import rnnt_abstract
+from nemo.collections.asr.parts.submodules import stateless_net
+from nemo.collections.asr.parts.utils import adapter_utils, rnnt_utils
+from nemo.collections.common.parts import rnn
+from nemo.core.classes import adapter_mixins, typecheck
+from nemo.core.classes.exportable import Exportable
+from nemo.core.classes.mixins import AdapterModuleMixin
+from nemo.core.neural_types import (
     AcousticEncodedRepresentation,
     ElementType,
     EmbeddedTextType,
@@ -50,7 +50,7 @@ from shruti.nemo.core.neural_types import (
     SpectrogramType,
     StringType
 )
-from shruti.nemo.utils import logging
+from nemo.utils import logging
 
 
 class StatelessTransducerDecoder(rnnt_abstract.AbstractRNNTDecoder, Exportable):

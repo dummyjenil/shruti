@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from shruti.nemo.collections.asr.parts.numba.spec_augment.spec_aug_numba import (
+from nemo.collections.asr.parts.numba.spec_augment.spec_aug_numba import (
     SpecAugmentNumba,
     spec_augment_launch_heuristics,
 )

@@ -12,4 +12,4 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from shruti.nemo.core.utils.process_launcher.launcher import ProcessLauncher, ProcessLauncherConfig
+from nemo.core.utils.process_launcher.launcher import ProcessLauncher, ProcessLauncherConfig

@@ -590,7 +590,7 @@ class CodeSwitchedDataset(IterableDataset):
             # import here because otherwise CI test-nlp-imports fails since soundfile is only in requirements_asr and not in requirements_common
             import soundfile as sf
 
-            from shruti.nemo.collections.asr.parts.preprocessing import AudioSegment
+            from nemo.collections.asr.parts.preprocessing import AudioSegment
 
             mb = io.BytesIO()
             sf.write(mb, comp_audio, self.sample_rate, format='WAV')

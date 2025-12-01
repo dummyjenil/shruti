@@ -18,11 +18,11 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-from shruti.nemo.core.classes.common import typecheck
-from shruti.nemo.core.classes.exportable import Exportable
-from shruti.nemo.core.classes.module import NeuralModule
-from shruti.nemo.core.neural_types import EncodedRepresentation, LengthsType, NeuralType, SpectrogramType
-from shruti.nemo.core.neural_types.elements import ProbsType
+from nemo.core.classes.common import typecheck
+from nemo.core.classes.exportable import Exportable
+from nemo.core.classes.module import NeuralModule
+from nemo.core.neural_types import EncodedRepresentation, LengthsType, NeuralType, SpectrogramType
+from nemo.core.neural_types.elements import ProbsType
 
 __all__ = ['MSDD_module']
 

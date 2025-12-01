@@ -18,14 +18,14 @@ from typing import Dict, List, Optional, Union
 import torch
 import webdataset as wds
 
-from shruti.nemo.collections.asr.data.audio_to_text import cache_datastore_manifests, expand_sharded_filepaths
-from shruti.nemo.collections.asr.parts.preprocessing.features import WaveformFeaturizer
-from shruti.nemo.collections.asr.parts.preprocessing.segment import available_formats as valid_sf_formats
-from shruti.nemo.collections.common.parts.preprocessing import collections
-from shruti.nemo.core.classes import Dataset, IterableDataset
-from shruti.nemo.core.neural_types import AudioSignal, LabelsType, LengthsType, NeuralType, RegressionValuesType
-from shruti.nemo.utils import logging
-from shruti.nemo.utils.distributed import webdataset_split_by_workers
+from nemo.collections.asr.data.audio_to_text import cache_datastore_manifests, expand_sharded_filepaths
+from nemo.collections.asr.parts.preprocessing.features import WaveformFeaturizer
+from nemo.collections.asr.parts.preprocessing.segment import available_formats as valid_sf_formats
+from nemo.collections.common.parts.preprocessing import collections
+from nemo.core.classes import Dataset, IterableDataset
+from nemo.core.neural_types import AudioSignal, LabelsType, LengthsType, NeuralType, RegressionValuesType
+from nemo.utils import logging
+from nemo.utils.distributed import webdataset_split_by_workers
 
 # List of valid file formats (prioritized by order of importance)
 VALID_FILE_FORMATS = ';'.join(['wav', 'mp3', 'flac', 'opus'] + [fmt.lower() for fmt in valid_sf_formats.keys()])

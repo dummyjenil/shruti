@@ -17,7 +17,7 @@ from typing import Any, Dict, Optional
 
 import torch
 
-from shruti.nemo.core.neural_types.comparison import NeuralTypeComparisonResult
+from nemo.core.neural_types.comparison import NeuralTypeComparisonResult
 
 __all__ = [
     'ElementType',

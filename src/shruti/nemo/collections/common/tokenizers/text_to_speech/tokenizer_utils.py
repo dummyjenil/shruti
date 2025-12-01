@@ -91,7 +91,7 @@ def any_locale_text_preprocessing(text: str) -> str:
 def normalize_unicode_text(text: str) -> str:
     """
     TODO @xueyang: Apply NFC form may be too aggressive since it would ignore some accented characters that do not exist
-      in predefined German alphabet (shruti.nemo.collections.common.tokenizers.text_to_speech.ipa_lexicon.IPA_CHARACTER_SETS),
+      in predefined German alphabet (nemo.collections.common.tokenizers.text_to_speech.ipa_lexicon.IPA_CHARACTER_SETS),
       such as 'é'. This is not expected. A better solution is to add an extra normalization with NFD to discard the
       diacritics and consider 'é' and 'e' produce similar pronunciations.
 

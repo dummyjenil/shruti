@@ -13,7 +13,7 @@
 # limitations under the License.
 
 
-from shruti.nemo.core.neural_types.axes import *
-from shruti.nemo.core.neural_types.comparison import *
-from shruti.nemo.core.neural_types.elements import *
-from shruti.nemo.core.neural_types.neural_type import *
+from nemo.core.neural_types.axes import *
+from nemo.core.neural_types.comparison import *
+from nemo.core.neural_types.elements import *
+from nemo.core.neural_types.neural_type import *

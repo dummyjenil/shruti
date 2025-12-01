@@ -15,8 +15,8 @@
 
 import logging
 
-from shruti.nemo.utils.formatters.colors import Fore as ForegroundColors
-from shruti.nemo.utils.formatters.utils import check_color_support, to_unicode
+from nemo.utils.formatters.colors import Fore as ForegroundColors
+from nemo.utils.formatters.utils import check_color_support, to_unicode
 
 __all__ = ["BaseNeMoFormatter"]
 

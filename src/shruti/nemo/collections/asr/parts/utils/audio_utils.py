@@ -23,7 +23,7 @@ import soundfile as sf
 import torch
 from scipy.spatial.distance import pdist, squareform
 
-from shruti.nemo.utils import logging
+from nemo.utils import logging
 
 SOUND_VELOCITY = 343.0  # m/s
 ChannelSelectorType = Union[int, Iterable[int], str]

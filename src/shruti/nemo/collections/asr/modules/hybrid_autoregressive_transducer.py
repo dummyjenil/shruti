@@ -30,10 +30,10 @@ from typing import Any, Dict, List, Optional, Tuple, Union
 
 import torch
 
-from shruti.nemo.collections.asr.modules import rnnt
-from shruti.nemo.collections.asr.parts.utils.rnnt_utils import HATJointOutput
+from nemo.collections.asr.modules import rnnt
+from nemo.collections.asr.parts.utils.rnnt_utils import HATJointOutput
 
-from shruti.nemo.utils import logging
+from nemo.utils import logging
 
 
 class HATJoint(rnnt.RNNTJoint):

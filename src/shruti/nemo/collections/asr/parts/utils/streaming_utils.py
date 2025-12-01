@@ -21,13 +21,13 @@ import torch
 from omegaconf import OmegaConf
 from torch.utils.data import DataLoader
 
-from shruti.nemo.collections.asr.data.audio_to_text_lhotse_prompted import canary_prompt
-from shruti.nemo.collections.asr.models.ctc_bpe_models import EncDecCTCModelBPE
-from shruti.nemo.collections.asr.parts.mixins.streaming import StreamingEncoder
-from shruti.nemo.collections.asr.parts.preprocessing.features import normalize_batch
-from shruti.nemo.collections.asr.parts.utils.audio_utils import get_samples
-from shruti.nemo.core.classes import IterableDataset
-from shruti.nemo.core.neural_types import LengthsType, MelSpectrogramType, NeuralType
+from nemo.collections.asr.data.audio_to_text_lhotse_prompted import canary_prompt
+from nemo.collections.asr.models.ctc_bpe_models import EncDecCTCModelBPE
+from nemo.collections.asr.parts.mixins.streaming import StreamingEncoder
+from nemo.collections.asr.parts.preprocessing.features import normalize_batch
+from nemo.collections.asr.parts.utils.audio_utils import get_samples
+from nemo.core.classes import IterableDataset
+from nemo.core.neural_types import LengthsType, MelSpectrogramType, NeuralType
 
 # Minimum number of tokens required to assign a LCS merge step, otherwise ignore and
 # select all i-1 and ith buffer tokens to merge.

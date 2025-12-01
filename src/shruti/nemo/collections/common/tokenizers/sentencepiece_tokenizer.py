@@ -18,9 +18,9 @@ from typing import Dict, List, Optional, Union
 import numpy as np
 import sentencepiece
 
-from shruti.nemo.collections.common.parts.utils import if_exist
-from shruti.nemo.collections.common.tokenizers.tokenizer_spec import TokenizerSpec
-from shruti.nemo.utils import logging
+from nemo.collections.common.parts.utils import if_exist
+from nemo.collections.common.tokenizers.tokenizer_spec import TokenizerSpec
+from nemo.utils import logging
 
 __all__ = ['SentencePieceTokenizer', 'create_spt_model']
 

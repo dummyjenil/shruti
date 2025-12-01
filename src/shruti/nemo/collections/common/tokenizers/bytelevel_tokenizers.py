@@ -14,7 +14,7 @@
 
 from typing import Dict, List, Optional, Union
 
-from shruti.nemo.collections.common.tokenizers.tokenizer_spec import TokenizerSpec
+from nemo.collections.common.tokenizers.tokenizer_spec import TokenizerSpec
 
 __all__ = ['ByteLevelProcessor', 'ByteLevelTokenizer']
 

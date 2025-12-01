@@ -16,10 +16,10 @@ from typing import Optional
 
 import torch
 
-from shruti.nemo.core.classes import Loss
-from shruti.nemo.core.classes.common import typecheck
-from shruti.nemo.core.neural_types import LabelsType, LogitsType, LossType, NeuralType
-from shruti.nemo.utils import logging
+from nemo.core.classes import Loss
+from nemo.core.classes.common import typecheck
+from nemo.core.neural_types import LabelsType, LogitsType, LossType, NeuralType
+from nemo.utils import logging
 
 __all__ = ['MultiSimilarityLoss']
 

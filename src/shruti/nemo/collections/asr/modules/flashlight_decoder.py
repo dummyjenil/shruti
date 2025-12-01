@@ -19,9 +19,9 @@ from typing import Iterable, List, Optional, Tuple, Union
 import numpy as np
 import torch
 
-from shruti.nemo.collections.common.tokenizers.tokenizer_spec import TokenizerSpec
-from shruti.nemo.core.classes import NeuralModule, typecheck
-from shruti.nemo.core.neural_types import LengthsType, LogprobsType, NeuralType, PredictionsType
+from nemo.collections.common.tokenizers.tokenizer_spec import TokenizerSpec
+from nemo.core.classes import NeuralModule, typecheck
+from nemo.core.neural_types import LengthsType, LogprobsType, NeuralType, PredictionsType
 
 
 class _TokensWrapper:

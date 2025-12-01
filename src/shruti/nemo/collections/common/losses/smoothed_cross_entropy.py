@@ -16,8 +16,8 @@ from typing import Optional
 
 import torch
 
-from shruti.nemo.core.classes import Exportable, Loss, NeuralModule, typecheck
-from shruti.nemo.core.neural_types import LabelsType, LogprobsType, LossType, MaskType, NeuralType
+from nemo.core.classes import Exportable, Loss, NeuralModule, typecheck
+from nemo.core.neural_types import LabelsType, LogprobsType, LossType, MaskType, NeuralType
 
 __all__ = ["SmoothedCrossEntropyLoss", "SmoothedNLLLoss"]
 

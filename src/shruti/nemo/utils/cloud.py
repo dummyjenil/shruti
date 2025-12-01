@@ -20,7 +20,7 @@ import wget
 from pytorch_lightning.plugins.environments import LightningEnvironment
 from pytorch_lightning.strategies import DDPStrategy, StrategyRegistry
 
-from shruti.nemo.utils import logging
+from nemo.utils import logging
 
 
 def maybe_download_from_cloud(url, filename, subfolder=None, cache_dir=None, refresh_cache=False) -> str:

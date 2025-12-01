@@ -31,9 +31,9 @@ import multiprocessing
 import torch
 from numba import cuda
 
-from shruti.nemo.collections.asr.parts.numba.rnnt_loss.utils import global_constants, rnnt_helper
-from shruti.nemo.collections.asr.parts.numba.rnnt_loss.utils.cpu_utils import cpu_rnnt
-from shruti.nemo.collections.asr.parts.numba.rnnt_loss.utils.cuda_utils import gpu_rnnt
+from nemo.collections.asr.parts.numba.rnnt_loss.utils import global_constants, rnnt_helper
+from nemo.collections.asr.parts.numba.rnnt_loss.utils.cpu_utils import cpu_rnnt
+from nemo.collections.asr.parts.numba.rnnt_loss.utils.cuda_utils import gpu_rnnt
 
 
 def rnnt_loss_cpu(

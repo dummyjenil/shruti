@@ -17,10 +17,10 @@ from collections import OrderedDict
 import torch
 import torch.nn as nn
 
-from shruti.nemo.core.classes.common import typecheck
-from shruti.nemo.core.classes.exportable import Exportable
-from shruti.nemo.core.classes.module import NeuralModule
-from shruti.nemo.core.neural_types import AcousticEncodedRepresentation, LogprobsType, NeuralType
+from nemo.core.classes.common import typecheck
+from nemo.core.classes.exportable import Exportable
+from nemo.core.classes.module import NeuralModule
+from nemo.core.neural_types import AcousticEncodedRepresentation, LogprobsType, NeuralType
 
 __all__ = ['LSTMDecoder']
 

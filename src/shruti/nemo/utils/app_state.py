@@ -16,7 +16,7 @@ from dataclasses import dataclass
 from threading import Lock
 from typing import Dict, Optional
 
-from shruti.nemo.utils.metaclasses import Singleton
+from nemo.utils.metaclasses import Singleton
 
 
 @dataclass()

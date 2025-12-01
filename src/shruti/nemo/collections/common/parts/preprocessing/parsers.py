@@ -20,7 +20,7 @@ We currently support English.
 import string
 from typing import List, Optional
 
-from shruti.nemo.collections.common.parts.preprocessing import cleaners
+from nemo.collections.common.parts.preprocessing import cleaners
 
 
 class CharParser:

@@ -12,4 +12,4 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from shruti.nemo.collections.common.data.dataset import CodeSwitchedDataset, ConcatDataset, ConcatMapDataset
+from nemo.collections.common.data.dataset import CodeSwitchedDataset, ConcatDataset, ConcatMapDataset

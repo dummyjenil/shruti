@@ -17,8 +17,8 @@ from typing import List, Optional, Tuple
 
 import torch
 
-from shruti.nemo.collections.asr.parts.k2.grad_utils import GradExpNormalize
-from shruti.nemo.collections.asr.parts.k2.utils import (
+from nemo.collections.asr.parts.k2.grad_utils import GradExpNormalize
+from nemo.collections.asr.parts.k2.utils import (
     create_supervision,
     get_arc_weights,
     get_uniform_rnnt_prune_ranges,
@@ -26,7 +26,7 @@ from shruti.nemo.collections.asr.parts.k2.utils import (
     make_non_pad_mask_3d,
     prep_padded_densefsavec,
 )
-from shruti.nemo.core.utils.k2_guard import k2  # import k2 from guard module
+from nemo.core.utils.k2_guard import k2  # import k2 from guard module
 
 
 class CtcK2Mixin(ABC):

@@ -19,17 +19,17 @@ from typing import Dict, List, Optional, Union
 import torch
 from omegaconf import DictConfig, ListConfig, OmegaConf, open_dict
 
-from shruti.nemo.collections.asr.data import audio_to_text_dataset
-from shruti.nemo.collections.asr.data.audio_to_text_dali import AudioToBPEDALIDataset
-from shruti.nemo.collections.asr.data.audio_to_text_lhotse import LhotseSpeechToTextBpeDataset
-from shruti.nemo.collections.asr.losses.ctc import CTCLoss
-from shruti.nemo.collections.asr.metrics.wer import WER
-from shruti.nemo.collections.asr.models.ctc_models import EncDecCTCModel
-from shruti.nemo.collections.asr.parts.mixins import ASRBPEMixin
-from shruti.nemo.collections.asr.parts.submodules.ctc_decoding import CTCBPEDecoding, CTCBPEDecodingConfig
-from shruti.nemo.collections.common.data.lhotse import get_lhotse_dataloader_from_config
-from shruti.nemo.core.classes.common import PretrainedModelInfo
-from shruti.nemo.utils import logging, model_utils
+from nemo.collections.asr.data import audio_to_text_dataset
+from nemo.collections.asr.data.audio_to_text_dali import AudioToBPEDALIDataset
+from nemo.collections.asr.data.audio_to_text_lhotse import LhotseSpeechToTextBpeDataset
+from nemo.collections.asr.losses.ctc import CTCLoss
+from nemo.collections.asr.metrics.wer import WER
+from nemo.collections.asr.models.ctc_models import EncDecCTCModel
+from nemo.collections.asr.parts.mixins import ASRBPEMixin
+from nemo.collections.asr.parts.submodules.ctc_decoding import CTCBPEDecoding, CTCBPEDecodingConfig
+from nemo.collections.common.data.lhotse import get_lhotse_dataloader_from_config
+from nemo.core.classes.common import PretrainedModelInfo
+from nemo.utils import logging, model_utils
 
 __all__ = ['EncDecCTCModelBPE']
 

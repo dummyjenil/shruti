@@ -16,7 +16,7 @@ import re
 from collections import namedtuple
 from tqdm import tqdm
 
-from shruti.nemo.utils import logging
+from nemo.utils import logging
 
 try:
     import pandas as pd

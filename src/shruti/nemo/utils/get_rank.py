@@ -14,7 +14,7 @@
 
 import torch
 
-from shruti.nemo.utils.env_var_parsing import get_envint
+from nemo.utils.env_var_parsing import get_envint
 
 
 def is_global_rank_zero():

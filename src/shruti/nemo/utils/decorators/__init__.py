@@ -13,6 +13,6 @@
 # limitations under the License.
 
 
-from shruti.nemo.utils.decorators.deprecated import deprecated
-from shruti.nemo.utils.decorators.experimental import experimental
-from shruti.nemo.utils.decorators.port_docs import add_port_docs
+from nemo.utils.decorators.deprecated import deprecated
+from nemo.utils.decorators.experimental import experimental
+from nemo.utils.decorators.port_docs import add_port_docs

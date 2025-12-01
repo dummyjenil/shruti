@@ -20,8 +20,8 @@ from lhotse.cut import MixedCut, MonoCut
 from lhotse.dataset import AudioSamples
 from lhotse.dataset.collation import collate_vectors
 
-from shruti.nemo.collections.asr.data.audio_to_text_lhotse import TokenizerWrapper
-from shruti.nemo.collections.common.tokenizers import CanaryTokenizer, TokenizerSpec
+from nemo.collections.asr.data.audio_to_text_lhotse import TokenizerWrapper
+from nemo.collections.common.tokenizers import CanaryTokenizer, TokenizerSpec
 
 
 class PromptedAudioToTextLhotseDataset(torch.utils.data.Dataset):

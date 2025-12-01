@@ -36,9 +36,9 @@ from sklearn.metrics import roc_auc_score
 from sklearn.model_selection import ParameterGrid
 from tqdm import tqdm
 
-from shruti.nemo.collections.asr.models import EncDecClassificationModel, EncDecFrameClassificationModel
-from shruti.nemo.collections.common.parts.preprocessing.manifest import get_full_path
-from shruti.nemo.utils import logging
+from nemo.collections.asr.models import EncDecClassificationModel, EncDecFrameClassificationModel
+from nemo.collections.common.parts.preprocessing.manifest import get_full_path
+from nemo.utils import logging
 
 try:
     from torch.cuda.amp import autocast

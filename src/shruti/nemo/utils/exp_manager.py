@@ -36,18 +36,18 @@ from pytorch_lightning.loggers import MLFlowLogger, NeptuneLogger, TensorBoardLo
 from pytorch_lightning.loops import _TrainingEpochLoop
 from pytorch_lightning.strategies.ddp import DDPStrategy
 
-from shruti.nemo.collections.common.callbacks import EMA
-from shruti.nemo.constants import NEMO_ENV_VARNAME_TESTING, NEMO_ENV_VARNAME_VERSION
-from shruti.nemo.utils import logging, timers
-from shruti.nemo.utils.app_state import AppState
-from shruti.nemo.utils.callbacks import NeMoModelCheckpoint, PreemptionCallback
-from shruti.nemo.utils.env_var_parsing import get_envbool
-from shruti.nemo.utils.exceptions import NeMoBaseException
-from shruti.nemo.utils.get_rank import is_global_rank_zero
-from shruti.nemo.utils.lightning_logger_patch import add_filehandlers_to_pl_logger
-from shruti.nemo.utils.loggers import ClearMLLogger, ClearMLParams, DLLogger, DLLoggerParams, MLFlowParams
-from shruti.nemo.utils.mcore_logger import add_handlers_to_mcore_logger
-from shruti.nemo.utils.model_utils import uninject_model_parallel_rank
+from nemo.collections.common.callbacks import EMA
+from nemo.constants import NEMO_ENV_VARNAME_TESTING, NEMO_ENV_VARNAME_VERSION
+from nemo.utils import logging, timers
+from nemo.utils.app_state import AppState
+from nemo.utils.callbacks import NeMoModelCheckpoint, PreemptionCallback
+from nemo.utils.env_var_parsing import get_envbool
+from nemo.utils.exceptions import NeMoBaseException
+from nemo.utils.get_rank import is_global_rank_zero
+from nemo.utils.lightning_logger_patch import add_filehandlers_to_pl_logger
+from nemo.utils.loggers import ClearMLLogger, ClearMLParams, DLLogger, DLLoggerParams, MLFlowParams
+from nemo.utils.mcore_logger import add_handlers_to_mcore_logger
+from nemo.utils.model_utils import uninject_model_parallel_rank
 
 
 class NotFoundError(NeMoBaseException):

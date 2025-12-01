@@ -27,8 +27,8 @@ except ImportError:
     HAVE_CUDA_PYTHON = False
 from typing import List, Optional
 
-from shruti.nemo.collections.asr.parts.utils import rnnt_utils
-from shruti.nemo.core.utils.cuda_python_utils import (
+from nemo.collections.asr.parts.utils import rnnt_utils
+from nemo.core.utils.cuda_python_utils import (
     assert_drv,
     check_cuda_python_cuda_graphs_conditional_nodes_supported,
     cu_call,

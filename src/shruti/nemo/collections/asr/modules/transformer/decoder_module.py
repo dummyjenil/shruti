@@ -15,8 +15,8 @@
 from abc import ABC
 from typing import Any, Dict, Optional
 
-from shruti.nemo.core.classes import NeuralModule
-from shruti.nemo.core.neural_types import ChannelType, EncodedRepresentation, MaskType, NeuralType
+from nemo.core.classes import NeuralModule
+from nemo.core.neural_types import ChannelType, EncodedRepresentation, MaskType, NeuralType
 
 __all__ = ['DecoderModule']
 

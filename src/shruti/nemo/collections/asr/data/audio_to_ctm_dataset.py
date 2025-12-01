@@ -18,8 +18,8 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, List, Tuple
 
-from shruti.nemo.collections.asr.data.audio_to_text_dataset import ASRPredictionWriter
-from shruti.nemo.utils import logging
+from nemo.collections.asr.data.audio_to_text_dataset import ASRPredictionWriter
+from nemo.utils import logging
 
 
 @dataclass

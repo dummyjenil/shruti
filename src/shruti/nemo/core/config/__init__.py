@@ -12,9 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from shruti.nemo.core.config.base_config import Config
-from shruti.nemo.core.config.hydra_runner import hydra_runner
-from shruti.nemo.core.config.optimizers import (
+from nemo.core.config.base_config import Config
+from nemo.core.config.hydra_runner import hydra_runner
+from nemo.core.config.optimizers import (
     AdadeltaParams,
     AdagradParams,
     AdamaxParams,
@@ -28,9 +28,9 @@ from shruti.nemo.core.config.optimizers import (
     get_optimizer_config,
     register_optimizer_params,
 )
-from shruti.nemo.core.config.pytorch import DataLoaderConfig
-from shruti.nemo.core.config.pytorch_lightning import TrainerConfig
-from shruti.nemo.core.config.schedulers import (
+from nemo.core.config.pytorch import DataLoaderConfig
+from nemo.core.config.pytorch_lightning import TrainerConfig
+from nemo.core.config.schedulers import (
     CosineAnnealingParams,
     InverseSquareRootAnnealingParams,
     NoamAnnealingParams,

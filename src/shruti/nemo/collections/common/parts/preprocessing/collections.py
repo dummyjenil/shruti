@@ -20,8 +20,8 @@ from typing import Any, Dict, Iterable, List, Optional, Union
 
 import pandas as pd
 
-from shruti.nemo.collections.common.parts.preprocessing import manifest, parsers
-from shruti.nemo.utils import logging
+from nemo.collections.common.parts.preprocessing import manifest, parsers
+from nemo.utils import logging
 
 
 class _Collection(collections.UserList):

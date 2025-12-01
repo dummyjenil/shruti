@@ -14,7 +14,7 @@
 
 import logging as _logging
 
-from shruti.nemo.utils import logging as nemo_logger
+from nemo.utils import logging as nemo_logger
 
 
 def add_handlers_to_mcore_logger():

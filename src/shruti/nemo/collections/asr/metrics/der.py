@@ -21,10 +21,10 @@ import torch
 from pyannote.core import Segment, Timeline
 from pyannote.metrics.diarization import DiarizationErrorRate
 
-from shruti.nemo.collections.asr.metrics.wer import word_error_rate
-from shruti.nemo.collections.asr.parts.utils.optimization_utils import linear_sum_assignment
+from nemo.collections.asr.metrics.wer import word_error_rate
+from nemo.collections.asr.parts.utils.optimization_utils import linear_sum_assignment
 
-from shruti.nemo.utils import logging
+from nemo.utils import logging
 
 __all__ = [
     'score_labels',

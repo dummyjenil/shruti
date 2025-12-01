@@ -17,18 +17,18 @@ import torch
 from torch import nn as nn
 from torch.nn import LayerNorm
 
-from shruti.nemo.collections.asr.parts.submodules.batchnorm import FusedBatchNorm1d
-from shruti.nemo.collections.asr.parts.submodules.causal_convs import CausalConv1D
-from shruti.nemo.collections.asr.parts.submodules.multi_head_attention import (
+from nemo.collections.asr.parts.submodules.batchnorm import FusedBatchNorm1d
+from nemo.collections.asr.parts.submodules.causal_convs import CausalConv1D
+from nemo.collections.asr.parts.submodules.multi_head_attention import (
     MultiHeadAttention,
     RelPositionMultiHeadAttention,
     RelPositionMultiHeadAttentionLongformer,
 )
-from shruti.nemo.collections.asr.parts.utils.activations import Swish
-from shruti.nemo.collections.common.parts import adapter_modules
-from shruti.nemo.collections.common.parts.utils import activation_registry
-from shruti.nemo.core.classes.mixins import AccessMixin
-from shruti.nemo.core.classes.mixins.adapter_mixins import AdapterModuleMixin
+from nemo.collections.asr.parts.utils.activations import Swish
+from nemo.collections.common.parts import adapter_modules
+from nemo.collections.common.parts.utils import activation_registry
+from nemo.core.classes.mixins import AccessMixin
+from nemo.core.classes.mixins.adapter_mixins import AdapterModuleMixin
 
 __all__ = ['ConformerConvolution', 'ConformerFeedForward', 'ConformerLayer']
 

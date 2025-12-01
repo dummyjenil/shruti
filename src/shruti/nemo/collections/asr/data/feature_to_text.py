@@ -16,15 +16,15 @@ from typing import Callable, Dict, List, Optional, Tuple, Union
 
 import torch
 
-from shruti.nemo.collections.asr.data.feature_to_label import _audio_feature_collate_fn
-from shruti.nemo.collections.asr.parts.preprocessing.feature_loader import ExternalFeatureLoader
-from shruti.nemo.collections.asr.parts.preprocessing.features import normalize_batch
-from shruti.nemo.collections.asr.parts.utils.audio_utils import ChannelSelectorType
-from shruti.nemo.collections.asr.parts.utils.vad_utils import load_speech_segments_from_rttm
-from shruti.nemo.collections.common import tokenizers
-from shruti.nemo.collections.common.parts.preprocessing import collections, parsers
-from shruti.nemo.core.classes import Dataset
-from shruti.nemo.core.neural_types import AcousticEncodedRepresentation, LabelsType, LengthsType, NeuralType
+from nemo.collections.asr.data.feature_to_label import _audio_feature_collate_fn
+from nemo.collections.asr.parts.preprocessing.feature_loader import ExternalFeatureLoader
+from nemo.collections.asr.parts.preprocessing.features import normalize_batch
+from nemo.collections.asr.parts.utils.audio_utils import ChannelSelectorType
+from nemo.collections.asr.parts.utils.vad_utils import load_speech_segments_from_rttm
+from nemo.collections.common import tokenizers
+from nemo.collections.common.parts.preprocessing import collections, parsers
+from nemo.core.classes import Dataset
+from nemo.core.neural_types import AcousticEncodedRepresentation, LabelsType, LengthsType, NeuralType
 
 
 class ASRFeatureManifestProcessor:
@@ -97,7 +97,7 @@ class _FeatureTextDataset(Dataset):
         frame_unit_time_secs (float): time in seconds for each frame
         sample_rate (int): Sample rate to resample loaded audio to
         int_values (bool): If true, load samples as 32-bit integers. Defauts to False.
-        augmentor (shruti.nemo.collections.asr.parts.perturb.AudioAugmentor): An AudioAugmentor object used to augment loaded audio
+        augmentor (nemo.collections.asr.parts.perturb.AudioAugmentor): An AudioAugmentor object used to augment loaded audio
         max_duration (float): If audio exceeds this length, do not include in dataset
         min_duration (float): If audio is less than this length, do not include in dataset
         max_utts (int): Limit number of utterances
@@ -296,7 +296,7 @@ class FeatureToCharDataset(_FeatureTextDataset):
         frame_unit_time_secs: time in seconds for each frame
         sample_rate (int): Sample rate to resample loaded audio to
         int_values (bool): If true, load samples as 32-bit integers. Defauts to False.
-        augmentor (shruti.nemo.collections.asr.parts.perturb.AudioAugmentor): An AudioAugmentor
+        augmentor (nemo.collections.asr.parts.perturb.AudioAugmentor): An AudioAugmentor
             object used to augment loaded audio
         max_duration: If audio exceeds this length, do not include in dataset
         min_duration: If audio is less than this length, do not include
@@ -397,7 +397,7 @@ class FeatureToBPEDataset(_FeatureTextDataset):
         frame_unit_time_secs: time in seconds for each frame
         sample_rate (int): Sample rate to resample loaded audio to
         int_values (bool): If true, load samples as 32-bit integers. Defauts to False.
-        augmentor (shruti.nemo.collections.asr.parts.perturb.AudioAugmentor): An AudioAugmentor
+        augmentor (nemo.collections.asr.parts.perturb.AudioAugmentor): An AudioAugmentor
             object used to augment loaded audio
         max_duration: If audio exceeds this length, do not include in dataset
         min_duration: If audio is less than this length, do not include

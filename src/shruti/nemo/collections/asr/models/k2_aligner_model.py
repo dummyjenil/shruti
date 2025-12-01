@@ -21,10 +21,10 @@ import torch
 from omegaconf import DictConfig, OmegaConf, open_dict
 from tqdm.auto import tqdm
 
-from shruti.nemo.collections.asr.data.audio_to_ctm_dataset import FrameCtmUnit
-from shruti.nemo.collections.asr.data.audio_to_text_dali import DALIOutputs
-from shruti.nemo.collections.asr.models.asr_model import ASRModel
-from shruti.nemo.utils import logging
+from nemo.collections.asr.data.audio_to_ctm_dataset import FrameCtmUnit
+from nemo.collections.asr.data.audio_to_text_dali import DALIOutputs
+from nemo.collections.asr.models.asr_model import ASRModel
+from nemo.utils import logging
 
 
 class AlignerWrapperModel(ASRModel):
@@ -66,7 +66,7 @@ class AlignerWrapperModel(ASRModel):
         if self.alignment_type == "argmax" and not hasattr(self._model, "use_graph_lm"):
             return
 
-        from shruti.nemo.collections.asr.modules.graph_decoder import ViterbiDecoderWithGraph
+        from nemo.collections.asr.modules.graph_decoder import ViterbiDecoderWithGraph
 
         if self.alignment_type == "forced":
             if hasattr(self._model, "use_graph_lm"):
@@ -111,13 +111,13 @@ class AlignerWrapperModel(ASRModel):
         if self.alignment_type == "argmax":
             return
 
-        from shruti.nemo.collections.asr.modules.graph_decoder import ViterbiDecoderWithGraph
+        from nemo.collections.asr.modules.graph_decoder import ViterbiDecoderWithGraph
 
         if self.alignment_type == "forced":
             self.predictor_window_size = cfg.rnnt_cfg.get("predictor_window_size", 0)
             self.predictor_step_size = cfg.rnnt_cfg.get("predictor_step_size", 0)
 
-            from shruti.nemo.collections.asr.parts.k2.utils import apply_rnnt_prune_ranges, get_uniform_rnnt_prune_ranges
+            from nemo.collections.asr.parts.k2.utils import apply_rnnt_prune_ranges, get_uniform_rnnt_prune_ranges
 
             self.prepare_pruned_outputs = lambda encoder_outputs, encoded_len, decoder_outputs, transcript_len: apply_rnnt_prune_ranges(
                 encoder_outputs,
@@ -131,7 +131,7 @@ class AlignerWrapperModel(ASRModel):
                 ).to(device=encoder_outputs.device),
             )
 
-            from shruti.nemo.collections.asr.parts.k2.classes import GraphModuleConfig
+            from nemo.collections.asr.parts.k2.classes import GraphModuleConfig
 
             self.graph_decoder = ViterbiDecoderWithGraph(
                 num_classes=self.blank_id,
@@ -158,7 +158,7 @@ class AlignerWrapperModel(ASRModel):
 
         This method is not supposed to be called outside of __init__.
         """
-        from shruti.nemo.collections.asr.models.ctc_models import EncDecCTCModel
+        from nemo.collections.asr.models.ctc_models import EncDecCTCModel
 
         if isinstance(self._model, EncDecCTCModel):
             self.model_type = "ctc"
@@ -183,7 +183,7 @@ class AlignerWrapperModel(ASRModel):
             self._init_ctc_alignment_specific(cfg)
             return
 
-        from shruti.nemo.collections.asr.models.rnnt_models import EncDecRNNTModel
+        from nemo.collections.asr.models.rnnt_models import EncDecRNNTModel
 
         if isinstance(self._model, EncDecRNNTModel):
             self.model_type = "rnnt"

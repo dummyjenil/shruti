@@ -21,9 +21,9 @@ import torch
 import torch.nn.functional as F
 from torch import nn
 
-from shruti.nemo.collections.asr.parts.submodules.jasper import jasper_activations
-from shruti.nemo.core import NeuralModule
-from shruti.nemo.core.neural_types import EncodedRepresentation, LossType, NeuralType
+from nemo.collections.asr.parts.submodules.jasper import jasper_activations
+from nemo.core import NeuralModule
+from nemo.core.neural_types import EncodedRepresentation, LossType, NeuralType
 
 
 class GumbelVectorQuantizer(NeuralModule):

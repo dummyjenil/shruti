@@ -13,8 +13,8 @@
 # limitations under the License.
 
 
-from shruti.nemo.utils.app_state import AppState
-from shruti.nemo.utils.cast_utils import (
+from nemo.utils.app_state import AppState
+from nemo.utils.cast_utils import (
     CastToFloat,
     CastToFloatAll,
     avoid_bfloat16_autocast_context,
@@ -22,13 +22,13 @@ from shruti.nemo.utils.cast_utils import (
     cast_all,
     cast_tensor,
 )
-from shruti.nemo.utils.dtype import str_to_dtype
-from shruti.nemo.utils.nemo_logging import Logger as _Logger
-from shruti.nemo.utils.nemo_logging import LogMode as logging_mode
+from nemo.utils.dtype import str_to_dtype
+from nemo.utils.nemo_logging import Logger as _Logger
+from nemo.utils.nemo_logging import LogMode as logging_mode
 
 logging = _Logger()
 try:
-    from shruti.nemo.utils.lightning_logger_patch import add_memory_handlers_to_pl_logger
+    from nemo.utils.lightning_logger_patch import add_memory_handlers_to_pl_logger
 
     add_memory_handlers_to_pl_logger()
 except ModuleNotFoundError:

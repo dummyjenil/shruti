@@ -19,7 +19,7 @@ from numpy import inf
 from torch import nn as nn
 from torch.nn import functional as F
 
-from shruti.nemo.collections.asr.parts.submodules.jasper import get_same_padding, init_weights
+from nemo.collections.asr.parts.submodules.jasper import get_same_padding, init_weights
 
 
 class StatsPoolLayer(nn.Module):

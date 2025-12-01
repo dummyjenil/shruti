@@ -20,17 +20,17 @@ import torch.nn as nn
 from omegaconf import DictConfig
 from pytorch_lightning import Trainer
 
-from shruti.nemo.collections.asr.data import audio_to_text_dataset
-from shruti.nemo.collections.asr.data.audio_to_text_dali import DALIOutputs
-from shruti.nemo.collections.asr.data.audio_to_text_lhotse import LhotseSpeechToTextBpeDataset
-from shruti.nemo.collections.asr.parts.mixins import ASRModuleMixin
-from shruti.nemo.collections.asr.parts.preprocessing.perturb import process_augmentations
-from shruti.nemo.collections.common.data.lhotse import get_lhotse_dataloader_from_config
-from shruti.nemo.collections.common.parts.preprocessing.parsers import make_parser
-from shruti.nemo.core.classes import ModelPT
-from shruti.nemo.core.classes.common import PretrainedModelInfo, typecheck
-from shruti.nemo.core.classes.mixins import AccessMixin, set_access_cfg
-from shruti.nemo.core.neural_types import (
+from nemo.collections.asr.data import audio_to_text_dataset
+from nemo.collections.asr.data.audio_to_text_dali import DALIOutputs
+from nemo.collections.asr.data.audio_to_text_lhotse import LhotseSpeechToTextBpeDataset
+from nemo.collections.asr.parts.mixins import ASRModuleMixin
+from nemo.collections.asr.parts.preprocessing.perturb import process_augmentations
+from nemo.collections.common.data.lhotse import get_lhotse_dataloader_from_config
+from nemo.collections.common.parts.preprocessing.parsers import make_parser
+from nemo.core.classes import ModelPT
+from nemo.core.classes.common import PretrainedModelInfo, typecheck
+from nemo.core.classes.mixins import AccessMixin, set_access_cfg
+from nemo.core.neural_types import (
     AcousticEncodedRepresentation,
     AudioSignal,
     LabelsType,
@@ -38,7 +38,7 @@ from shruti.nemo.core.neural_types import (
     NeuralType,
     SpectrogramType,
 )
-from shruti.nemo.utils import logging
+from nemo.utils import logging
 
 __all__ = ['SpeechEncDecSelfSupervisedModel']
 

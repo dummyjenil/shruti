@@ -12,22 +12,22 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from shruti.nemo.collections.asr.modules.transformer.bridge_encoders import BridgeEncoder
-from shruti.nemo.collections.asr.modules.transformer.perceiver_encoders import PerceiverEncoder
-from shruti.nemo.collections.asr.modules.transformer.transformer_bottleneck import (
+from nemo.collections.asr.modules.transformer.bridge_encoders import BridgeEncoder
+from nemo.collections.asr.modules.transformer.perceiver_encoders import PerceiverEncoder
+from nemo.collections.asr.modules.transformer.transformer_bottleneck import (
     NeMoTransformerBottleneckConfig,
     NeMoTransformerBottleneckDecoderConfig,
     NeMoTransformerBottleneckEncoderConfig,
     TransformerBottleneckEncoderNM,
 )
-from shruti.nemo.collections.asr.modules.transformer.transformer_decoders import TransformerDecoder
-from shruti.nemo.collections.asr.modules.transformer.transformer_encoders import TransformerEncoder
-from shruti.nemo.collections.asr.modules.transformer.transformer_generators import (
+from nemo.collections.asr.modules.transformer.transformer_decoders import TransformerDecoder
+from nemo.collections.asr.modules.transformer.transformer_encoders import TransformerEncoder
+from nemo.collections.asr.modules.transformer.transformer_generators import (
     BeamSearchSequenceGenerator,
     BeamSearchSequenceGeneratorWithLanguageModel,
     EnsembleBeamSearchSequenceGenerator,
     GreedySequenceGenerator,
     TopKSequenceGenerator,
 )
-from shruti.nemo.collections.asr.modules.transformer.transformer_modules import AttentionBridge, TransformerEmbedding
-from shruti.nemo.collections.asr.modules.transformer.transformer_utils import get_nemo_transformer
+from nemo.collections.asr.modules.transformer.transformer_modules import AttentionBridge, TransformerEmbedding
+from nemo.collections.asr.modules.transformer.transformer_utils import get_nemo_transformer

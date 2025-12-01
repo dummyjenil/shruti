@@ -12,13 +12,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from shruti.nemo.collections.asr.modules.audio_modules import (
+from nemo.collections.asr.modules.audio_modules import (
     MaskBasedBeamformer,
     MaskEstimatorFlexChannels,
     MaskEstimatorRNN,
     MaskReferenceChannel,
 )
-from shruti.nemo.collections.asr.modules.audio_preprocessing import (
+from nemo.collections.asr.modules.audio_preprocessing import (
     AudioToMelSpectrogramPreprocessor,
     AudioToMFCCPreprocessor,
     AudioToSpectrogram,
@@ -27,9 +27,9 @@ from shruti.nemo.collections.asr.modules.audio_preprocessing import (
     SpectrogramAugmentation,
     SpectrogramToAudio,
 )
-from shruti.nemo.collections.asr.modules.beam_search_decoder import BeamSearchDecoderWithLM
-from shruti.nemo.collections.asr.modules.conformer_encoder import ConformerEncoder, ConformerEncoderAdapter
-from shruti.nemo.collections.asr.modules.conv_asr import (
+from nemo.collections.asr.modules.beam_search_decoder import BeamSearchDecoderWithLM
+from nemo.collections.asr.modules.conformer_encoder import ConformerEncoder, ConformerEncoderAdapter
+from nemo.collections.asr.modules.conv_asr import (
     ConvASRDecoder,
     ConvASRDecoderClassification,
     ConvASRDecoderReconstruction,
@@ -39,16 +39,16 @@ from shruti.nemo.collections.asr.modules.conv_asr import (
     ParallelConvASREncoder,
     SpeakerDecoder,
 )
-from shruti.nemo.collections.asr.modules.graph_decoder import ViterbiDecoderWithGraph
-from shruti.nemo.collections.asr.modules.hybrid_autoregressive_transducer import HATJoint
-from shruti.nemo.collections.asr.modules.lstm_decoder import LSTMDecoder
-from shruti.nemo.collections.asr.modules.msdd_diarizer import MSDD_module
-from shruti.nemo.collections.asr.modules.rnn_encoder import RNNEncoder
-from shruti.nemo.collections.asr.modules.rnnt import (
+from nemo.collections.asr.modules.graph_decoder import ViterbiDecoderWithGraph
+from nemo.collections.asr.modules.hybrid_autoregressive_transducer import HATJoint
+from nemo.collections.asr.modules.lstm_decoder import LSTMDecoder
+from nemo.collections.asr.modules.msdd_diarizer import MSDD_module
+from nemo.collections.asr.modules.rnn_encoder import RNNEncoder
+from nemo.collections.asr.modules.rnnt import (
     RNNTDecoder,
     RNNTDecoderJointSSL,
     RNNTJoint,
     SampledRNNTJoint,
     StatelessTransducerDecoder,
 )
-from shruti.nemo.collections.asr.modules.squeezeformer_encoder import SqueezeformerEncoder, SqueezeformerEncoderAdapter
+from nemo.collections.asr.modules.squeezeformer_encoder import SqueezeformerEncoder, SqueezeformerEncoderAdapter

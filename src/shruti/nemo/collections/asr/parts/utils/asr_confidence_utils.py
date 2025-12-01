@@ -21,8 +21,8 @@ from typing import List, Optional
 import torch
 from omegaconf import DictConfig, OmegaConf
 
-from shruti.nemo.collections.asr.parts.utils.rnnt_utils import Hypothesis
-from shruti.nemo.utils import logging
+from nemo.collections.asr.parts.utils.rnnt_utils import Hypothesis
+from nemo.utils import logging
 
 
 class ConfidenceMethodConstants:

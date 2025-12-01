@@ -33,7 +33,7 @@ from hydra.plugins.launcher import Launcher
 from hydra.types import HydraContext, TaskFunction
 from omegaconf import DictConfig, OmegaConf, open_dict
 
-from shruti.nemo.utils import logging
+from nemo.utils import logging
 
 
 # monkey-patch hydra func

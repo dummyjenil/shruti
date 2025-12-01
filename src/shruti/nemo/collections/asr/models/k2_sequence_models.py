@@ -17,13 +17,13 @@ from typing import List, Optional
 from omegaconf import DictConfig
 from pytorch_lightning import Trainer
 
-from shruti.nemo.collections.asr.models.ctc_bpe_models import EncDecCTCModelBPE
-from shruti.nemo.collections.asr.models.ctc_models import EncDecCTCModel
-from shruti.nemo.collections.asr.models.rnnt_bpe_models import EncDecRNNTBPEModel
-from shruti.nemo.collections.asr.models.rnnt_models import EncDecRNNTModel
-from shruti.nemo.collections.asr.parts.k2.classes import ASRK2Mixin
-from shruti.nemo.core.classes.common import PretrainedModelInfo, typecheck
-from shruti.nemo.utils import logging
+from nemo.collections.asr.models.ctc_bpe_models import EncDecCTCModelBPE
+from nemo.collections.asr.models.ctc_models import EncDecCTCModel
+from nemo.collections.asr.models.rnnt_bpe_models import EncDecRNNTBPEModel
+from nemo.collections.asr.models.rnnt_models import EncDecRNNTModel
+from nemo.collections.asr.parts.k2.classes import ASRK2Mixin
+from nemo.core.classes.common import PretrainedModelInfo, typecheck
+from nemo.utils import logging
 
 
 class EncDecK2SeqModel(EncDecCTCModel, ASRK2Mixin):

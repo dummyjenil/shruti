@@ -19,11 +19,11 @@ from typing import List, Optional, Tuple, Union
 
 import torch
 
-from shruti.nemo.collections.asr.parts.utils import rnnt_utils
-from shruti.nemo.collections.common.tokenizers.tokenizer_spec import TokenizerSpec
-from shruti.nemo.core.classes import Typing, typecheck
-from shruti.nemo.core.neural_types import HypothesisType, LengthsType, LogprobsType, NeuralType
-from shruti.nemo.utils import logging
+from nemo.collections.asr.parts.utils import rnnt_utils
+from nemo.collections.common.tokenizers.tokenizer_spec import TokenizerSpec
+from nemo.core.classes import Typing, typecheck
+from nemo.core.neural_types import HypothesisType, LengthsType, LogprobsType, NeuralType
+from nemo.utils import logging
 
 DEFAULT_TOKEN_OFFSET = 100
 
@@ -324,7 +324,7 @@ class BeamCTCInfer(AbstractBeamCTCInfer):
                 vocab = self.vocab
 
             # Must import at runtime to avoid circular dependency due to module level import.
-            from shruti.nemo.collections.asr.modules.beam_search_decoder import BeamSearchDecoderWithLM
+            from nemo.collections.asr.modules.beam_search_decoder import BeamSearchDecoderWithLM
 
             self.default_beam_scorer = BeamSearchDecoderWithLM(
                 vocab=vocab,
@@ -508,7 +508,7 @@ class BeamCTCInfer(AbstractBeamCTCInfer):
             #    vocab = self.vocab
 
             # Must import at runtime to avoid circular dependency due to module level import.
-            from shruti.nemo.collections.asr.modules.flashlight_decoder import FlashLightKenLMBeamSearchDecoder
+            from nemo.collections.asr.modules.flashlight_decoder import FlashLightKenLMBeamSearchDecoder
 
             self.flashlight_beam_scorer = FlashLightKenLMBeamSearchDecoder(
                 lm_path=self.kenlm_path,

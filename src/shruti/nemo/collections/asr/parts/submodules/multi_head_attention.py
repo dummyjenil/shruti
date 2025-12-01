@@ -40,7 +40,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-from shruti.nemo.utils import avoid_float16_autocast_context
+from nemo.utils import avoid_float16_autocast_context
 
 __all__ = [
     'RelPositionMultiHeadAttention',

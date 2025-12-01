@@ -3,5 +3,6 @@
 ```python
 from shruti import ShrutiASR
 asr = ShrutiASR()
-srt,low_res_audio_ogg_bytes = asr("path_of_audio")
+srt = asr("path_of_audio")
+print("".join(srt.splitlines()[2::4]).replace("▁"," ").replace("<line>","\n"))
 ```

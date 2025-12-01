@@ -12,9 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import shruti.nemo.collections.common.callbacks
-from shruti.nemo.collections.common import data, losses, parts, tokenizers
-from shruti.nemo import __version__
+import nemo.collections.common.callbacks
+from nemo.collections.common import data, losses, parts, tokenizers
+from nemo import __version__
 
 # Set collection version equal to NeMo version.
 __version = __version__

@@ -23,13 +23,13 @@ from omegaconf import OmegaConf
 from omegaconf.omegaconf import DictConfig, open_dict
 from pytorch_lightning.trainer.trainer import Trainer
 
-from shruti.nemo.collections.nlp.models.language_modeling.megatron_gpt_model import MegatronGPTModel
-from shruti.nemo.collections.nlp.parts.nlp_overrides import NLPDDPStrategy, NLPSaveRestoreConnector
-from shruti.nemo.collections.nlp.parts.utils_funcs import torch_dtype_from_precision
-from shruti.nemo.utils import logging
-from shruti.nemo.utils.distributed import temporary_directory
-from shruti.nemo.utils.get_rank import is_global_rank_zero
-from shruti.nemo.utils.model_utils import load_config, save_artifacts
+from nemo.collections.nlp.models.language_modeling.megatron_gpt_model import MegatronGPTModel
+from nemo.collections.nlp.parts.nlp_overrides import NLPDDPStrategy, NLPSaveRestoreConnector
+from nemo.collections.nlp.parts.utils_funcs import torch_dtype_from_precision
+from nemo.utils import logging
+from nemo.utils.distributed import temporary_directory
+from nemo.utils.get_rank import is_global_rank_zero
+from nemo.utils.model_utils import load_config, save_artifacts
 
 try:
     import ammo.torch.quantization as atq

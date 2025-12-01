@@ -18,8 +18,8 @@ import torch
 import torch.nn as nn
 from torch.nn import LayerNorm
 
-from shruti.nemo.collections.asr.parts.submodules.causal_convs import CausalConv1D, CausalConv2D
-from shruti.nemo.utils import logging
+from nemo.collections.asr.parts.submodules.causal_convs import CausalConv1D, CausalConv2D
+from nemo.utils import logging
 
 
 class StackingSubsampling(torch.nn.Module):

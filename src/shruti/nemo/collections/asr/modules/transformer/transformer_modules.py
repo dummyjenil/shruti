@@ -21,8 +21,8 @@ import torch
 from torch import nn
 from torch.nn.functional import gelu
 
-from shruti.nemo.collections.common.parts import form_attention_mask
-from shruti.nemo.utils import logging
+from nemo.collections.common.parts import form_attention_mask
+from nemo.utils import logging
 
 __all__ = ["TransformerEmbedding", "AttentionBridge"]
 

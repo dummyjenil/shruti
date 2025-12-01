@@ -17,7 +17,7 @@ import re
 import inflect
 from text_unidecode import unidecode
 
-from shruti.nemo.utils import logging
+from nemo.utils import logging
 
 NUM_CHECK = re.compile(r'([$]?)(^|\s)(\S*[0-9]\S*)(?=(\s|$)((\S*)(\s|$))?)')
 

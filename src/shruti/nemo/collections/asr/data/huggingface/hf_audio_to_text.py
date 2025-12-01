@@ -20,15 +20,15 @@ from datasets import concatenate_datasets
 from datasets.distributed import split_dataset_by_node
 from omegaconf import DictConfig, ListConfig, open_dict
 
-from shruti.nemo.collections.asr.data.audio_to_text import _speech_collate_fn
-from shruti.nemo.collections.asr.parts.preprocessing.perturb import AudioAugmentor
-from shruti.nemo.collections.asr.parts.preprocessing.segment import AudioSegment
-from shruti.nemo.collections.asr.parts.utils.audio_utils import ChannelSelectorType
-from shruti.nemo.collections.common import tokenizers
-from shruti.nemo.collections.common.parts.preprocessing import parsers
-from shruti.nemo.core.classes import Dataset, IterableDataset
-from shruti.nemo.core.neural_types import AudioSignal, LabelsType, LengthsType, NeuralType
-from shruti.nemo.utils import logging
+from nemo.collections.asr.data.audio_to_text import _speech_collate_fn
+from nemo.collections.asr.parts.preprocessing.perturb import AudioAugmentor
+from nemo.collections.asr.parts.preprocessing.segment import AudioSegment
+from nemo.collections.asr.parts.utils.audio_utils import ChannelSelectorType
+from nemo.collections.common import tokenizers
+from nemo.collections.common.parts.preprocessing import parsers
+from nemo.core.classes import Dataset, IterableDataset
+from nemo.core.neural_types import AudioSignal, LabelsType, LengthsType, NeuralType
+from nemo.utils import logging
 
 
 class HFTextProcessor:

@@ -25,15 +25,15 @@ import webdataset as wds
 from torch.utils.data import ChainDataset
 from tqdm import tqdm
 
-from shruti.nemo.collections.asr.parts.preprocessing.features import WaveformFeaturizer
-from shruti.nemo.collections.asr.parts.preprocessing.segment import available_formats as valid_sf_formats
-from shruti.nemo.collections.asr.parts.utils.audio_utils import ChannelSelectorType
-from shruti.nemo.collections.common import tokenizers
-from shruti.nemo.collections.common.parts.preprocessing import collections, parsers
-from shruti.nemo.core.classes import Dataset, IterableDataset
-from shruti.nemo.core.neural_types import *
-from shruti.nemo.utils import logging
-from shruti.nemo.utils.data_utils import (
+from nemo.collections.asr.parts.preprocessing.features import WaveformFeaturizer
+from nemo.collections.asr.parts.preprocessing.segment import available_formats as valid_sf_formats
+from nemo.collections.asr.parts.utils.audio_utils import ChannelSelectorType
+from nemo.collections.common import tokenizers
+from nemo.collections.common.parts.preprocessing import collections, parsers
+from nemo.core.classes import Dataset, IterableDataset
+from nemo.core.neural_types import *
+from nemo.utils import logging
+from nemo.utils.data_utils import (
     DataStoreObject,
     datastore_object_get,
     datastore_path_to_webdataset_url,
@@ -41,8 +41,8 @@ from shruti.nemo.utils.data_utils import (
     is_datastore_path,
     is_tarred_path,
 )
-from shruti.nemo.utils.distributed import webdataset_split_by_workers
-from shruti.nemo.utils.get_rank import is_global_rank_zero
+from nemo.utils.distributed import webdataset_split_by_workers
+from nemo.utils.get_rank import is_global_rank_zero
 
 __all__ = [
     'AudioToCharDataset',
@@ -412,7 +412,7 @@ class _AudioTextDataset(Dataset):
         parser: Str for a language specific preprocessor or a callable.
         sample_rate (int): Sample rate to resample loaded audio to
         int_values (bool): If true, load samples as 32-bit integers. Defauts to False.
-        augmentor (shruti.nemo.collections.asr.parts.perturb.AudioAugmentor): An AudioAugmentor object used to augment loaded
+        augmentor (nemo.collections.asr.parts.perturb.AudioAugmentor): An AudioAugmentor object used to augment loaded
             audio
         max_duration: If audio exceeds this length, do not include in dataset
         min_duration: If audio is less than this length, do not include in dataset
@@ -534,7 +534,7 @@ class AudioToCharDataset(_AudioTextDataset):
         labels: String containing all the possible characters to map to
         sample_rate (int): Sample rate to resample loaded audio to
         int_values (bool): If true, load samples as 32-bit integers. Defauts to False.
-        augmentor (shruti.nemo.collections.asr.parts.perturb.AudioAugmentor): An AudioAugmentor
+        augmentor (nemo.collections.asr.parts.perturb.AudioAugmentor): An AudioAugmentor
             object used to augment loaded audio
         max_duration: If audio exceeds this length, do not include in dataset
         min_duration: If audio is less than this length, do not include
@@ -634,7 +634,7 @@ class AudioToBPEDataset(_AudioTextDataset):
             all available tokenizers.
         sample_rate (int): Sample rate to resample loaded audio to
         int_values (bool): If true, load samples as 32-bit integers. Defauts to False.
-        augmentor (shruti.nemo.collections.asr.parts.perturb.AudioAugmentor): An AudioAugmentor
+        augmentor (nemo.collections.asr.parts.perturb.AudioAugmentor): An AudioAugmentor
             object used to augment loaded audio
         max_duration: If audio exceeds this length, do not include in dataset
         min_duration: If audio is less than this length, do not include
@@ -768,7 +768,7 @@ class _TarredAudioToTextDataset(IterableDataset):
         parser (callable): A callable which is used to pre-process the text output.
         sample_rate (int): Sample rate to resample loaded audio to
         int_values (bool): If true, load samples as 32-bit integers. Defauts to False.
-        augmentor (shruti.nemo.collections.asr.parts.perturb.AudioAugmentor): An AudioAugmentor
+        augmentor (nemo.collections.asr.parts.perturb.AudioAugmentor): An AudioAugmentor
             object used to augment loaded audio
         shuffle_n (int): How many samples to look ahead and load to be shuffled.
             See WebDataset documentation for more details.
@@ -1066,7 +1066,7 @@ class TarredAudioToCharDataset(_TarredAudioToTextDataset):
             symbol is automatically added later for models using ctc.
         sample_rate (int): Sample rate to resample loaded audio to
         int_values (bool): If true, load samples as 32-bit integers. Defauts to False.
-        augmentor (shruti.nemo.collections.asr.parts.perturb.AudioAugmentor): An AudioAugmentor
+        augmentor (nemo.collections.asr.parts.perturb.AudioAugmentor): An AudioAugmentor
             object used to augment loaded audio
         shuffle_n (int): How many samples to look ahead and load to be shuffled.
             See WebDataset documentation for more details.
@@ -1209,7 +1209,7 @@ class TarredAudioToBPEDataset(_TarredAudioToTextDataset):
             symbol is automatically added later for models using ctc.
         sample_rate (int): Sample rate to resample loaded audio to
         int_values (bool): If true, load samples as 32-bit integers. Defauts to False.
-        augmentor (shruti.nemo.collections.asr.parts.perturb.AudioAugmentor): An AudioAugmentor
+        augmentor (nemo.collections.asr.parts.perturb.AudioAugmentor): An AudioAugmentor
             object used to augment loaded audio
         shuffle_n (int): How many samples to look ahead and load to be shuffled.
             See WebDataset documentation for more details.

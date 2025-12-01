@@ -33,10 +33,10 @@ from scipy.signal.windows import cosine, hamming, hann
 from scipy.spatial.transform import Rotation
 from tqdm import tqdm
 
-from shruti.nemo.collections.asr.parts.preprocessing.perturb import process_augmentations
-from shruti.nemo.collections.asr.parts.preprocessing.segment import AudioSegment
-from shruti.nemo.collections.asr.parts.utils.audio_utils import db2mag, generate_approximate_noise_field, mag2db, pow2db, rms
-from shruti.nemo.collections.asr.parts.utils.data_simulation_utils import (
+from nemo.collections.asr.parts.preprocessing.perturb import process_augmentations
+from nemo.collections.asr.parts.preprocessing.segment import AudioSegment
+from nemo.collections.asr.parts.utils.audio_utils import db2mag, generate_approximate_noise_field, mag2db, pow2db, rms
+from nemo.collections.asr.parts.utils.data_simulation_utils import (
     DataAnnotator,
     SpeechSampler,
     build_speaker_samples_map,
@@ -53,9 +53,9 @@ from shruti.nemo.collections.asr.parts.utils.data_simulation_utils import (
     read_audio_from_buffer,
     read_noise_manifest,
 )
-from shruti.nemo.collections.asr.parts.utils.manifest_utils import read_manifest, write_manifest
-from shruti.nemo.collections.asr.parts.utils.speaker_utils import get_overlap_range, is_overlap, merge_float_intervals
-from shruti.nemo.utils import logging
+from nemo.collections.asr.parts.utils.manifest_utils import read_manifest, write_manifest
+from nemo.collections.asr.parts.utils.speaker_utils import get_overlap_range, is_overlap, merge_float_intervals
+from nemo.utils import logging
 
 try:
     import pyroomacoustics as pra

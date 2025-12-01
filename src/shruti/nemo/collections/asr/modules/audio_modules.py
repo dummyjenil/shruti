@@ -17,21 +17,21 @@ from typing import Dict, List, Optional, Tuple
 import numpy as np
 import torch
 
-from shruti.nemo.collections.asr.losses.audio_losses import temporal_mean
-from shruti.nemo.collections.asr.modules.conformer_encoder import ConformerEncoder
-from shruti.nemo.collections.asr.parts.preprocessing.features import make_seq_mask_like
-from shruti.nemo.collections.asr.parts.submodules.multichannel_modules import (
+from nemo.collections.asr.losses.audio_losses import temporal_mean
+from nemo.collections.asr.modules.conformer_encoder import ConformerEncoder
+from nemo.collections.asr.parts.preprocessing.features import make_seq_mask_like
+from nemo.collections.asr.parts.submodules.multichannel_modules import (
     ChannelAttentionPool,
     ChannelAveragePool,
     ParametricMultichannelWienerFilter,
     TransformAttendConcatenate,
     TransformAverageConcatenate,
 )
-from shruti.nemo.collections.asr.parts.utils.audio_utils import db2mag, wrap_to_pi
-from shruti.nemo.core.classes import NeuralModule, typecheck
-from shruti.nemo.core.neural_types import FloatType, LengthsType, NeuralType, SpectrogramType
-from shruti.nemo.utils import logging
-from shruti.nemo.utils.decorators import experimental
+from nemo.collections.asr.parts.utils.audio_utils import db2mag, wrap_to_pi
+from nemo.core.classes import NeuralModule, typecheck
+from nemo.core.neural_types import FloatType, LengthsType, NeuralType, SpectrogramType
+from nemo.utils import logging
+from nemo.utils.decorators import experimental
 
 __all__ = [
     'MaskEstimatorRNN',

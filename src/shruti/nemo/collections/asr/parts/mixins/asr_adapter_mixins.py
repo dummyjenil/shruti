@@ -16,8 +16,8 @@ from typing import List, Optional, Tuple
 
 from omegaconf import DictConfig, open_dict
 
-from shruti.nemo.core.classes.mixins.adapter_mixins import AdapterModelPTMixin, AdapterModuleMixin
-from shruti.nemo.utils import logging, logging_mode
+from nemo.core.classes.mixins.adapter_mixins import AdapterModelPTMixin, AdapterModuleMixin
+from nemo.utils import logging, logging_mode
 
 
 class ASRAdapterModelMixin(AdapterModelPTMixin):

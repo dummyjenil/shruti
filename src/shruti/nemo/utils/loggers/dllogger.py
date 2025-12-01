@@ -23,7 +23,7 @@ from pytorch_lightning.loggers import Logger
 from pytorch_lightning.utilities import rank_zero_only
 from pytorch_lightning.utilities.parsing import AttributeDict
 
-from shruti.nemo.utils import logging
+from nemo.utils import logging
 
 try:
     import dllogger

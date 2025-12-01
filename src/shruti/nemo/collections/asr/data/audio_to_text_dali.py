@@ -22,9 +22,9 @@ from typing import Callable, List, Optional, Union
 import torch
 from omegaconf import DictConfig
 
-from shruti.nemo.collections.asr.data.audio_to_text import ASRManifestProcessor, expand_sharded_filepaths
-from shruti.nemo.collections.common.parts.preprocessing import parsers
-from shruti.nemo.utils import logging, model_utils
+from nemo.collections.asr.data.audio_to_text import ASRManifestProcessor, expand_sharded_filepaths
+from nemo.collections.common.parts.preprocessing import parsers
+from nemo.utils import logging, model_utils
 
 try:
     import nvidia.dali as dali

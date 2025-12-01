@@ -17,7 +17,7 @@ import inspect
 from dataclasses import is_dataclass
 from typing import Dict, List, Optional
 
-from shruti.nemo.utils import logging
+from nemo.utils import logging
 
 # TODO @blisc: Perhaps refactor instead of import guarding
 _HAS_HYDRA = True

@@ -32,21 +32,21 @@ from pytorch_lightning import LightningModule, Trainer
 from pytorch_lightning.utilities import rank_zero_only
 from tqdm import tqdm
 
-from shruti.nemo.collections.asr.data.audio_to_diar_label import AudioToSpeechMSDDInferDataset, AudioToSpeechMSDDTrainDataset
-from shruti.nemo.collections.asr.metrics.der import score_labels
-from shruti.nemo.collections.asr.metrics.multi_binary_acc import MultiBinaryAccuracy
-from shruti.nemo.collections.asr.models import ClusteringDiarizer
-from shruti.nemo.collections.asr.models.asr_model import ExportableEncDecModel
-from shruti.nemo.collections.asr.models.clustering_diarizer import (
+from nemo.collections.asr.data.audio_to_diar_label import AudioToSpeechMSDDInferDataset, AudioToSpeechMSDDTrainDataset
+from nemo.collections.asr.metrics.der import score_labels
+from nemo.collections.asr.metrics.multi_binary_acc import MultiBinaryAccuracy
+from nemo.collections.asr.models import ClusteringDiarizer
+from nemo.collections.asr.models.asr_model import ExportableEncDecModel
+from nemo.collections.asr.models.clustering_diarizer import (
     _MODEL_CONFIG_YAML,
     _SPEAKER_MODEL,
     _VAD_MODEL,
     get_available_model_names,
 )
-from shruti.nemo.collections.asr.models.configs.diarizer_config import NeuralDiarizerInferenceConfig
-from shruti.nemo.collections.asr.models.label_models import EncDecSpeakerLabelModel
-from shruti.nemo.collections.asr.parts.preprocessing.features import WaveformFeaturizer
-from shruti.nemo.collections.asr.parts.utils.speaker_utils import (
+from nemo.collections.asr.models.configs.diarizer_config import NeuralDiarizerInferenceConfig
+from nemo.collections.asr.models.label_models import EncDecSpeakerLabelModel
+from nemo.collections.asr.parts.preprocessing.features import WaveformFeaturizer
+from nemo.collections.asr.parts.utils.speaker_utils import (
     audio_rttm_map,
     get_embs_and_timestamps,
     get_id_tup_dict,
@@ -57,11 +57,11 @@ from shruti.nemo.collections.asr.parts.utils.speaker_utils import (
     parse_scale_configs,
     rttm_to_labels,
 )
-from shruti.nemo.core.classes import ModelPT
-from shruti.nemo.core.classes.common import PretrainedModelInfo, typecheck
-from shruti.nemo.core.neural_types import AudioSignal, LengthsType, NeuralType
-from shruti.nemo.core.neural_types.elements import ProbsType
-from shruti.nemo.utils import logging
+from nemo.core.classes import ModelPT
+from nemo.core.classes.common import PretrainedModelInfo, typecheck
+from nemo.core.neural_types import AudioSignal, LengthsType, NeuralType
+from nemo.core.neural_types.elements import ProbsType
+from nemo.utils import logging
 
 try:
     from torch.cuda.amp import autocast

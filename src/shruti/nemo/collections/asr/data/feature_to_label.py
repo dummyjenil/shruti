@@ -15,11 +15,11 @@ from typing import Dict, List, Optional
 
 import torch
 
-from shruti.nemo.collections.asr.parts.preprocessing.feature_loader import ExternalFeatureLoader
-from shruti.nemo.collections.common.parts.preprocessing import collections
-from shruti.nemo.core.classes import Dataset
-from shruti.nemo.core.neural_types import AcousticEncodedRepresentation, LabelsType, LengthsType, NeuralType
-from shruti.nemo.utils import logging
+from nemo.collections.asr.parts.preprocessing.feature_loader import ExternalFeatureLoader
+from nemo.collections.common.parts.preprocessing import collections
+from nemo.core.classes import Dataset
+from nemo.core.neural_types import AcousticEncodedRepresentation, LabelsType, LengthsType, NeuralType
+from nemo.utils import logging
 
 
 def _feature_collate_fn(batch):

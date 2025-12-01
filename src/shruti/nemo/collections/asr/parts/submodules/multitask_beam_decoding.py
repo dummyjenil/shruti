@@ -18,12 +18,12 @@ from typing import List, Optional
 
 import torch
 
-from shruti.nemo.collections.asr.modules.transformer import BeamSearchSequenceGenerator
-from shruti.nemo.collections.asr.parts.utils.rnnt_utils import Hypothesis, NBestHypotheses
-from shruti.nemo.collections.common.tokenizers.tokenizer_spec import TokenizerSpec
-from shruti.nemo.core import Typing, typecheck
-from shruti.nemo.core.neural_types import ChannelType, HypothesisType, LabelsType, MaskType, NeuralType
-from shruti.nemo.utils import logging
+from nemo.collections.asr.modules.transformer import BeamSearchSequenceGenerator
+from nemo.collections.asr.parts.utils.rnnt_utils import Hypothesis, NBestHypotheses
+from nemo.collections.common.tokenizers.tokenizer_spec import TokenizerSpec
+from nemo.core import Typing, typecheck
+from nemo.core.neural_types import ChannelType, HypothesisType, LabelsType, MaskType, NeuralType
+from nemo.utils import logging
 
 
 def pack_hypotheses(

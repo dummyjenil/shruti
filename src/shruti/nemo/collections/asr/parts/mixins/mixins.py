@@ -21,13 +21,13 @@ from typing import List
 import torch
 from omegaconf import DictConfig, OmegaConf, open_dict
 
-import shruti.nemo.collections.asr.models as asr_models
-from shruti.nemo.collections.asr.parts.mixins.asr_adapter_mixins import ASRAdapterModelMixin
-from shruti.nemo.collections.asr.parts.mixins.streaming import StreamingEncoder
-from shruti.nemo.collections.asr.parts.utils import asr_module_utils
-from shruti.nemo.collections.asr.parts.utils.rnnt_utils import Hypothesis
-from shruti.nemo.collections.common import tokenizers
-from shruti.nemo.utils import app_state, logging
+import nemo.collections.asr.models as asr_models
+from nemo.collections.asr.parts.mixins.asr_adapter_mixins import ASRAdapterModelMixin
+from nemo.collections.asr.parts.mixins.streaming import StreamingEncoder
+from nemo.collections.asr.parts.utils import asr_module_utils
+from nemo.collections.asr.parts.utils.rnnt_utils import Hypothesis
+from nemo.collections.common import tokenizers
+from nemo.utils import app_state, logging
 
 
 class ASRBPEMixin(ABC):
@@ -836,7 +836,7 @@ class ASRModuleMixin(ASRAdapterModelMixin):
         Returns:
             a new batch streaming buffer
         """
-        from shruti.nemo.collections.asr.parts.utils.streaming_utils import CacheAwareStreamingAudioBuffer
+        from nemo.collections.asr.parts.utils.streaming_utils import CacheAwareStreamingAudioBuffer
 
         streaming_buffer = CacheAwareStreamingAudioBuffer(model=self, online_normalization=online_normalization)
         for sample_idx, sample in enumerate(paths2audio_files):

@@ -14,8 +14,8 @@
 
 from torch import Tensor, nn
 
-from shruti.nemo.core.classes import Serialization, Typing, typecheck
-from shruti.nemo.core.neural_types import LabelsType, LossType, NeuralType, RegressionValuesType
+from nemo.core.classes import Serialization, Typing, typecheck
+from nemo.core.neural_types import LabelsType, LossType, NeuralType, RegressionValuesType
 
 __all__ = ['MSELoss']
 

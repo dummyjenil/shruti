@@ -15,10 +15,10 @@ import copy
 
 from omegaconf import DictConfig
 
-from shruti.nemo.collections.asr.data import audio_to_label
-from shruti.nemo.collections.asr.data.audio_to_text_dataset import convert_to_config_list, get_chain_dataset
-from shruti.nemo.collections.asr.parts.preprocessing.perturb import process_augmentations
-from shruti.nemo.collections.common.data.dataset import ConcatDataset
+from nemo.collections.asr.data import audio_to_label
+from nemo.collections.asr.data.audio_to_text_dataset import convert_to_config_list, get_chain_dataset
+from nemo.collections.asr.parts.preprocessing.perturb import process_augmentations
+from nemo.collections.common.data.dataset import ConcatDataset
 
 
 def get_classification_label_dataset(featurizer, config: dict) -> audio_to_label.AudioToClassificationLabelDataset:

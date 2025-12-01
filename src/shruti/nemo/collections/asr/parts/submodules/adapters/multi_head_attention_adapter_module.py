@@ -19,9 +19,9 @@ from typing import Any, Optional
 import torch
 from torch import nn as nn
 
-from shruti.nemo.collections.asr.parts.submodules import multi_head_attention as mha
-from shruti.nemo.collections.common.parts import adapter_modules
-from shruti.nemo.core.classes.mixins import adapter_mixin_strategies
+from nemo.collections.asr.parts.submodules import multi_head_attention as mha
+from nemo.collections.common.parts import adapter_modules
+from nemo.core.classes.mixins import adapter_mixin_strategies
 
 
 class MHAResidualAddAdapterStrategy(adapter_mixin_strategies.ResidualAddAdapterStrategy):

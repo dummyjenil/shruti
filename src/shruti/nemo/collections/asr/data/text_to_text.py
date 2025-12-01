@@ -29,10 +29,10 @@ import torch.utils.data
 from torch.nn.utils.rnn import pad_sequence
 from tqdm.auto import tqdm
 
-from shruti.nemo.collections.asr.data.audio_to_text import _speech_collate_fn
-from shruti.nemo.collections.common.tokenizers import TokenizerSpec
-from shruti.nemo.core.classes import Dataset, IterableDataset
-from shruti.nemo.utils import logging
+from nemo.collections.asr.data.audio_to_text import _speech_collate_fn
+from nemo.collections.common.tokenizers import TokenizerSpec
+from nemo.core.classes import Dataset, IterableDataset
+from nemo.utils import logging
 
 try:
     from nemo_text_processing.text_normalization.normalize import Normalizer

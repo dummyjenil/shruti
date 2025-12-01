@@ -18,10 +18,10 @@ import torch
 from torchmetrics.functional.text.bleu import _bleu_score_compute
 from torchmetrics.text import SacreBLEUScore
 
-from shruti.nemo.collections.asr.parts.submodules.ctc_decoding import AbstractCTCDecoding
-from shruti.nemo.collections.asr.parts.submodules.multitask_decoding import AbstractMultiTaskDecoding
-from shruti.nemo.collections.asr.parts.submodules.rnnt_decoding import AbstractRNNTDecoding
-from shruti.nemo.utils import logging
+from nemo.collections.asr.parts.submodules.ctc_decoding import AbstractCTCDecoding
+from nemo.collections.asr.parts.submodules.multitask_decoding import AbstractMultiTaskDecoding
+from nemo.collections.asr.parts.submodules.rnnt_decoding import AbstractRNNTDecoding
+from nemo.utils import logging
 
 __all__ = ['BLEU']
 

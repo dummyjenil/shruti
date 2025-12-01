@@ -19,8 +19,8 @@ from typing import Optional
 
 import pandas as pd
 
-from shruti.nemo.collections.common.tokenizers.char_tokenizer import TokenizerSpec
-from shruti.nemo.utils import logging
+from nemo.collections.common.tokenizers.char_tokenizer import TokenizerSpec
+from nemo.utils import logging
 
 __all__ = ['RegExTokenizer']
 

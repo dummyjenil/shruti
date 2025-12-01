@@ -23,8 +23,8 @@ import texterrors
 import torch
 from omegaconf import open_dict
 
-from shruti.nemo.collections.asr.models import ASRModel, EncDecRNNTModel
-from shruti.nemo.collections.asr.parts.utils.confidence_metrics import (
+from nemo.collections.asr.models import ASRModel, EncDecRNNTModel
+from nemo.collections.asr.parts.utils.confidence_metrics import (
     auc_nt,
     auc_pr,
     auc_roc,
@@ -37,7 +37,7 @@ from shruti.nemo.collections.asr.parts.utils.confidence_metrics import (
     save_pr_curve,
     save_roc_curve,
 )
-from shruti.nemo.collections.asr.parts.utils.rnnt_utils import Hypothesis
+from nemo.collections.asr.parts.utils.rnnt_utils import Hypothesis
 
 
 def get_correct_marks(r: Union[List[int], List[str]], h: Union[List[int], List[str]]) -> List[bool]:

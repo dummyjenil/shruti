@@ -18,9 +18,9 @@ import shutil
 import subprocess
 from typing import Tuple
 
-from shruti.nemo import __version__
-from shruti.nemo import constants
-from shruti.nemo.utils import logging
+from nemo import __version__
+from nemo import constants
+from nemo.utils import logging
 
 
 def resolve_cache_dir() -> pathlib.Path:

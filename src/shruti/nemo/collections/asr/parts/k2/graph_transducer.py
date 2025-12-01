@@ -18,8 +18,8 @@ from typing import ContextManager
 import torch
 import torch.nn.functional as F
 
-from shruti.nemo.core.classes.loss import Loss
-from shruti.nemo.core.utils.k2_guard import k2
+from nemo.core.classes.loss import Loss
+from nemo.core.utils.k2_guard import k2
 
 
 def force_float32_context() -> ContextManager:

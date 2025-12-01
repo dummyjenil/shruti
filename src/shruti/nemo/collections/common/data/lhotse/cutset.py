@@ -20,7 +20,7 @@ from typing import Sequence, Tuple
 
 from lhotse import CutSet
 
-from shruti.nemo.collections.common.data.lhotse.nemo_adapters import LazyNeMoIterator, LazyNeMoTarredIterator
+from nemo.collections.common.data.lhotse.nemo_adapters import LazyNeMoIterator, LazyNeMoTarredIterator
 
 
 def read_cutset_from_config(config) -> Tuple[CutSet, bool]:

@@ -12,10 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from shruti.nemo.collections.common.losses.aggregator import AggregatorLoss
-from shruti.nemo.collections.common.losses.bce_logits_loss import BCEWithLogitsLoss
-from shruti.nemo.collections.common.losses.cross_entropy import CrossEntropyLoss, NLLLoss
-from shruti.nemo.collections.common.losses.mse_loss import MSELoss
-from shruti.nemo.collections.common.losses.multi_similarity_loss import MultiSimilarityLoss
-from shruti.nemo.collections.common.losses.smoothed_cross_entropy import SmoothedCrossEntropyLoss, SmoothedNLLLoss
-from shruti.nemo.collections.common.losses.spanning_loss import SpanningLoss
+from nemo.collections.common.losses.aggregator import AggregatorLoss
+from nemo.collections.common.losses.bce_logits_loss import BCEWithLogitsLoss
+from nemo.collections.common.losses.cross_entropy import CrossEntropyLoss, NLLLoss
+from nemo.collections.common.losses.mse_loss import MSELoss
+from nemo.collections.common.losses.multi_similarity_loss import MultiSimilarityLoss
+from nemo.collections.common.losses.smoothed_cross_entropy import SmoothedCrossEntropyLoss, SmoothedNLLLoss
+from nemo.collections.common.losses.spanning_loss import SpanningLoss

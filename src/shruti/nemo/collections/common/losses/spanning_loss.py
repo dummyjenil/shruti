@@ -14,8 +14,8 @@
 
 from torch import nn
 
-from shruti.nemo.core.classes import Loss, typecheck
-from shruti.nemo.core.neural_types import ChannelType, LogitsType, LossType, NeuralType
+from nemo.core.classes import Loss, typecheck
+from nemo.core.neural_types import ChannelType, LogitsType, LossType, NeuralType
 
 __all__ = ['SpanningLoss']
 

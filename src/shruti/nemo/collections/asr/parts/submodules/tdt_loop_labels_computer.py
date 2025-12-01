@@ -18,8 +18,8 @@ import torch
 import torch.nn.functional as F
 from omegaconf import DictConfig, ListConfig
 
-from shruti.nemo.collections.asr.parts.utils import rnnt_utils
-from shruti.nemo.collections.asr.parts.utils.asr_confidence_utils import ConfidenceMethodMixin
+from nemo.collections.asr.parts.utils import rnnt_utils
+from nemo.collections.asr.parts.utils.asr_confidence_utils import ConfidenceMethodMixin
 
 
 class GreedyBatchedTDTLoopLabelsComputer(ConfidenceMethodMixin):

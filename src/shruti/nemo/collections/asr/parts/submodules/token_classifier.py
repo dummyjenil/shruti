@@ -17,10 +17,10 @@ from typing import Dict, Optional
 
 from torch import nn as nn
 
-from shruti.nemo.collections.asr.parts.submodules.classifier import Classifier
-from shruti.nemo.collections.common.parts import MultiLayerPerceptron
-from shruti.nemo.core.classes import typecheck
-from shruti.nemo.core.neural_types import LogitsType, LogprobsType, NeuralType
+from nemo.collections.asr.parts.submodules.classifier import Classifier
+from nemo.collections.common.parts import MultiLayerPerceptron
+from nemo.core.classes import typecheck
+from nemo.core.neural_types import LogitsType, LogprobsType, NeuralType
 
 __all__ = ['BertPretrainingTokenClassifier', 'TokenClassifier']
 

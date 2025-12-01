@@ -12,8 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from shruti.nemo.collections.asr import data, losses, models, modules
-from shruti.nemo import __version__
+from nemo.collections.asr import data, losses, models, modules
+from nemo import __version__
 
 # Set collection version equal to NeMo version.
 __version = __version__

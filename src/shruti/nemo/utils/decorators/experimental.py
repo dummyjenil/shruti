@@ -18,7 +18,7 @@ __all__ = ['experimental']
 
 import wrapt
 
-from shruti.nemo.utils import logging
+from nemo.utils import logging
 
 
 @wrapt.decorator

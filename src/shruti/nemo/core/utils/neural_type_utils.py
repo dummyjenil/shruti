@@ -15,7 +15,7 @@
 from collections import defaultdict
 from typing import Dict, List, Optional
 
-from shruti.nemo.core.neural_types import AxisKind, NeuralType
+from nemo.core.neural_types import AxisKind, NeuralType
 
 
 def get_io_names(types: Optional[Dict[str, NeuralType]], disabled_names: List[str]) -> List[str]:

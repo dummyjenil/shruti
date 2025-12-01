@@ -12,9 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from shruti.nemo.core.optim.adafactor import Adafactor
-from shruti.nemo.core.optim.adan import Adan
-from shruti.nemo.core.optim.lr_scheduler import (
+from nemo.core.optim.adafactor import Adafactor
+from nemo.core.optim.adan import Adan
+from nemo.core.optim.lr_scheduler import (
     CosineAnnealing,
     InverseSquareRootAnnealing,
     NoamAnnealing,
@@ -28,6 +28,6 @@ from shruti.nemo.core.optim.lr_scheduler import (
     WarmupPolicy,
     prepare_lr_scheduler,
 )
-from shruti.nemo.core.optim.novograd import Novograd
-from shruti.nemo.core.optim.optimizer_with_main_params import MainParamsOptimizerWrapper
-from shruti.nemo.core.optim.optimizers import get_optimizer, parse_optimizer_args, register_optimizer
+from nemo.core.optim.novograd import Novograd
+from nemo.core.optim.optimizer_with_main_params import MainParamsOptimizerWrapper
+from nemo.core.optim.optimizers import get_optimizer, parse_optimizer_args, register_optimizer

@@ -16,9 +16,9 @@ from typing import Any, Optional
 
 import torch
 
-from shruti.nemo.core.neural_types.axes import AxisKind, AxisType
-from shruti.nemo.core.neural_types.comparison import NeuralTypeComparisonResult
-from shruti.nemo.core.neural_types.elements import ElementType, VoidType
+from nemo.core.neural_types.axes import AxisKind, AxisType
+from nemo.core.neural_types.comparison import NeuralTypeComparisonResult
+from nemo.core.neural_types.elements import ElementType, VoidType
 
 __all__ = [
     'NeuralType',

@@ -42,8 +42,8 @@ import librosa
 import numpy as np
 import soundfile as sf
 
-from shruti.nemo.collections.asr.parts.utils.audio_utils import select_channels
-from shruti.nemo.utils import logging
+from nemo.collections.asr.parts.utils.audio_utils import select_channels
+from nemo.utils import logging
 
 # TODO @blisc: Perhaps refactor instead of import guarding
 HAVE_PYDUB = True

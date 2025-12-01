@@ -21,18 +21,18 @@ import torch
 from omegaconf import DictConfig, open_dict
 from pytorch_lightning import Trainer
 
-from shruti.nemo.collections.asr.models.asr_model import ASRModel
-from shruti.nemo.collections.asr.models.hybrid_rnnt_ctc_models import EncDecHybridRNNTCTCModel
-from shruti.nemo.collections.asr.parts.utils.asr_confidence_utils import (
+from nemo.collections.asr.models.asr_model import ASRModel
+from nemo.collections.asr.models.hybrid_rnnt_ctc_models import EncDecHybridRNNTCTCModel
+from nemo.collections.asr.parts.utils.asr_confidence_utils import (
     ConfidenceConfig,
     ConfidenceMethodConfig,
     get_confidence_aggregation_bank,
     get_confidence_measure_bank,
 )
-from shruti.nemo.collections.asr.parts.utils.audio_utils import ChannelSelectorType
-from shruti.nemo.collections.asr.parts.utils.rnnt_utils import Hypothesis
-from shruti.nemo.core.classes import ModelPT
-from shruti.nemo.utils import model_utils
+from nemo.collections.asr.parts.utils.audio_utils import ChannelSelectorType
+from nemo.collections.asr.parts.utils.rnnt_utils import Hypothesis
+from nemo.core.classes import ModelPT
+from nemo.utils import model_utils
 
 
 # frozen is required to allow hashing of this class and use it

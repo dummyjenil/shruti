@@ -18,11 +18,11 @@ from typing import List, Optional
 import numpy as np
 import torch
 
-from shruti.nemo.collections.asr.parts.preprocessing.features import make_seq_mask_like
-from shruti.nemo.collections.asr.parts.utils.audio_utils import toeplitz
-from shruti.nemo.core.classes import Loss, Typing, typecheck
-from shruti.nemo.core.neural_types import AudioSignal, LengthsType, LossType, MaskType, NeuralType
-from shruti.nemo.utils import logging
+from nemo.collections.asr.parts.preprocessing.features import make_seq_mask_like
+from nemo.collections.asr.parts.utils.audio_utils import toeplitz
+from nemo.core.classes import Loss, Typing, typecheck
+from nemo.core.neural_types import AudioSignal, LengthsType, LossType, MaskType, NeuralType
+from nemo.utils import logging
 
 __all__ = ['SDRLoss']
 

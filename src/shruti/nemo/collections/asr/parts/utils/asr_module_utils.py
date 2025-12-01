@@ -16,9 +16,9 @@ from typing import Optional
 
 from omegaconf import DictConfig, open_dict
 
-from shruti.nemo.collections.asr.modules import conv_asr
-from shruti.nemo.collections.asr.parts.submodules import jasper
-from shruti.nemo.utils import logging
+from nemo.collections.asr.modules import conv_asr
+from nemo.collections.asr.parts.submodules import jasper
+from nemo.utils import logging
 
 
 def change_conv_asr_se_context_window(model: 'ASRModel', context_window: int, update_config: bool = True):

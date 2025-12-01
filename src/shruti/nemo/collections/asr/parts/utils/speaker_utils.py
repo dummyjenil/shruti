@@ -27,10 +27,10 @@ import torch
 from pyannote.core import Annotation, Segment
 from tqdm import tqdm
 
-from shruti.nemo.collections.asr.data.audio_to_label import repeat_signal
-from shruti.nemo.collections.asr.parts.utils.longform_clustering import LongFormSpeakerClustering
-from shruti.nemo.collections.asr.parts.utils.offline_clustering import SpeakerClustering, get_argmin_mat, split_input_data
-from shruti.nemo.utils import logging
+from nemo.collections.asr.data.audio_to_label import repeat_signal
+from nemo.collections.asr.parts.utils.longform_clustering import LongFormSpeakerClustering
+from nemo.collections.asr.parts.utils.offline_clustering import SpeakerClustering, get_argmin_mat, split_input_data
+from nemo.utils import logging
 
 """
 This file contains all the utility functions required for speaker embeddings part in diarization scripts

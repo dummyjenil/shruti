@@ -15,17 +15,17 @@
 from dataclasses import dataclass
 from typing import Dict, Optional
 
-from shruti.nemo.collections.asr.modules.transformer.bridge_encoders import BridgeEncoder
-from shruti.nemo.collections.asr.modules.transformer.perceiver_encoders import PerceiverEncoder
-from shruti.nemo.collections.asr.modules.transformer.reduction_encoders import PoolingEncoder
-from shruti.nemo.collections.asr.modules.transformer.transformer import (
+from nemo.collections.asr.modules.transformer.bridge_encoders import BridgeEncoder
+from nemo.collections.asr.modules.transformer.perceiver_encoders import PerceiverEncoder
+from nemo.collections.asr.modules.transformer.reduction_encoders import PoolingEncoder
+from nemo.collections.asr.modules.transformer.transformer import (
     NeMoTransformerConfig,
     TransformerDecoderNM,
     TransformerEncoderNM,
 )
-from shruti.nemo.core.classes.common import typecheck
-from shruti.nemo.core.neural_types import MaskType, NeuralType
-from shruti.nemo.core.neural_types.elements import BoolType
+from nemo.core.classes.common import typecheck
+from nemo.core.neural_types import MaskType, NeuralType
+from nemo.core.neural_types.elements import BoolType
 
 __all__ = [
     "NeMoTransformerBottleneckConfig",

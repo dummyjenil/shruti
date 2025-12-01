@@ -23,24 +23,24 @@ import torch
 from omegaconf import DictConfig, OmegaConf, open_dict
 from tqdm.auto import tqdm
 
-from shruti.nemo.collections.asr.data import audio_to_text_dataset
-from shruti.nemo.collections.asr.data.audio_to_text_dali import DALIOutputs
-from shruti.nemo.collections.asr.metrics.wer import WER
-from shruti.nemo.collections.asr.models.asr_model import ASRModel, ExportableEncDecModel
-from shruti.nemo.collections.asr.parts.mixins import (
+from nemo.collections.asr.data import audio_to_text_dataset
+from nemo.collections.asr.data.audio_to_text_dali import DALIOutputs
+from nemo.collections.asr.metrics.wer import WER
+from nemo.collections.asr.models.asr_model import ASRModel, ExportableEncDecModel
+from nemo.collections.asr.parts.mixins import (
     ASRBPEMixin,
     ASRModuleMixin,
     ASRTranscriptionMixin,
     TranscribeConfig,
     TranscriptionReturnType,
 )
-from shruti.nemo.collections.asr.parts.preprocessing.perturb import process_augmentations
-from shruti.nemo.collections.asr.parts.submodules.ctc_decoding import CTCBPEDecoding, CTCBPEDecodingConfig
-from shruti.nemo.collections.asr.parts.utils.slu_utils import SequenceGenerator, SequenceGeneratorConfig, get_seq_mask
-from shruti.nemo.collections.common.losses import SmoothedNLLLoss
-from shruti.nemo.core.classes.common import PretrainedModelInfo, typecheck
-from shruti.nemo.core.neural_types import AudioSignal, LabelsType, LengthsType, LogprobsType, NeuralType, SpectrogramType
-from shruti.nemo.utils import logging, model_utils
+from nemo.collections.asr.parts.preprocessing.perturb import process_augmentations
+from nemo.collections.asr.parts.submodules.ctc_decoding import CTCBPEDecoding, CTCBPEDecodingConfig
+from nemo.collections.asr.parts.utils.slu_utils import SequenceGenerator, SequenceGeneratorConfig, get_seq_mask
+from nemo.collections.common.losses import SmoothedNLLLoss
+from nemo.core.classes.common import PretrainedModelInfo, typecheck
+from nemo.core.neural_types import AudioSignal, LabelsType, LengthsType, LogprobsType, NeuralType, SpectrogramType
+from nemo.utils import logging, model_utils
 
 __all__ = ["SLUIntentSlotBPEModel"]
 

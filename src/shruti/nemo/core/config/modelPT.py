@@ -17,9 +17,9 @@ from typing import Any, Dict, Optional
 
 from omegaconf import MISSING
 
-from shruti.nemo.core import config
-from shruti.nemo.core.classes.dataset import DatasetConfig
-from shruti.nemo.utils import exp_manager
+from nemo.core import config
+from nemo.core.classes.dataset import DatasetConfig
+from nemo.utils import exp_manager
 
 
 @dataclass

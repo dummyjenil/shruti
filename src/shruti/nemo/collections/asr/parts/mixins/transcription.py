@@ -27,10 +27,10 @@ from omegaconf import DictConfig
 from torch.utils.data import DataLoader, Dataset
 from tqdm import tqdm
 
-from shruti.nemo.collections.asr.parts.preprocessing.perturb import process_augmentations
-from shruti.nemo.collections.asr.parts.preprocessing.segment import AudioSegment
-from shruti.nemo.collections.asr.parts.utils.audio_utils import ChannelSelectorType
-from shruti.nemo.utils import logging, logging_mode
+from nemo.collections.asr.parts.preprocessing.perturb import process_augmentations
+from nemo.collections.asr.parts.preprocessing.segment import AudioSegment
+from nemo.collections.asr.parts.utils.audio_utils import ChannelSelectorType
+from nemo.utils import logging, logging_mode
 
 TranscriptionReturnType = Union[List[str], List['Hypothesis'], Tuple[List[str]], Tuple[List['Hypothesis']]]
 GenericTranscriptionType = Union[List[Any], List[List[Any]], Tuple[Any], Tuple[List[Any]], Dict[str, List[Any]]]
@@ -656,7 +656,7 @@ class TranscriptionMixin(ABC):
         dataset = TranscriptionTensorDataset(config)
 
         # Import collate function here to avoid circular imports
-        from shruti.nemo.collections.asr.data.audio_to_text import _speech_collate_fn
+        from nemo.collections.asr.data.audio_to_text import _speech_collate_fn
 
         # Calculate pad id
         if hasattr(self, 'tokenizer') and hasattr(self.tokenizer, 'pad_id'):

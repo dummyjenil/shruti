@@ -19,11 +19,11 @@ from typing import Dict, Optional
 
 import torch
 
-from shruti.nemo.collections.asr.parts.utils.offline_clustering import get_argmin_mat
-from shruti.nemo.collections.asr.parts.utils.speaker_utils import convert_rttm_line, prepare_split_data
-from shruti.nemo.collections.common.parts.preprocessing.collections import DiarizationSpeechLabel
-from shruti.nemo.core.classes import Dataset
-from shruti.nemo.core.neural_types import AudioSignal, EncodedRepresentation, LengthsType, NeuralType, ProbsType
+from nemo.collections.asr.parts.utils.offline_clustering import get_argmin_mat
+from nemo.collections.asr.parts.utils.speaker_utils import convert_rttm_line, prepare_split_data
+from nemo.collections.common.parts.preprocessing.collections import DiarizationSpeechLabel
+from nemo.core.classes import Dataset
+from nemo.core.neural_types import AudioSignal, EncodedRepresentation, LengthsType, NeuralType, ProbsType
 
 
 def get_scale_mapping_list(uniq_timestamps):

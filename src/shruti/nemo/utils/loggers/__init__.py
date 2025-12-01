@@ -12,6 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from shruti.nemo.utils.loggers.clearml_logger import ClearMLLogger, ClearMLParams
-from shruti.nemo.utils.loggers.dllogger import DLLogger, DLLoggerParams
-from shruti.nemo.utils.loggers.mlflow_logger import MLFlowParams
+from nemo.utils.loggers.clearml_logger import ClearMLLogger, ClearMLParams
+from nemo.utils.loggers.dllogger import DLLogger, DLLoggerParams
+from nemo.utils.loggers.mlflow_logger import MLFlowParams

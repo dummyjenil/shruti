@@ -26,11 +26,11 @@ from omegaconf import DictConfig, OmegaConf
 from pytorch_lightning.utilities import rank_zero_only
 from tqdm import tqdm
 
-from shruti.nemo.collections.asr.metrics.der import score_labels
-from shruti.nemo.collections.asr.models.classification_models import EncDecClassificationModel
-from shruti.nemo.collections.asr.models.label_models import EncDecSpeakerLabelModel
-from shruti.nemo.collections.asr.parts.mixins.mixins import DiarizationMixin
-from shruti.nemo.collections.asr.parts.utils.speaker_utils import (
+from nemo.collections.asr.metrics.der import score_labels
+from nemo.collections.asr.models.classification_models import EncDecClassificationModel
+from nemo.collections.asr.models.label_models import EncDecSpeakerLabelModel
+from nemo.collections.asr.parts.mixins.mixins import DiarizationMixin
+from nemo.collections.asr.parts.utils.speaker_utils import (
     audio_rttm_map,
     get_embs_and_timestamps,
     get_uniqname_from_filepath,
@@ -40,14 +40,14 @@ from shruti.nemo.collections.asr.parts.utils.speaker_utils import (
     validate_vad_manifest,
     write_rttm2manifest,
 )
-from shruti.nemo.collections.asr.parts.utils.vad_utils import (
+from nemo.collections.asr.parts.utils.vad_utils import (
     generate_overlap_vad_seq,
     generate_vad_segment_table,
     get_vad_stream_status,
     prepare_manifest,
 )
-from shruti.nemo.core.classes import Model
-from shruti.nemo.utils import logging, model_utils
+from nemo.core.classes import Model
+from nemo.utils import logging, model_utils
 
 try:
     from torch.cuda.amp import autocast

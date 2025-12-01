@@ -16,7 +16,7 @@ from typing import Optional
 
 from torch.utils import data
 
-from shruti.nemo.core.classes import Serialization, Typing, typecheck
+from nemo.core.classes import Serialization, Typing, typecheck
 
 __all__ = ['Dataset', 'IterableDataset']
 

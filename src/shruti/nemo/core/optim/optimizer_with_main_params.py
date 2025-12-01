@@ -16,7 +16,7 @@ from contextlib import contextmanager
 
 import torch
 
-from shruti.nemo.utils import logging
+from nemo.utils import logging
 
 try:
     import amp_C

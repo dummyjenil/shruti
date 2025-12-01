@@ -23,11 +23,11 @@ import torch.distributed
 import torch.nn as nn
 from omegaconf import DictConfig, ListConfig, open_dict
 
-from shruti.nemo.collections.asr.models.configs import CacheAwareStreamingConfig
-from shruti.nemo.collections.asr.parts.mixins.streaming import StreamingEncoder
-from shruti.nemo.collections.asr.parts.submodules.causal_convs import CausalConv1D
-from shruti.nemo.collections.asr.parts.submodules.conformer_modules import ConformerLayer
-from shruti.nemo.collections.asr.parts.submodules.multi_head_attention import (
+from nemo.collections.asr.models.configs import CacheAwareStreamingConfig
+from nemo.collections.asr.parts.mixins.streaming import StreamingEncoder
+from nemo.collections.asr.parts.submodules.causal_convs import CausalConv1D
+from nemo.collections.asr.parts.submodules.conformer_modules import ConformerLayer
+from nemo.collections.asr.parts.submodules.multi_head_attention import (
     LocalAttRelPositionalEncoding,
     MultiHeadAttention,
     PositionalEncoding,
@@ -35,19 +35,19 @@ from shruti.nemo.collections.asr.parts.submodules.multi_head_attention import (
     RelPositionMultiHeadAttention,
     RelPositionMultiHeadAttentionLongformer,
 )
-from shruti.nemo.collections.asr.parts.submodules.subsampling import (
+from nemo.collections.asr.parts.submodules.subsampling import (
     ConvSubsampling,
     StackingSubsampling,
     SubsamplingReductionModule,
 )
-from shruti.nemo.collections.asr.parts.utils import adapter_utils
-from shruti.nemo.collections.asr.parts.utils.regularization_utils import compute_stochastic_depth_drop_probs
-from shruti.nemo.core.classes.common import typecheck
-from shruti.nemo.core.classes.exportable import Exportable
-from shruti.nemo.core.classes.mixins import AccessMixin, adapter_mixins
-from shruti.nemo.core.classes.module import NeuralModule
-from shruti.nemo.core.neural_types import AcousticEncodedRepresentation, ChannelType, LengthsType, NeuralType, SpectrogramType
-from shruti.nemo.utils import logging
+from nemo.collections.asr.parts.utils import adapter_utils
+from nemo.collections.asr.parts.utils.regularization_utils import compute_stochastic_depth_drop_probs
+from nemo.core.classes.common import typecheck
+from nemo.core.classes.exportable import Exportable
+from nemo.core.classes.mixins import AccessMixin, adapter_mixins
+from nemo.core.classes.module import NeuralModule
+from nemo.core.neural_types import AcousticEncodedRepresentation, ChannelType, LengthsType, NeuralType, SpectrogramType
+from nemo.utils import logging
 
 __all__ = ['ConformerEncoder']
 

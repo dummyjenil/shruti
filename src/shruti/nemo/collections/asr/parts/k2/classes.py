@@ -19,7 +19,7 @@ from typing import Any, Optional, Tuple
 import torch
 from omegaconf import DictConfig
 
-from shruti.nemo.utils import logging
+from nemo.utils import logging
 
 
 @dataclass
@@ -108,7 +108,7 @@ class ASRK2Mixin(ABC):
             ) not in ["forced_blank", "identity",]
             self._wer.remove_consecutive = remove_consecutive
 
-        from shruti.nemo.collections.asr.losses.lattice_losses import LatticeLoss
+        from nemo.collections.asr.losses.lattice_losses import LatticeLoss
 
         self.loss = LatticeLoss(
             num_classes=num_classes,
@@ -131,7 +131,7 @@ class ASRK2Mixin(ABC):
             transcribe_training = False
         self.transcribe_training = transcribe_training
         if self.use_graph_lm:
-            from shruti.nemo.collections.asr.modules.graph_decoder import ViterbiDecoderWithGraph
+            from nemo.collections.asr.modules.graph_decoder import ViterbiDecoderWithGraph
 
             self.transcribe_decoder = ViterbiDecoderWithGraph(
                 num_classes=num_classes,

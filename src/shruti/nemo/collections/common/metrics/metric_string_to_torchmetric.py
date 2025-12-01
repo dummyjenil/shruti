@@ -15,7 +15,7 @@
 from torchmetrics import Accuracy, AveragePrecision, F1Score, MatthewsCorrCoef, PearsonCorrCoef, SpearmanCorrCoef
 from torchmetrics.text.rouge import ROUGEScore
 
-from shruti.nemo.collections.common.metrics.classification_accuracy import ExactStringMatchMetric, TokenF1Score
+from nemo.collections.common.metrics.classification_accuracy import ExactStringMatchMetric, TokenF1Score
 
 __all__ = ['MetricStringToTorchMetric']
 

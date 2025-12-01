@@ -17,8 +17,8 @@ from typing import List
 
 import numpy
 
-from shruti.nemo.collections.common.tokenizers.column_coder import ColumnCodes
-from shruti.nemo.collections.common.tokenizers.tokenizer_spec import TokenizerSpec
+from nemo.collections.common.tokenizers.column_coder import ColumnCodes
+from nemo.collections.common.tokenizers.tokenizer_spec import TokenizerSpec
 
 __all__ = ['TabularTokenizer']
 

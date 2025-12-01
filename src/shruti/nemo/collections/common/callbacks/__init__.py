@@ -12,5 +12,5 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from shruti.nemo.collections.common.callbacks.callbacks import LogEpochTimeCallback
-from shruti.nemo.collections.common.callbacks.ema import EMA
+from nemo.collections.common.callbacks.callbacks import LogEpochTimeCallback
+from nemo.collections.common.callbacks.ema import EMA

@@ -34,7 +34,7 @@ import numba
 import torch
 from numba import cuda
 
-from shruti.nemo.collections.asr.parts.numba.rnnt_loss.utils import global_constants
+from nemo.collections.asr.parts.numba.rnnt_loss.utils import global_constants
 
 threshold = global_constants.THRESHOLD
 

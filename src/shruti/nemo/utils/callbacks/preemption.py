@@ -18,7 +18,7 @@ import sys
 import torch
 from pytorch_lightning.callbacks import Callback
 
-from shruti.nemo.utils import logging
+from nemo.utils import logging
 
 
 class PreemptionCallback(Callback):

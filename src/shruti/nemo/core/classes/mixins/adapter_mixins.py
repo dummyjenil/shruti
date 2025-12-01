@@ -22,7 +22,7 @@ import torch.nn as nn
 from hydra.utils import instantiate
 from omegaconf import DictConfig, OmegaConf, open_dict
 
-from shruti.nemo.utils import logging, model_utils
+from nemo.utils import logging, model_utils
 
 # Global registry of all adapters
 ADAPTER_REGISTRY = {}

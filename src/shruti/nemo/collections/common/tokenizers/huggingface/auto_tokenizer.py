@@ -17,8 +17,8 @@ from typing import Optional
 
 from transformers import AutoTokenizer as AUTOTOKENIZER
 
-from shruti.nemo.collections.common.tokenizers.tokenizer_spec import TokenizerSpec
-from shruti.nemo.utils import logging
+from nemo.collections.common.tokenizers.tokenizer_spec import TokenizerSpec
+from nemo.utils import logging
 
 __all__ = [
     'AutoTokenizer',

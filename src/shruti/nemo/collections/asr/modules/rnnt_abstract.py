@@ -16,8 +16,8 @@ from typing import Any, Dict, List, Optional, Tuple
 
 import torch
 
-from shruti.nemo.collections.asr.parts.utils.rnnt_utils import Hypothesis
-from shruti.nemo.core import NeuralModule
+from nemo.collections.asr.parts.utils.rnnt_utils import Hypothesis
+from nemo.core import NeuralModule
 
 
 class AbstractRNNTJoint(NeuralModule, ABC):

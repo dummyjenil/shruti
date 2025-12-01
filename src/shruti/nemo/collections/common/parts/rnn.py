@@ -19,7 +19,7 @@ from typing import List, Optional, Tuple, Union
 import numpy as np
 import torch
 
-from shruti.nemo.utils import logging
+from nemo.utils import logging
 
 
 def rnn(

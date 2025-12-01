@@ -20,13 +20,13 @@ from typing import List, Optional
 import torch
 from omegaconf import DictConfig
 
-from shruti.nemo.collections.asr.modules.transformer import (
+from nemo.collections.asr.modules.transformer import (
     BeamSearchSequenceGenerator,
     GreedySequenceGenerator,
     TopKSequenceGenerator,
 )
-from shruti.nemo.collections.common.tokenizers.tokenizer_spec import TokenizerSpec
-from shruti.nemo.core.classes.module import NeuralModule
+from nemo.collections.common.tokenizers.tokenizer_spec import TokenizerSpec
+from nemo.core.classes.module import NeuralModule
 
 
 @dataclass

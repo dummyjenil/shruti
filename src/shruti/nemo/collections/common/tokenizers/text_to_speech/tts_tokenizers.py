@@ -19,12 +19,12 @@ from abc import ABC, abstractmethod
 from contextlib import contextmanager
 from typing import List, Optional
 
-from shruti.nemo.collections.common.tokenizers.text_to_speech.ipa_lexicon import (
+from nemo.collections.common.tokenizers.text_to_speech.ipa_lexicon import (
     get_grapheme_character_set,
     get_ipa_punctuation_list,
     validate_locale,
 )
-from shruti.nemo.collections.common.tokenizers.text_to_speech.tokenizer_utils import (
+from nemo.collections.common.tokenizers.text_to_speech.tokenizer_utils import (
     any_locale_text_preprocessing,
     chinese_text_preprocessing,
     english_text_preprocessing,
@@ -32,8 +32,8 @@ from shruti.nemo.collections.common.tokenizers.text_to_speech.tokenizer_utils im
     italian_text_preprocessing,
     spanish_text_preprocessing,
 )
-from shruti.nemo.utils import logging
-from shruti.nemo.utils.decorators import experimental
+from nemo.utils import logging
+from nemo.utils.decorators import experimental
 
 
 class BaseTokenizer(ABC):

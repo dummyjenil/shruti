@@ -17,7 +17,7 @@ from dataclasses import is_dataclass
 import torch
 from omegaconf import DictConfig, OmegaConf
 
-from shruti.nemo.utils import logging
+from nemo.utils import logging
 
 # Constants
 LINEAR_ADAPTER_CLASSPATH = "nemo.collections.common.parts.adapter_modules.LinearAdapter"

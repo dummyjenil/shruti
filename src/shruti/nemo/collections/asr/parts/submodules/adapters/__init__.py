@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from shruti.nemo.collections.asr.parts.submodules.adapters.multi_head_attention_adapter_module import (
+from nemo.collections.asr.parts.submodules.adapters.multi_head_attention_adapter_module import (
     MHAResidualAddAdapterStrategy,
     MHAResidualAddAdapterStrategyConfig,
     MultiHeadAttentionAdapter,

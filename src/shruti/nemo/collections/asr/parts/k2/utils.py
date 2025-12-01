@@ -33,8 +33,8 @@ from typing import List, Optional, Tuple, Union
 
 import torch
 
-from shruti.nemo.core.utils.k2_guard import k2  # import k2 from guard module
-from shruti.nemo.utils import logging
+from nemo.core.utils.k2_guard import k2  # import k2 from guard module
+from nemo.utils import logging
 
 
 def create_supervision(input_lengths: torch.Tensor) -> torch.Tensor:

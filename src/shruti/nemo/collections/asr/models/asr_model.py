@@ -17,13 +17,13 @@ from typing import List
 
 import torch
 
-from shruti.nemo.core.classes import ModelPT
-from shruti.nemo.core.classes.common import PretrainedModelInfo
-from shruti.nemo.core.classes.exportable import Exportable
-from shruti.nemo.core.classes.mixins import AccessMixin
-from shruti.nemo.core.utils.neural_type_utils import get_io_names
-from shruti.nemo.utils import logging, model_utils
-from shruti.nemo.utils.cast_utils import cast_all
+from nemo.core.classes import ModelPT
+from nemo.core.classes.common import PretrainedModelInfo
+from nemo.core.classes.exportable import Exportable
+from nemo.core.classes.mixins import AccessMixin
+from nemo.core.utils.neural_type_utils import get_io_names
+from nemo.utils import logging, model_utils
+from nemo.utils.cast_utils import cast_all
 
 __all__ = ['ASRModel']
 

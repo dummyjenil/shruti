@@ -12,9 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from shruti.nemo.collections.asr.losses.rnnt import RNNTLoss
-from shruti.nemo.core import Loss, typecheck
-from shruti.nemo.core.neural_types import LabelsType, LengthsType, LogprobsType, LossType, NeuralType, SpectrogramType
+from nemo.collections.asr.losses.rnnt import RNNTLoss
+from nemo.core import Loss, typecheck
+from nemo.core.neural_types import LabelsType, LengthsType, LogprobsType, LossType, NeuralType, SpectrogramType
 
 __all__ = ["RNNTLossForSSL"]
 

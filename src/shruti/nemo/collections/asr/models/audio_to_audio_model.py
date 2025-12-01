@@ -20,9 +20,9 @@ import torch
 from omegaconf import DictConfig, OmegaConf
 from pytorch_lightning import Trainer
 
-from shruti.nemo.collections.asr.metrics.audio import AudioMetricWrapper
-from shruti.nemo.core.classes import ModelPT
-from shruti.nemo.utils import logging, model_utils
+from nemo.collections.asr.metrics.audio import AudioMetricWrapper
+from nemo.core.classes import ModelPT
+from nemo.utils import logging, model_utils
 
 __all__ = ['AudioToAudioModel']
 
