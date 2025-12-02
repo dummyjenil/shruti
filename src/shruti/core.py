@@ -33,7 +33,7 @@ class ShrutiASR(nn.Module):
         pos_bias_v = nn.Parameter(torch.Tensor(8, 1024 // 8))
         nn.init.zeros_(pos_bias_u)
         nn.init.zeros_(pos_bias_v)
-        self.layers:nn.ModuleList[ConformerLayer] = nn.ModuleList([ConformerLayer(1024,1024 * 4,8,9,conv_context_size=[4,4],pos_bias_u=pos_bias_u,pos_bias_v=pos_bias_v) for _ in range(n_layers)])
+        self.layers = nn.ModuleList([ConformerLayer(1024,1024 * 4,8,9,conv_context_size=[4,4],pos_bias_u=pos_bias_u,pos_bias_v=pos_bias_v) for _ in range(n_layers)])
         self.tokenizer = MultilingualTokenizer({i.name:SentencePieceTokenizer(str((i/"tokenizer.model").absolute())) for i in Path(tokenizer_path).rglob("*/")})
         self.decoder = RNNTDecoder({'pred_hidden': 640, 'pred_rnn_layers': 2, 't_max': None, 'dropout': 0.2},self.tokenizer.vocab_size,multisoftmax=True)
         self.joint = RNNTJoint(
@@ -46,7 +46,7 @@ class ShrutiASR(nn.Module):
             language_masks={lang: [(token_lang == lang) for _, token_lang in self.tokenizer.langs_by_token_id.items()] + [True] for lang in self.tokenizer.tokenizers_dict},
             offset_token_ids_by_token_id = self.tokenizer.offset_token_ids_by_token_id
             )
-        self.decoding = GreedyBatchedRNNTInfer(decoder_model=self.decoder,joint_model=self.joint,blank_index=blank_id,max_symbols_per_step=10,confidence_method_cfg={'name': 'entropy', 'entropy_type': 'tsallis', 'alpha': 0.33, 'entropy_norm': 'exp', 'temperature': 'DEPRECATED'},)
+        self.decoding = GreedyBatchedRNNTInfer(self.decoder,self.joint,blank_id,10,confidence_method_cfg={'name': 'entropy', 'entropy_type': 'tsallis', 'alpha': 0.33, 'entropy_norm': 'exp', 'temperature': 'DEPRECATED'},)
 
     def forward(self,audio_tensor,length_tensor,language="hi"):
         with torch.inference_mode():
@@ -81,7 +81,7 @@ class ShrutiASR(nn.Module):
         return hypotheses_list
     def load_model(self,model_path):
         s = torch.load(model_path)
-        self.preprocessor.load_state_dict(state_loader(s,"model.encoder.pre_encode"))
+        # self.preprocessor.load_state_dict(state_loader(s,"model.preprocessor"))
         self.pre_encode.load_state_dict(state_loader(s,"model.encoder.pre_encode"))
         self.layers.load_state_dict(state_loader(s,"model.encoder.layers"))
         self.decoder.load_state_dict(state_loader(s,"model.decoder"))

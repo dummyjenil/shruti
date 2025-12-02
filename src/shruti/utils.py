@@ -16,8 +16,6 @@ import torch.nn.functional as F
 from contextlib import nullcontext
 from dataclasses import dataclass, field
 from typing import Any, Dict, List, Optional, Tuple, Union
-from shruti.nemo.core.classes.common import Typing
-
 class MelPreprocessor(nn.Module):
     def __init__(
         self,
@@ -70,7 +68,7 @@ class MelPreprocessor(nn.Module):
     def _preemphasis(self, x: torch.Tensor) -> torch.Tensor:
         if self.preemph is None or self.preemph == 0.0:
             return x
-        padded = torch.nn.functional.pad(x, (1, 0))
+        padded = F.pad(x, (1, 0))
         return x - self.preemph * padded[:, :-1]
 
     def _compute_output_lengths(self, input_lengths: torch.Tensor) -> torch.Tensor:
@@ -173,12 +171,11 @@ class MelPreprocessor(nn.Module):
         # 9) pad_to if needed
         if self.pad_to > 0 and (feats.shape[-1] % self.pad_to) != 0:
             pad_len = self.pad_to - (feats.shape[-1] % self.pad_to)
-            feats = torch.nn.functional.pad(feats, (0, pad_len), value=self.pad_value)
+            feats = F.pad(feats, (0, pad_len), value=self.pad_value)
 
         return feats, feat_lens
 
 
-# from shruti.nemo.collections.common.parts.rnn import BNRNNSum, ln_lstm
 CONSTANT = 1e-5
 
 def splice_frames(x, frame_splicing):
@@ -407,7 +404,7 @@ class FilterbankFeatures(nn.Module):
         seq_len = self.get_seq_len(seq_len)
 
         if self.stft_pad_amount is not None:
-            x = torch.nn.functional.pad(
+            x = F.pad(
                 x.unsqueeze(1), (self.stft_pad_amount, self.stft_pad_amount), "reflect"
             ).squeeze(1)
 
@@ -1021,10 +1018,10 @@ class LSTMDropout(nn.Module):
     ):
         """Returns an LSTM with forget gate bias init to `forget_gate_bias`.
         Args:
-            input_size: See `torch.nn.LSTM`.
-            hidden_size: See `torch.nn.LSTM`.
-            num_layers: See `torch.nn.LSTM`.
-            dropout: See `torch.nn.LSTM`.
+            input_size: See `nn.LSTM`.
+            hidden_size: See `nn.LSTM`.
+            num_layers: See `nn.LSTM`.
+            dropout: See `nn.LSTM`.
 
             forget_gate_bias: float, set by default to 1.0, which constructs a forget gate
                 initialized to 1.0.
@@ -1044,11 +1041,11 @@ class LSTMDropout(nn.Module):
                 the default behaviour.
 
         Returns:
-            A `torch.nn.LSTM`.
+            A `nn.LSTM`.
         """
         super().__init__()
 
-        self.lstm = torch.nn.LSTM(
+        self.lstm = nn.LSTM(
             input_size=input_size, hidden_size=hidden_size, num_layers=num_layers, dropout=dropout, proj_size=proj_size
         )
 
@@ -1061,7 +1058,7 @@ class LSTMDropout(nn.Module):
                     hidden_size = n // 4
                     p.data.fill_(0)
                     p.data[hidden_size : 2 * hidden_size] = torch.log(
-                        torch.nn.init.uniform_(p.data[0:hidden_size], 1, t_max - 1)
+                        nn.init.uniform_(p.data[0:hidden_size], 1, t_max - 1)
                     )
                     # forget gate biases = log(uniform(1, Tmax-1))
                     p.data[0:hidden_size] = -p.data[hidden_size : 2 * hidden_size]
@@ -1076,7 +1073,7 @@ class LSTMDropout(nn.Module):
                     bias = getattr(self.lstm, name)
                     bias.data[hidden_size : 2 * hidden_size] *= float(hidden_hidden_bias_scale)
 
-        self.dropout = torch.nn.Dropout(dropout) if dropout else None
+        self.dropout = nn.Dropout(dropout) if dropout else None
 
         for name, v in self.named_parameters():
             if 'weight' in name or 'bias' in name:
@@ -2437,7 +2434,7 @@ class RelPositionMultiHeadAttention(MultiHeadAttention):
         """
         b, h, qlen, pos_len = x.size()  # (b, h, t1, t2)
         # need to add a column of zeros on the left side of last dimension to perform the relative shifting
-        x = torch.nn.functional.pad(x, pad=(1, 0))  # (b, h, t1, t2+1)
+        x = F.pad(x, pad=(1, 0))  # (b, h, t1, t2+1)
         x = x.view(b, h, -1, qlen)  # (b, h, t2+1, t1)
         # need to drop the first row
         x = x[:, :, 1:].view(b, h, qlen, pos_len)  # (b, h, t1, t2)
@@ -2558,19 +2555,19 @@ class ConvSubsampling(nn.Module):
 
             for i in range(self._sampling_num):
                 layers.append(
-                    torch.nn.Conv2d(
+                    nn.Conv2d(
                         in_channels=in_channels, out_channels=conv_channels, kernel_size=3, stride=1, padding=1
                     )
                 )
                 layers.append(activation)
                 layers.append(
-                    torch.nn.Conv2d(
+                    nn.Conv2d(
                         in_channels=conv_channels, out_channels=conv_channels, kernel_size=3, stride=1, padding=1
                     )
                 )
                 layers.append(activation)
                 layers.append(
-                    torch.nn.MaxPool2d(
+                    nn.MaxPool2d(
                         kernel_size=self._kernel_size,
                         stride=self._stride,
                         padding=self._left_padding,
@@ -2606,7 +2603,7 @@ class ConvSubsampling(nn.Module):
                 )
             else:
                 layers.append(
-                    torch.nn.Conv2d(
+                    nn.Conv2d(
                         in_channels=in_channels,
                         out_channels=conv_channels,
                         kernel_size=self._kernel_size,
@@ -2631,7 +2628,7 @@ class ConvSubsampling(nn.Module):
                     )
                 else:
                     layers.append(
-                        torch.nn.Conv2d(
+                        nn.Conv2d(
                             in_channels=in_channels,
                             out_channels=in_channels,
                             kernel_size=self._kernel_size,
@@ -2642,7 +2639,7 @@ class ConvSubsampling(nn.Module):
                     )
 
                 layers.append(
-                    torch.nn.Conv2d(
+                    nn.Conv2d(
                         in_channels=in_channels,
                         out_channels=conv_channels,
                         kernel_size=1,
@@ -2681,7 +2678,7 @@ class ConvSubsampling(nn.Module):
                     )
                 else:
                     layers.append(
-                        torch.nn.Conv2d(
+                        nn.Conv2d(
                             in_channels=in_channels,
                             out_channels=conv_channels,
                             kernel_size=self._kernel_size,
@@ -2722,7 +2719,7 @@ class ConvSubsampling(nn.Module):
                     )
                 else:
                     layers.append(
-                        torch.nn.Conv1d(
+                        nn.Conv1d(
                             in_channels=in_channels,
                             out_channels=feat_out if self._sampling_num == i + 1 else conv_channels,
                             kernel_size=self._kernel_size,
@@ -2747,7 +2744,7 @@ class ConvSubsampling(nn.Module):
             # Layer 1
             layers.extend(
                 [
-                    torch.nn.Conv1d(
+                    nn.Conv1d(
                         in_channels=in_channels,
                         out_channels=in_channels,
                         kernel_size=self._kernel_size,
@@ -2755,7 +2752,7 @@ class ConvSubsampling(nn.Module):
                         padding=self._left_padding,
                         groups=in_channels,
                     ),
-                    torch.nn.Conv1d(
+                    nn.Conv1d(
                         in_channels=in_channels,
                         out_channels=feat_out if self._sampling_num == 1 else conv_channels,
                         kernel_size=1,
@@ -2771,7 +2768,7 @@ class ConvSubsampling(nn.Module):
             for i in range(self._sampling_num - 1):
                 layers.extend(
                     [
-                        torch.nn.Conv1d(
+                        nn.Conv1d(
                             in_channels=in_channels,
                             out_channels=in_channels,
                             kernel_size=self._kernel_size,
@@ -2779,7 +2776,7 @@ class ConvSubsampling(nn.Module):
                             padding=self._left_padding,
                             groups=in_channels,
                         ),
-                        torch.nn.Conv1d(
+                        nn.Conv1d(
                             in_channels=in_channels,
                             out_channels=feat_out if self._sampling_num == i + 2 else conv_channels,
                             kernel_size=1,
@@ -2806,7 +2803,7 @@ class ConvSubsampling(nn.Module):
                 ceil_mode=self._ceil_mode,
                 repeat_num=self._sampling_num,
             )
-            self.out = torch.nn.Linear(conv_channels * int(out_length), feat_out)
+            self.out = nn.Linear(conv_channels * int(out_length), feat_out)
             self.conv2d_subsampling = True
         elif subsampling in ["striding_conv1d", "dw_striding_conv1d"]:
             self.out = None
@@ -2814,7 +2811,7 @@ class ConvSubsampling(nn.Module):
         else:
             raise ValueError(f"Not valid sub-sampling: {subsampling}!")
 
-        self.conv = torch.nn.Sequential(*layers)
+        self.conv = nn.Sequential(*layers)
 
     def get_sampling_frames(self):
         return [1, self.subsampling_factor]
@@ -2885,19 +2882,19 @@ class ConvSubsampling(nn.Module):
                 dw_max = (self._kernel_size ** 2) ** -0.5
                 pw_max = self._conv_channels ** -0.5
 
-                torch.nn.init.uniform_(self.conv[0].weight, -scale, scale)
-                torch.nn.init.uniform_(self.conv[0].bias, -scale, scale)
+                nn.init.uniform_(self.conv[0].weight, -scale, scale)
+                nn.init.uniform_(self.conv[0].bias, -scale, scale)
 
                 for idx in range(2, len(self.conv), 3):
-                    torch.nn.init.uniform_(self.conv[idx].weight, -dw_max, dw_max)
-                    torch.nn.init.uniform_(self.conv[idx].bias, -dw_max, dw_max)
-                    torch.nn.init.uniform_(self.conv[idx + 1].weight, -pw_max, pw_max)
-                    torch.nn.init.uniform_(self.conv[idx + 1].bias, -pw_max, pw_max)
+                    nn.init.uniform_(self.conv[idx].weight, -dw_max, dw_max)
+                    nn.init.uniform_(self.conv[idx].bias, -dw_max, dw_max)
+                    nn.init.uniform_(self.conv[idx + 1].weight, -pw_max, pw_max)
+                    nn.init.uniform_(self.conv[idx + 1].bias, -pw_max, pw_max)
 
                 # init fc (80 * 64 = 5120 from https://github.com/kssteven418/Squeezeformer/blob/13c97d6cf92f2844d2cb3142b4c5bfa9ad1a8951/src/models/conformer_encoder.py#L487
                 fc_scale = (self._feat_out * self._feat_in / self._sampling_num) ** -0.5
-                torch.nn.init.uniform_(self.out.weight, -fc_scale, fc_scale)
-                torch.nn.init.uniform_(self.out.bias, -fc_scale, fc_scale)
+                nn.init.uniform_(self.out.weight, -fc_scale, fc_scale)
+                nn.init.uniform_(self.out.bias, -fc_scale, fc_scale)
 
     def conv_split_by_batch(self, x:torch.Tensor):
         """ Tries to split input by batch, run conv and concat results """
@@ -3193,31 +3190,6 @@ def label_collate(labels, device=None):
 
     return labels
 
-def rnn_rnn(
-    input_size: int,
-    hidden_size: int,
-    num_layers: int,
-    norm: Optional[str] = None,
-    forget_gate_bias: Optional[float] = 1.0,
-    dropout: Optional[float] = 0.0,
-    norm_first_rnn: Optional[bool] = None,
-    t_max: Optional[int] = None,
-    weights_init_scale: float = 1.0,
-    hidden_hidden_bias_scale: float = 0.0,
-    proj_size: int = 0,
-) -> nn.Module:
-    return LSTMDropout(
-        input_size=input_size,
-        hidden_size=hidden_size,
-        num_layers=num_layers,
-        dropout=dropout,
-        forget_gate_bias=forget_gate_bias,
-        t_max=t_max,
-        weights_init_scale=weights_init_scale,
-        hidden_hidden_bias_scale=hidden_hidden_bias_scale,
-        proj_size=proj_size,
-    )
-
 def _states_to_device(dec_state, device='cpu'):
     if torch.is_tensor(dec_state):
         dec_state = dec_state.to(device)
@@ -3335,20 +3307,17 @@ class RNNTDecoder(nn.Module):
         
         self.prediction = nn.ModuleDict(
                     {
-                        "embed": torch.nn.Embedding(vocab_size + 1, self.pred_hidden, padding_idx=self.blank_idx),
+                        "embed": nn.Embedding(vocab_size + 1, self.pred_hidden, padding_idx=self.blank_idx),
                         "dec_rnn": LSTMDropout(
                             input_size=self.pred_hidden,
                             hidden_size=rnn_hidden_size if rnn_hidden_size > 0 else self.pred_hidden,
-                            num_layers=self.pred_hidden,
+                            num_layers=self.pred_rnn_layers,
                             forget_gate_bias=forget_gate_bias,
                             t_max=t_max,
                             dropout=dropout,
                             weights_init_scale=weights_init_scale,
                             hidden_hidden_bias_scale=hidden_hidden_bias_scale,
-                            proj_size=self.pred_hidden if self.pred_hidden < rnn_hidden_size else 0,
-                        ),
-                    }
-                )
+                            proj_size=self.pred_hidden if self.pred_hidden < rnn_hidden_size else 0,),})
         self._rnnt_export = False
 
         self.multisoftmax = multisoftmax #CTEMO
@@ -4221,8 +4190,8 @@ class RNNTJoint(nn.Module):
             activation: Activation of the joint. Can be one of [relu, tanh, sigmoid]
             dropout: Dropout value to apply to joint.
         """
-        pred = torch.nn.Linear(pred_n_hidden, joint_n_hidden)
-        enc = torch.nn.Linear(enc_n_hidden, joint_n_hidden)
+        pred = nn.Linear(pred_n_hidden, joint_n_hidden)
+        enc = nn.Linear(enc_n_hidden, joint_n_hidden)
 
         if activation not in ['relu', 'sigmoid', 'tanh']:
             raise ValueError("Unsupported activation for joint step - please pass one of " "[relu, sigmoid, tanh]")
@@ -4230,29 +4199,29 @@ class RNNTJoint(nn.Module):
         activation = activation.lower()
 
         if activation == 'relu':
-            activation = torch.nn.ReLU(inplace=True)
+            activation = nn.ReLU(inplace=True)
         elif activation == 'sigmoid':
-            activation = torch.nn.Sigmoid()
+            activation = nn.Sigmoid()
         elif activation == 'tanh':
-            activation = torch.nn.Tanh()
+            activation = nn.Tanh()
 
         if self.multilingual: #CTEMO
-            final_layer = torch.nn.ModuleDict()
+            final_layer = nn.ModuleDict()
             logging.info(f"Vocab size for each language: {self._vocab_size // len(self.language_keys)}")
             for lang in self.language_keys:
-                final_layer[lang] = torch.nn.Linear(joint_n_hidden, (self._vocab_size // len(self.language_keys)+1))
+                final_layer[lang] = nn.Linear(joint_n_hidden, (self._vocab_size // len(self.language_keys)+1))
             layers = (
                 [activation]
-                + ([torch.nn.Dropout(p=dropout)] if dropout else [])
+                + ([nn.Dropout(p=dropout)] if dropout else [])
                 + [final_layer]
             )
         else:
             layers = (
                 [activation]
-                + ([torch.nn.Dropout(p=dropout)] if dropout else [])
-                + [torch.nn.Linear(joint_n_hidden, num_classes)]
+                + ([nn.Dropout(p=dropout)] if dropout else [])
+                + [nn.Linear(joint_n_hidden, num_classes)]
             )
-        return pred, enc, torch.nn.Sequential(*layers)
+        return pred, enc, nn.Sequential(*layers)
 
     @property
     def num_classes_with_blank(self):
@@ -4299,7 +4268,7 @@ class RNNTJoint(nn.Module):
     def set_fused_batch_size(self, fused_batch_size):
         self._fused_batch_size = fused_batch_size
 
-class _GreedyRNNTInfer(Typing, ConfidenceMethodMixin):
+class _GreedyRNNTInfer(ConfidenceMethodMixin):
     """A greedy transducer decoder.
 
     Provides a common abstraction for sample level and batch level greedy decoding.

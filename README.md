@@ -7,7 +7,7 @@ srt = asr("path_of_audio")
 print("".join(srt.splitlines()[2::4]).replace("▁"," ").replace("<line>","\n"))
 ```
 
-## SAVE TOKENIZER & MODEL
+* SAVE TOKENIZER & MODEL
 
 ```python
 import torch
@@ -23,10 +23,10 @@ torch.save(asr.state_dict(), "asr.pt")
 cd langs && zip -r /content/langs.zip *
 ```
 
-## SAVE TOKENIZER & MODEL
+* SAVE TOKENIZER & MODEL
 
 ```python
-from shruti import ShrutiASR
+from shruti.core import ShrutiASR
 asr = ShrutiASR("langs") # for loading tokenizer
 asr.load_model("asr.pt")
 ```
