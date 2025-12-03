@@ -7,9 +7,21 @@ authors = [
     { name = "dummyjenil", email = "dummyjenil@gmail.com" }
 ]
 dependencies = [
+    'librosa',
+    'numpy',
+    'sentencepiece',
+    'torch',
+    'torchaudio',
+    'tqdm',
+    'huggingface_hub',
+    'webrtcvad',
+    'srt',
+    'safetensors',
+]
+
+[project.optional-dependencies]
+nemo = [
  'transformers',
- 'sentencepiece',
- 'torchaudio',
  'torchcodec',
  'onnx',
  'ruamel.yaml',
@@ -28,18 +40,13 @@ dependencies = [
  'resampy',
  'ruamel.yaml',
  'sox',
- 'huggingface_hub',
  'numba',
- 'numpy',
  'python-dateutil',
  'scikit-learn',
  'setuptools',
  'tensorboard',
- 'torch',
- 'tqdm',
  'wrapt',
  'ipywidgets',
- 'librosa',
  'marshmallow',
  'matplotlib',
  'packaging',
@@ -49,8 +56,6 @@ dependencies = [
  'webdataset',
  'pytorch-lightning',
  'hydra-core',
- 'webrtcvad',
- 'srt',
 ]
 
 [build-system]

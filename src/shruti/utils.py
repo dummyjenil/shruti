@@ -5,17 +5,24 @@ import logging
 import math
 import os
 import random
+import re
 import librosa
 import numpy as np
 from omegaconf import DictConfig, OmegaConf
 import sentencepiece
 import torch
 import torch.nn as nn
+import torchaudio
 import torchaudio.functional as F_torchaudio
 import torch.nn.functional as F
 from contextlib import nullcontext
 from dataclasses import dataclass, field
 from typing import Any, Dict, List, Optional, Tuple, Union
+import webrtcvad
+from datetime import timedelta
+import srt
+from torch.utils.data import Dataset
+
 class MelPreprocessor(nn.Module):
     def __init__(
         self,
@@ -175,6 +182,7 @@ class MelPreprocessor(nn.Module):
 
         return feats, feat_lens
 
+BLANK_ID = 256
 
 CONSTANT = 1e-5
 
@@ -2495,7 +2503,6 @@ class RelPositionMultiHeadAttention(MultiHeadAttention):
         else:
             return out, cache
 
-
 class ConvSubsampling(nn.Module):
     """Convolutional subsampling which supports VGGNet and striding approach introduced in:
     VGGNet Subsampling: Transformer-transducer: end-to-end speech recognition with self-attention (https://arxiv.org/pdf/1910.12977.pdf)
@@ -2820,14 +2827,6 @@ class ConvSubsampling(nn.Module):
         return [0, self.subsampling_factor + 1]
 
     def forward(self, x:torch.Tensor, lengths:torch.Tensor):
-        lengths = calc_length(
-            lengths,
-            all_paddings=self._left_padding + self._right_padding,
-            kernel_size=self._kernel_size,
-            stride=self._stride,
-            ceil_mode=self._ceil_mode,
-            repeat_num=self._sampling_num,
-        )
 
         # Unsqueeze Channel Axis
         if self.conv2d_subsampling:
@@ -2871,7 +2870,7 @@ class ConvSubsampling(nn.Module):
         else:
             x = x.transpose(1, 2)
 
-        return x, lengths
+        return x, calc_length(lengths,self._left_padding + self._right_padding,self._kernel_size,self._stride,self._ceil_mode,self._sampling_num,)
 
     def reset_parameters(self):
         # initialize weights
@@ -3063,16 +3062,16 @@ class RelPositionalEncoding(nn.Module):
         pos_emb = self.pe[:, start_pos:end_pos]
         return x, pos_emb
 
-def create_masks(padding_length:torch.Tensor, max_audio_length, device):
+def create_masks(padding_length:torch.Tensor, max_audio_length):
     att_context_size=[-1, -1]
-    att_mask = torch.ones(1, max_audio_length, max_audio_length, dtype=torch.bool, device=device)
+    att_mask = torch.ones(1, max_audio_length, max_audio_length, dtype=torch.bool)
     if att_context_size[0] >= 0:
         att_mask = att_mask.triu(diagonal=-att_context_size[0])
     if att_context_size[1] >= 0:
         att_mask = att_mask.tril(diagonal=att_context_size[1])
 
     # pad_mask is the masking to be used to ignore paddings
-    pad_mask = torch.arange(0, max_audio_length, device=device).expand(
+    pad_mask = torch.arange(0, max_audio_length).expand(
         padding_length.size(0), -1
     ) < padding_length.unsqueeze(-1)
 
@@ -3083,7 +3082,7 @@ def create_masks(padding_length:torch.Tensor, max_audio_length, device):
         # att_mask is the masking to be used by the MHA layers to ignore the tokens not supposed to be visible
         att_mask = att_mask[:, :max_audio_length, :max_audio_length]
         # paddings should also get ignored, so pad_mask_for_att_mask is used to ignore their corresponding scores
-        att_mask = torch.logical_and(pad_mask_for_att_mask, att_mask.to(pad_mask_for_att_mask.device))
+        att_mask = torch.logical_and(pad_mask_for_att_mask, att_mask)
         att_mask = ~att_mask
 
     pad_mask = ~pad_mask
@@ -4358,7 +4357,7 @@ class _GreedyRNNTInfer(ConfidenceMethodMixin):
     def __call__(self, *args, **kwargs):
         return self.forward(*args, **kwargs)
 
-    @torch.no_grad()
+    @torch.inference_mode()
     def _pred_step(
         self,
         label: Union[torch.Tensor, int],
@@ -4397,7 +4396,7 @@ class _GreedyRNNTInfer(ConfidenceMethodMixin):
         # output: [B, 1, K]
         return self.decoder.predict(label, hidden, add_sos=add_sos, batch_size=batch_size)
 
-    def _joint_step(self, enc, pred, log_normalize: Optional[bool] = None, language_ids=None): # CTEMO
+    def _joint_step(self, enc:torch.Tensor, pred:torch.Tensor, log_normalize: Optional[bool] = None, language_ids=None): # CTEMO
         """
         Common joint step based on AbstractRNNTJoint implementation.
 
@@ -4594,252 +4593,247 @@ class GreedyBatchedRNNTInfer(_GreedyRNNTInfer):
         """
         return pack_hypotheses(self._greedy_decode(encoder_output, encoded_lengths, device=encoder_output.device, partial_hypotheses=partial_hypotheses, language_ids=language_ids), encoded_lengths)
 
-    @torch.inference_mode()
-    def _greedy_decode_blank_as_pad_loop_labels(
-        self,
-        x: torch.Tensor,
-        out_len: torch.Tensor,
-        device: torch.device,
-        partial_hypotheses: Optional[list[Hypothesis]] = None,
-    ) -> list[Hypothesis]:
-        """
-        Optimized batched greedy decoding.
-        The main idea: search for next labels for the whole batch (evaluating Joint)
-        and thus always evaluate prediction network with maximum possible batch size
-        """
-        if partial_hypotheses is not None:
-            raise NotImplementedError("`partial_hypotheses` support is not implemented")
+    # @torch.inference_mode()
+    # def _greedy_decode_blank_as_pad_loop_labels(
+    #     self,
+    #     x: torch.Tensor,
+    #     out_len: torch.Tensor,
+    #     device: torch.device,
+    #     partial_hypotheses: Optional[list[Hypothesis]] = None,
+    # ) -> list[Hypothesis]:
+    #     """
+    #     Optimized batched greedy decoding.
+    #     The main idea: search for next labels for the whole batch (evaluating Joint)
+    #     and thus always evaluate prediction network with maximum possible batch size
+    #     """
+    #     if partial_hypotheses is not None:
+    #         raise NotImplementedError("`partial_hypotheses` support is not implemented")
 
-        batched_hyps, alignments, last_decoder_state = self._decoding_computer(x=x, out_len=out_len)
-        hyps = batched_hyps_to_hypotheses(batched_hyps, alignments)
-        for hyp, state in zip(hyps, self.decoder.batch_split_states(last_decoder_state)):
-            hyp.dec_state = state
-        return hyps
+    #     batched_hyps, alignments, last_decoder_state = self._decoding_computer(x=x, out_len=out_len)
+    #     hyps = batched_hyps_to_hypotheses(batched_hyps, alignments)
+    #     for hyp, state in zip(hyps, self.decoder.batch_split_states(last_decoder_state)):
+    #         hyp.dec_state = state
+    #     return hyps
 
-    def _greedy_decode_masked(
-        self,
-        x: torch.Tensor,
-        out_len: torch.Tensor,
-        device: torch.device,
-        partial_hypotheses: Optional[List[Hypothesis]] = None,
-        language_ids=None,
-    ):
-        if partial_hypotheses is not None:
-            raise NotImplementedError("`partial_hypotheses` support is not supported")
+    # def _greedy_decode_masked(
+    #     self,
+    #     x: torch.Tensor,
+    #     out_len: torch.Tensor,
+    #     device: torch.device,
+    #     partial_hypotheses: Optional[List[Hypothesis]] = None,
+    #     language_ids=None,
+    # ):
+    #     if partial_hypotheses is not None:
+    #         raise NotImplementedError("`partial_hypotheses` support is not supported")
 
-        # x: [B, T, D]
-        # out_len: [B]
-        # device: torch.device
+    #     # x: [B, T, D]
+    #     # out_len: [B]
+    #     # device: torch.device
 
-        # Initialize state
-        batchsize = x.shape[0]
-        hypotheses = [
-            Hypothesis(score=0.0, y_sequence=[], timestep=[], dec_state=None) for _ in range(batchsize)
-        ]
+    #     # Initialize state
+    #     batchsize = x.shape[0]
+    #     hypotheses = [
+    #         Hypothesis(score=0.0, y_sequence=[], timestep=[], dec_state=None) for _ in range(batchsize)
+    #     ]
 
-        # Initialize Hidden state matrix (shared by entire batch)
-        hidden = None
+    #     # Initialize Hidden state matrix (shared by entire batch)
+    #     hidden = None
 
-        # If alignments need to be preserved, register a danling list to hold the values
-        if self.preserve_alignments:
-            # alignments is a 3-dimensional dangling list representing B x T x U
-            for hyp in hypotheses:
-                hyp.alignments = [[]]
-        else:
-            alignments = None
+    #     # If alignments need to be preserved, register a danling list to hold the values
+    #     if self.preserve_alignments:
+    #         # alignments is a 3-dimensional dangling list representing B x T x U
+    #         for hyp in hypotheses:
+    #             hyp.alignments = [[]]
+    #     else:
+    #         alignments = None
 
-        # If confidence scores need to be preserved, register a danling list to hold the values
-        if self.preserve_frame_confidence:
-            # frame_confidence is a 3-dimensional dangling list representing B x T x U
-            for hyp in hypotheses:
-                hyp.frame_confidence = [[]]
+    #     # If confidence scores need to be preserved, register a danling list to hold the values
+    #     if self.preserve_frame_confidence:
+    #         # frame_confidence is a 3-dimensional dangling list representing B x T x U
+    #         for hyp in hypotheses:
+    #             hyp.frame_confidence = [[]]
 
-        # Last Label buffer + Last Label without blank buffer
-        # batch level equivalent of the last_label
-        last_label = torch.full([batchsize, 1], fill_value=self._blank_index, dtype=torch.long, device=device)
-        last_label_without_blank = last_label.clone()
+    #     # Last Label buffer + Last Label without blank buffer
+    #     # batch level equivalent of the last_label
+    #     last_label = torch.full([batchsize, 1], fill_value=self._blank_index, dtype=torch.long, device=device)
+    #     last_label_without_blank = last_label.clone()
 
-        # Mask buffers
-        blank_mask = torch.full([batchsize], fill_value=0, dtype=torch.bool, device=device)
-        blank_mask_prev = None
+    #     # Mask buffers
+    #     blank_mask = torch.full([batchsize], fill_value=0, dtype=torch.bool, device=device)
+    #     blank_mask_prev = None
 
-        # Get max sequence length
-        max_out_len = out_len.max()
+    #     # Get max sequence length
+    #     max_out_len = out_len.max()
 
-        with torch.inference_mode():
-            for time_idx in range(max_out_len):
-                f = x.narrow(dim=1, start=time_idx, length=1)  # [B, 1, D]
+    #     with torch.inference_mode():
+    #         for time_idx in range(max_out_len):
+    #             f = x.narrow(dim=1, start=time_idx, length=1)  # [B, 1, D]
 
-                # Prepare t timestamp batch variables
-                not_blank = True
-                symbols_added = 0
+    #             # Prepare t timestamp batch variables
+    #             not_blank = True
+    #             symbols_added = 0
 
-                # Reset blank mask
-                blank_mask.mul_(False)
+    #             # Reset blank mask
+    #             blank_mask.mul_(False)
 
-                # Update blank mask with time mask
-                # Batch: [B, T, D], but Bi may have seq len < max(seq_lens_in_batch)
-                # Forcibly mask with "blank" tokens, for all sample where current time step T > seq_len
-                blank_mask = time_idx >= out_len
-                blank_mask_prev = blank_mask.clone()
+    #             # Update blank mask with time mask
+    #             # Batch: [B, T, D], but Bi may have seq len < max(seq_lens_in_batch)
+    #             # Forcibly mask with "blank" tokens, for all sample where current time step T > seq_len
+    #             blank_mask = time_idx >= out_len
+    #             blank_mask_prev = blank_mask.clone()
 
-                # Start inner loop
-                while not_blank and (self.max_symbols is None or symbols_added < self.max_symbols):
-                    # Batch prediction and joint network steps
-                    # If very first prediction step, submit SOS tag (blank) to pred_step.
-                    # This feeds a zero tensor as input to AbstractRNNTDecoder to prime the state
-                    if time_idx == 0 and symbols_added == 0 and hidden is None:
-                        g, hidden_prime = self._pred_step(self._SOS, hidden, batch_size=batchsize)
-                    else:
-                        # Set a dummy label for the blank value
-                        # This value will be overwritten by "blank" again the last label update below
-                        # This is done as vocabulary of prediction network does not contain "blank" token of RNNT
-                        last_label_without_blank_mask = last_label == self._blank_index
-                        last_label_without_blank[last_label_without_blank_mask] = 0  # temp change of label
-                        last_label_without_blank[~last_label_without_blank_mask] = last_label[
-                            ~last_label_without_blank_mask
-                        ]
+    #             # Start inner loop
+    #             while not_blank and (self.max_symbols is None or symbols_added < self.max_symbols):
+    #                 # Batch prediction and joint network steps
+    #                 # If very first prediction step, submit SOS tag (blank) to pred_step.
+    #                 # This feeds a zero tensor as input to AbstractRNNTDecoder to prime the state
+    #                 if time_idx == 0 and symbols_added == 0 and hidden is None:
+    #                     g, hidden_prime = self._pred_step(self._SOS, hidden, batch_size=batchsize)
+    #                 else:
+    #                     # Set a dummy label for the blank value
+    #                     # This value will be overwritten by "blank" again the last label update below
+    #                     # This is done as vocabulary of prediction network does not contain "blank" token of RNNT
+    #                     last_label_without_blank_mask = last_label == self._blank_index
+    #                     last_label_without_blank[last_label_without_blank_mask] = 0  # temp change of label
+    #                     last_label_without_blank[~last_label_without_blank_mask] = last_label[
+    #                         ~last_label_without_blank_mask
+    #                     ]
 
-                        # Perform batch step prediction of decoder, getting new states and scores ("g")
-                        g, hidden_prime = self._pred_step(last_label_without_blank, hidden, batch_size=batchsize)
+    #                     # Perform batch step prediction of decoder, getting new states and scores ("g")
+    #                     g, hidden_prime = self._pred_step(last_label_without_blank, hidden, batch_size=batchsize)
 
-                    # Batched joint step - Output = [B, V + 1]
-                    # If preserving per-frame confidence, log_normalize must be true
-                    logp = self._joint_step(f, g, log_normalize=True if self.preserve_frame_confidence else None, language_ids=language_ids)[
-                        :, 0, 0, :
-                    ]
+    #                 # Batched joint step - Output = [B, V + 1]
+    #                 # If preserving per-frame confidence, log_normalize must be true
+    #                 logp = self._joint_step(f, g, log_normalize=True if self.preserve_frame_confidence else None, language_ids=language_ids)[
+    #                     :, 0, 0, :
+    #                 ]
 
-                    if logp.dtype != torch.float32:
-                        logp = logp.float()
+    #                 if logp.dtype != torch.float32:
+    #                     logp = logp.float()
 
-                    # Get index k, of max prob for batch
-                    v, k = logp.max(1)
-                    del g
+    #                 # Get index k, of max prob for batch
+    #                 v, k = logp.max(1)
+    #                 del g
 
-                    # Update blank mask with current predicted blanks
-                    # This is accumulating blanks over all time steps T and all target steps min(max_symbols, U)
-                    k_is_blank = k == self._blank_index
-                    blank_mask.bitwise_or_(k_is_blank)
+    #                 # Update blank mask with current predicted blanks
+    #                 # This is accumulating blanks over all time steps T and all target steps min(max_symbols, U)
+    #                 k_is_blank = k == self._blank_index
+    #                 blank_mask.bitwise_or_(k_is_blank)
 
-                    # If preserving alignments, check if sequence length of sample has been reached
-                    # before adding alignment
-                    if self.preserve_alignments:
-                        # Insert logprobs into last timestep per sample
-                        logp_vals = logp.to('cpu')
-                        logp_ids = logp_vals.max(1)[1]
-                        for batch_idx, is_blank in enumerate(blank_mask):
-                            # we only want to update non-blanks and first-time blanks,
-                            # otherwise alignments will contain duplicate predictions
-                            if time_idx < out_len[batch_idx] and (not blank_mask_prev[batch_idx] or not is_blank):
-                                hypotheses[batch_idx].alignments[-1].append(
-                                    (logp_vals[batch_idx], logp_ids[batch_idx])
-                                )
+    #                 # If preserving alignments, check if sequence length of sample has been reached
+    #                 # before adding alignment
+    #                 if self.preserve_alignments:
+    #                     # Insert logprobs into last timestep per sample
+    #                     logp_vals = logp.to('cpu')
+    #                     logp_ids = logp_vals.max(1)[1]
+    #                     for batch_idx, is_blank in enumerate(blank_mask):
+    #                         # we only want to update non-blanks and first-time blanks,
+    #                         # otherwise alignments will contain duplicate predictions
+    #                         if time_idx < out_len[batch_idx] and (not blank_mask_prev[batch_idx] or not is_blank):
+    #                             hypotheses[batch_idx].alignments[-1].append(
+    #                                 (logp_vals[batch_idx], logp_ids[batch_idx])
+    #                             )
 
-                        del logp_vals
+    #                     del logp_vals
 
-                    # If preserving per-frame confidence, check if sequence length of sample has been reached
-                    # before adding confidence scores
-                    if self.preserve_frame_confidence:
-                        # Insert probabilities into last timestep per sample
-                        confidence = self._get_confidence(logp)
-                        for batch_idx, is_blank in enumerate(blank_mask):
-                            if time_idx < out_len[batch_idx] and (not blank_mask_prev[batch_idx] or not is_blank):
-                                hypotheses[batch_idx].frame_confidence[-1].append(confidence[batch_idx])
-                    del logp
+    #                 # If preserving per-frame confidence, check if sequence length of sample has been reached
+    #                 # before adding confidence scores
+    #                 if self.preserve_frame_confidence:
+    #                     # Insert probabilities into last timestep per sample
+    #                     confidence = self._get_confidence(logp)
+    #                     for batch_idx, is_blank in enumerate(blank_mask):
+    #                         if time_idx < out_len[batch_idx] and (not blank_mask_prev[batch_idx] or not is_blank):
+    #                             hypotheses[batch_idx].frame_confidence[-1].append(confidence[batch_idx])
+    #                 del logp
 
-                    blank_mask_prev.bitwise_or_(blank_mask)
+    #                 blank_mask_prev.bitwise_or_(blank_mask)
 
-                    # If all samples predict / have predicted prior blanks, exit loop early
-                    # This is equivalent to if single sample predicted k
-                    if blank_mask.all():
-                        not_blank = False
-                    else:
-                        # Collect batch indices where blanks occurred now/past
-                        blank_indices = (blank_mask == 1).nonzero(as_tuple=False)
+    #                 # If all samples predict / have predicted prior blanks, exit loop early
+    #                 # This is equivalent to if single sample predicted k
+    #                 if blank_mask.all():
+    #                     not_blank = False
+    #                 else:
+    #                     # Collect batch indices where blanks occurred now/past
+    #                     blank_indices = (blank_mask == 1).nonzero(as_tuple=False)
 
-                        # Recover prior state for all samples which predicted blank now/past
-                        if hidden is not None:
-                            # LSTM has 2 states
-                            hidden_prime = self.decoder.batch_copy_states(hidden_prime, hidden, blank_indices)
+    #                     # Recover prior state for all samples which predicted blank now/past
+    #                     if hidden is not None:
+    #                         # LSTM has 2 states
+    #                         hidden_prime = self.decoder.batch_copy_states(hidden_prime, hidden, blank_indices)
 
-                        elif len(blank_indices) > 0 and hidden is None:
-                            # Reset state if there were some blank and other non-blank predictions in batch
-                            # Original state is filled with zeros so we just multiply
-                            # LSTM has 2 states
-                            hidden_prime = self.decoder.batch_copy_states(hidden_prime, None, blank_indices, value=0.0)
+    #                     elif len(blank_indices) > 0 and hidden is None:
+    #                         # Reset state if there were some blank and other non-blank predictions in batch
+    #                         # Original state is filled with zeros so we just multiply
+    #                         # LSTM has 2 states
+    #                         hidden_prime = self.decoder.batch_copy_states(hidden_prime, None, blank_indices, value=0.0)
 
-                        # Recover prior predicted label for all samples which predicted blank now/past
-                        k[blank_indices] = last_label[blank_indices, 0]
+    #                     # Recover prior predicted label for all samples which predicted blank now/past
+    #                     k[blank_indices] = last_label[blank_indices, 0]
 
-                        # Update new label and hidden state for next iteration
-                        last_label = k.view(-1, 1)
-                        hidden = hidden_prime
+    #                     # Update new label and hidden state for next iteration
+    #                     last_label = k.view(-1, 1)
+    #                     hidden = hidden_prime
 
-                        # Update predicted labels, accounting for time mask
-                        # If blank was predicted even once, now or in the past,
-                        # Force the current predicted label to also be blank
-                        # This ensures that blanks propogate across all timesteps
-                        # once they have occured (normally stopping condition of sample level loop).
-                        for kidx, ki in enumerate(k):
-                            if blank_mask[kidx] == 0:
-                                hypotheses[kidx].y_sequence.append(ki)
-                                hypotheses[kidx].timestep.append(time_idx)
-                                hypotheses[kidx].score += float(v[kidx])
+    #                     # Update predicted labels, accounting for time mask
+    #                     # If blank was predicted even once, now or in the past,
+    #                     # Force the current predicted label to also be blank
+    #                     # This ensures that blanks propogate across all timesteps
+    #                     # once they have occured (normally stopping condition of sample level loop).
+    #                     for kidx, ki in enumerate(k):
+    #                         if blank_mask[kidx] == 0:
+    #                             hypotheses[kidx].y_sequence.append(ki)
+    #                             hypotheses[kidx].timestep.append(time_idx)
+    #                             hypotheses[kidx].score += float(v[kidx])
 
-                    symbols_added += 1
+    #                 symbols_added += 1
 
-                # If preserving alignments, convert the current Uj alignments into a torch.Tensor
-                # Then preserve U at current timestep Ti
-                # Finally, forward the timestep history to Ti+1 for that sample
-                # All of this should only be done iff the current time index <= sample-level AM length.
-                # Otherwise ignore and move to next sample / next timestep.
-                if self.preserve_alignments:
+    #             # If preserving alignments, convert the current Uj alignments into a torch.Tensor
+    #             # Then preserve U at current timestep Ti
+    #             # Finally, forward the timestep history to Ti+1 for that sample
+    #             # All of this should only be done iff the current time index <= sample-level AM length.
+    #             # Otherwise ignore and move to next sample / next timestep.
+    #             if self.preserve_alignments:
 
-                    # convert Ti-th logits into a torch array
-                    for batch_idx in range(batchsize):
+    #                 # convert Ti-th logits into a torch array
+    #                 for batch_idx in range(batchsize):
 
-                        # this checks if current timestep <= sample-level AM length
-                        # If current timestep > sample-level AM length, no alignments will be added
-                        # Therefore the list of Uj alignments is empty here.
-                        if len(hypotheses[batch_idx].alignments[-1]) > 0:
-                            hypotheses[batch_idx].alignments.append([])  # blank buffer for next timestep
+    #                     # this checks if current timestep <= sample-level AM length
+    #                     # If current timestep > sample-level AM length, no alignments will be added
+    #                     # Therefore the list of Uj alignments is empty here.
+    #                     if len(hypotheses[batch_idx].alignments[-1]) > 0:
+    #                         hypotheses[batch_idx].alignments.append([])  # blank buffer for next timestep
 
-                # Do the same if preserving per-frame confidence
-                if self.preserve_frame_confidence:
+    #             # Do the same if preserving per-frame confidence
+    #             if self.preserve_frame_confidence:
 
-                    for batch_idx in range(batchsize):
-                        if len(hypotheses[batch_idx].frame_confidence[-1]) > 0:
-                            hypotheses[batch_idx].frame_confidence.append([])  # blank buffer for next timestep
+    #                 for batch_idx in range(batchsize):
+    #                     if len(hypotheses[batch_idx].frame_confidence[-1]) > 0:
+    #                         hypotheses[batch_idx].frame_confidence.append([])  # blank buffer for next timestep
 
-        # Remove trailing empty list of alignments at T_{am-len} x Uj
-        if self.preserve_alignments:
-            for batch_idx in range(batchsize):
-                if len(hypotheses[batch_idx].alignments[-1]) == 0:
-                    del hypotheses[batch_idx].alignments[-1]
+    #     # Remove trailing empty list of alignments at T_{am-len} x Uj
+    #     if self.preserve_alignments:
+    #         for batch_idx in range(batchsize):
+    #             if len(hypotheses[batch_idx].alignments[-1]) == 0:
+    #                 del hypotheses[batch_idx].alignments[-1]
 
-        # Remove trailing empty list of confidence scores at T_{am-len} x Uj
-        if self.preserve_frame_confidence:
-            for batch_idx in range(batchsize):
-                if len(hypotheses[batch_idx].frame_confidence[-1]) == 0:
-                    del hypotheses[batch_idx].frame_confidence[-1]
+    #     # Remove trailing empty list of confidence scores at T_{am-len} x Uj
+    #     if self.preserve_frame_confidence:
+    #         for batch_idx in range(batchsize):
+    #             if len(hypotheses[batch_idx].frame_confidence[-1]) == 0:
+    #                 del hypotheses[batch_idx].frame_confidence[-1]
 
-        # Preserve states
-        for batch_idx in range(batchsize):
-            hypotheses[batch_idx].dec_state = self.decoder.batch_select_state(hidden, batch_idx)
+    #     # Preserve states
+    #     for batch_idx in range(batchsize):
+    #         hypotheses[batch_idx].dec_state = self.decoder.batch_select_state(hidden, batch_idx)
 
-        return hypotheses
+    #     return hypotheses
 
     def _greedy_decode_blank_as_pad_loop_frames(
         self,
         x: torch.Tensor,
         out_len: torch.Tensor,
-        device: torch.device,
-        partial_hypotheses: Optional[List[Hypothesis]] = None,
         language_ids=None,
     ):
-        if partial_hypotheses is not None:
-            raise NotImplementedError("`partial_hypotheses` support is not supported")
-
         with torch.inference_mode():
             # x: [B, T, D]
             # out_len: [B]
@@ -4847,9 +4841,7 @@ class GreedyBatchedRNNTInfer(_GreedyRNNTInfer):
 
             # Initialize list of Hypothesis
             batchsize = x.shape[0]
-            hypotheses = [
-                Hypothesis(score=0.0, y_sequence=[], timestep=[], dec_state=None) for _ in range(batchsize)
-            ]
+            hypotheses = [Hypothesis(score=0.0, y_sequence=[], timestep=[], dec_state=None) for _ in range(batchsize)]
 
             # Initialize Hidden state matrix (shared by entire batch)
             hidden = None
@@ -4868,10 +4860,10 @@ class GreedyBatchedRNNTInfer(_GreedyRNNTInfer):
 
             # Last Label buffer + Last Label without blank buffer
             # batch level equivalent of the last_label
-            last_label = torch.full([batchsize, 1], fill_value=self._blank_index, dtype=torch.long, device=device)
+            last_label = torch.full([batchsize, 1], fill_value=self._blank_index, dtype=torch.long)
 
             # Mask buffers
-            blank_mask = torch.full([batchsize], fill_value=0, dtype=torch.bool, device=device)
+            blank_mask = torch.full([batchsize], fill_value=0, dtype=torch.bool)
             blank_mask_prev = None
 
             # Get max sequence length
@@ -4905,9 +4897,7 @@ class GreedyBatchedRNNTInfer(_GreedyRNNTInfer):
 
                     # Batched joint step - Output = [B, V + 1]
                     # If preserving per-frame confidence, log_normalize must be true
-                    logp = self._joint_step(f, g, log_normalize=True if self.preserve_frame_confidence else None, language_ids=language_ids)[
-                        :, 0, 0, :
-                    ]
+                    logp = self._joint_step(f, g, log_normalize=True if self.preserve_frame_confidence else None, language_ids=language_ids)[:, 0, 0, :]
 
                     if logp.dtype != torch.float32:
                         logp = logp.float()
@@ -5082,3 +5072,118 @@ def batched_hyps_to_hypotheses(
                     )
                 start += timestep_cnt
     return hypotheses
+
+def decode_hypothesis(tokenizer:MultilingualTokenizer,hypotheses_list: List[Hypothesis], lang_ids: List[str] = None) -> List[Hypothesis]:
+    for ind in range(len(hypotheses_list)):
+        prediction = hypotheses_list[ind].y_sequence
+        if type(prediction) != list:
+            prediction = prediction.tolist()
+        prediction = [p for p in prediction if p != BLANK_ID]
+        if lang_ids is not None: #CTEMO
+            hypothesis = tokenizer.ids_to_text(prediction, lang_ids[ind])
+        else:
+            hypothesis = re.sub(r'(\s+)([\.\,\?])', r'\2', tokenizer.ids_to_text(prediction))
+        hypotheses_list[ind].text = hypothesis
+    return hypotheses_list
+
+def make_chunks(file_path,aggressiveness=2,min_chunk_sec=10,max_chunk_sec=15,frame_ms=30,format=None):
+    wav, sr = torchaudio.load(file_path, normalize=True,format=format)
+    wav = wav.mean(0, keepdim=True)
+    if sr != 16000:
+        wav = F_torchaudio.resample(wav, sr, 16000)
+        sr = 16000
+
+    wav_int16 = (wav * 32768).clamp(-32768, 32767).short().squeeze(0)
+    total_samples = len(wav_int16)
+
+    frame_len = int(sr * frame_ms / 1000)
+    total_frames = len(wav_int16) // frame_len
+    wav_int16 = wav_int16[: total_frames * frame_len]
+    frames = wav_int16.view(total_frames, frame_len)
+
+    vad = webrtcvad.Vad(aggressiveness)
+    is_speech = torch.zeros(total_frames, dtype=torch.bool)
+
+    for i, f in enumerate(frames):
+        try:
+            is_speech[i] = vad.is_speech(f.numpy().tobytes(), sr)
+        except:
+            is_speech[i] = False
+
+    segs, start_idx = [], None
+    for i, s in enumerate(is_speech):
+        if s and start_idx is None:
+            start_idx = i
+        elif not s and start_idx is not None:
+            segs.append((start_idx, i))
+            start_idx = None
+    if start_idx is not None:
+        segs.append((start_idx, len(is_speech)))
+    chunks = []
+    times_list = []
+    start_sample = 0
+    min_len = int(min_chunk_sec * sr)
+    max_len = int(max_chunk_sec * sr)
+    while start_sample < total_samples:
+        end_sample = min(start_sample + max_len, total_samples)
+        chunk_end_frame = end_sample // frame_len
+        while chunk_end_frame < len(is_speech) and is_speech[chunk_end_frame]:
+            chunk_end_frame += 1
+            end_sample = min(chunk_end_frame * frame_len, total_samples)
+            if end_sample - start_sample > max_len * 1.5:
+                break
+        if end_sample - start_sample < min_len and end_sample < total_samples:
+            end_sample = min(start_sample + min_len, total_samples)
+        chunk = wav[:, start_sample:end_sample]
+        chunks.append(chunk.squeeze())
+        times_list.append([
+            round(start_sample / sr, 2),
+            round(end_sample / sr, 2)
+        ])
+        start_sample = end_sample
+    times = torch.tensor(times_list, dtype=torch.float32)
+    return chunks, times
+
+def make_srt(h: List[Hypothesis], ts: torch.Tensor, tokenizer:SentencePieceTokenizer, denormalizer: int=0.08):
+    timestamp = []
+    for hyp, (s, e) in zip(h, ts):
+        starts = s + np.array(hyp.timestep) * denormalizer
+        for txt, st, en in zip(tokenizer.ids_to_tokens([int(i) for i in hyp.y_sequence]),starts,list(starts[1:]) + [e]):
+            timestamp.append({"text": txt,"start": float(st),"end": float(en)})
+        timestamp.append({"text": "<line>","start": float(e),"end": float(e + 0.005)})
+    return [
+        srt.Subtitle(
+            index,
+            timedelta(seconds=item["start"]),
+            timedelta(seconds=item["end"]),
+            item["text"]
+        )
+        for index, item in enumerate(timestamp, 1)
+    ]
+
+def padding_audio(batch):
+    audios, times = zip(*batch)
+
+    lengths = torch.tensor([len(x) for x in audios])
+    max_len = lengths.max()
+
+    padded = torch.stack([
+        F.pad(x, (0, max_len - len(x)))
+        for x in audios
+    ])
+
+    times = torch.stack(times)   # each is a tensor [start, end]
+
+    return padded, lengths, times
+
+
+class ChunkedData(Dataset):
+    def __init__(self, audio_path):
+        self.data,self.ts = make_chunks(audio_path)
+
+    def __len__(self):
+        return len(self.data)
+    
+    def __getitem__(self, idx):
+        return self.data[idx],self.ts[idx]
+

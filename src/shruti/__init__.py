@@ -1,102 +1,73 @@
-import sys
-from shruti import nemo
-
-sys.modules['nemo'] = nemo
-
-from nemo.collections.asr.models import ASRModel
-from contextlib import contextmanager
-from datetime import timedelta
-from huggingface_hub import hf_hub_download
-from nemo.collections.asr.models.hybrid_rnnt_ctc_bpe_models import EncDecHybridRNNTCTCBPEModel
-from nemo.collections.common.tokenizers.sentencepiece_tokenizer import SentencePieceTokenizer
-import numpy as np
-import torch
-import torchaudio
-import webrtcvad
-import srt
-import logging
 import gc
-
-@contextmanager
-def mute_logging():
-    previous_level = logging.root.manager.disable
-    logging.disable(logging.CRITICAL)
-    try:
-        yield
-    finally:
-        logging.disable(previous_level)
-
-def make_chunks(file_path,aggressiveness=2,min_chunk_sec=10,max_chunk_sec=15,frame_ms=30,format=None):
-    wav, sr = torchaudio.load(file_path, normalize=True,format=format)
-    wav = wav.mean(0, keepdim=True)
-    if sr != 16000:
-        wav = torchaudio.functional.resample(wav, sr, 16000)
-        sr = 16000
-    wav_int16 = (wav * 32768).clamp(-32768, 32767).short().squeeze(0)
-    total_samples = len(wav_int16)
-    frame_len = int(sr * frame_ms / 1000)
-    total_frames = len(wav_int16) // frame_len
-    wav_int16 = wav_int16[: total_frames * frame_len]
-    frames = wav_int16.view(total_frames, frame_len)
-    vad = webrtcvad.Vad(aggressiveness)
-    is_speech = torch.zeros(total_frames, dtype=torch.bool)
-    for i, f in enumerate(frames):
-        try:
-            is_speech[i] = vad.is_speech(f.numpy().tobytes(), sr)
-        except:
-            is_speech[i] = False
-    segs, start_idx = [], None
-    for i, s in enumerate(is_speech):
-        if s and start_idx is None:
-            start_idx = i
-        elif not s and start_idx is not None:
-            segs.append((start_idx, i))
-            start_idx = None
-    if start_idx is not None:
-        segs.append((start_idx, len(is_speech)))
-    chunks, times = [], []
-    start_sample = 0
-    min_len = int(min_chunk_sec * sr)
-    max_len = int(max_chunk_sec * sr)
-    while start_sample < total_samples:
-        end_sample = min(start_sample + max_len, total_samples)
-        chunk_end_frame = end_sample // frame_len
-        while chunk_end_frame < len(is_speech) and is_speech[chunk_end_frame]:
-            chunk_end_frame += 1
-            end_sample = min(chunk_end_frame * frame_len, total_samples)
-            if end_sample - start_sample > max_len * 1.5:
-                break
-        if end_sample - start_sample < min_len and end_sample < total_samples:
-            end_sample = min(start_sample + min_len, total_samples)
-        chunk = wav[:, start_sample:end_sample]
-        chunks.append(chunk.squeeze())
-        times.append((round(start_sample / sr, 2), round(end_sample / sr, 2)))
-        start_sample = end_sample
-    return chunks, times
-
-
-class ShrutiASR(torch.nn.Module):
-
-    def __init__(self, model_path=None):
+import math
+from pathlib import Path
+from torch import nn
+from tqdm import tqdm
+from shruti.utils import BLANK_ID, ConformerLayer, ConvSubsampling, GreedyBatchedRNNTInfer, MelPreprocessor, MultilingualTokenizer, RNNTDecoder, RNNTJoint, RelPositionalEncoding, SentencePieceTokenizer, create_masks, decode_hypothesis, pack_hypotheses , ChunkedData , padding_audio , make_srt
+import torch
+from safetensors.torch import load_file
+from huggingface_hub import snapshot_download
+import srt
+from torch.utils.data import DataLoader
+class ShrutiASR(nn.Module):
+    def __init__(self):
         super().__init__()
-        if not model_path:
-            model_path = hf_hub_download("shethjenil/CONFORMER_INDIC_STT","indicconformer_stt_all_hybrid_rnnt_large.nemo")
-        with mute_logging():
-            self.model:EncDecHybridRNNTCTCBPEModel = ASRModel.restore_from(model_path)
-        self.eval()
-        self.denormalize = self.model.to_config_dict()["preprocessor"]["window_stride"] * self.model.encoder.subsampling_factor
-        self.languages = list(self.model.tokenizer.tokenizers_dict.keys())
-
-    def forward(self, audio_path, lang="gu", batch_size=4,format=None,verbose=False):
-        vocab: SentencePieceTokenizer = self.model.tokenizer.tokenizers_dict[lang].vocab
-        with torch.inference_mode():
-            chunks, ts = make_chunks(audio_path,format=format)
-            timestamp = []
-            for h, (s, e) in zip(self.model.transcribe(chunks, language_id=lang,batch_size=batch_size, return_hypotheses=True, verbose=verbose)[0], ts):
-                starts = s + np.array(h.timestep) * self.denormalize
-                for txt, st, en in zip([vocab[y] for y in h.y_sequence.tolist()],starts,list(starts[1:]) + [e]):
-                    timestamp.append({"text": txt,"start": float(st),"end": float(en)})
-                timestamp.append({"text": "<line>","start": float(e),"end": float(e + 0.005)})
+        model_path = Path(snapshot_download("shethjenil/shruti"))
+        d_model = 1024
+        ff_expansion_factor = 4
+        n_layers = 24
+        n_heads = 8
+        conv_kernel_size = 9
+        pred_hidden = 640
+        pred_rnn_layers = 2
+        joint_hidden = 640
+        max_symbols = 10
+        conv_channels = 256
+        subsampling_factor = 8
+        feat_in = 80
+        # TODO bhaai aa real preprocessor nathi FilterbankFeatures aa real chhe teni args joi levi
+        self.preprocessor = MelPreprocessor()
+        self.pre_encode = ConvSubsampling('dw_striding',subsampling_factor,feat_in,d_model,conv_channels,activation=nn.ReLU(True))
+        self.pos_enc = RelPositionalEncoding(d_model,xscale=math.sqrt(d_model))
+        self.pos_enc.extend_pe(5000)
+        pos_bias_u = nn.Parameter(torch.Tensor(n_heads, d_model // n_heads))
+        pos_bias_v = nn.Parameter(torch.Tensor(n_heads, d_model // n_heads))
+        nn.init.zeros_(pos_bias_u)
+        nn.init.zeros_(pos_bias_v)
+        self.enc_layers = nn.ModuleList([ConformerLayer(d_model,d_model * ff_expansion_factor,n_heads,conv_kernel_size,conv_context_size=[4,4],pos_bias_u=pos_bias_u,pos_bias_v=pos_bias_v) for _ in range(n_layers)])
+        self.tokenizer = MultilingualTokenizer({i.name:SentencePieceTokenizer(str((i/"tokenizer.model").absolute())) for i in (model_path/"tokenizer").rglob("*/")})
+        self.decoder = RNNTDecoder({'pred_hidden': pred_hidden, 'pred_rnn_layers': pred_rnn_layers, 't_max': None, 'dropout': 0.2},self.tokenizer.vocab_size,multisoftmax=True)
+        self.joint = RNNTJoint(
+            {'joint_hidden': joint_hidden, 'activation': 'relu', 'dropout': 0.2, 'encoder_hidden': d_model, 'pred_hidden': pred_hidden},
+            self.tokenizer.vocab_size,
+            vocabulary=self.tokenizer.vocabulary,
+            multilingual=True,
+            token_id_offsets=self.tokenizer.token_id_offset,
+            language_keys=self.tokenizer.langs,
+            language_masks={lang: [(token_lang == lang) for _, token_lang in self.tokenizer.langs_by_token_id.items()] + [True] for lang in self.tokenizer.tokenizers_dict},
+            offset_token_ids_by_token_id = self.tokenizer.offset_token_ids_by_token_id
+            )
+        self.greedy_decoder = GreedyBatchedRNNTInfer(self.decoder,self.joint,BLANK_ID,max_symbols,confidence_method_cfg={'name': 'entropy', 'entropy_type': 'tsallis', 'alpha': 0.33, 'entropy_norm': 'exp', 'temperature': 'DEPRECATED'},)
+        self.load_state_dict(load_file(model_path/"model.safetensors"),strict=False)
+    def encoder(self,audio_tensor,length_tensor):
+        audio_tensor,length_tensor = self.preprocessor.forward(audio_tensor,length_tensor)
+        audio_tensor,length_tensor = self.pre_encode.forward(audio_tensor.transpose(1, 2),length_tensor)
+        length_tensor = length_tensor.to(torch.int64)
+        audio_tensor , pos_emb = self.pos_enc.forward(audio_tensor)
+        pad_mask, att_mask = create_masks(length_tensor,audio_tensor.size(1))
+        for i in tqdm(self.enc_layers):
+            audio_tensor = i.forward(audio_tensor,att_mask,pos_emb,pad_mask)
+        return audio_tensor , length_tensor
+    def decoding_with_lang(self,audio_tensor,length_tensor,language):
+        l_id = [language] * len(audio_tensor)
+        # return decode_hypothesis(self.tokenizer,pack_hypotheses(self.greedy_decoder._greedy_decode_blank_as_pad_loop_frames(audio_tensor, length_tensor, l_id), length_tensor),l_id)
+        return self.greedy_decoder._greedy_decode_blank_as_pad_loop_frames(audio_tensor, length_tensor, l_id)
+    @torch.inference_mode()
+    def forward(self,audio_path,batch_size=2,language="hi"):
+        subtitles = []
+        for batch, lengths, timestamp in DataLoader(ChunkedData(audio_path),batch_size,shuffle=True,collate_fn=padding_audio):
+            batch, lengths = self.encoder(batch, lengths)
+            subtitles.extend(make_srt(self.decoding_with_lang(batch,lengths,language),timestamp,self.tokenizer.tokenizers_dict.get(language)))
             torch.cuda.empty_cache()
             gc.collect()
-            return srt.compose([srt.Subtitle(index,timedelta(seconds=i["start"]),timedelta(seconds=i["end"]),i["text"]) for index, i in enumerate(timestamp, 1)])
+        return srt.compose(subtitles)
