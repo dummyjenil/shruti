@@ -1,23 +1,34 @@
 import gc
+import json
 import math
-from pathlib import Path
 from torch import nn
-from tqdm import tqdm
-from shruti.utils import BLANK_ID, ConformerLayer, ConvSubsampling, GreedyBatchedRNNTInfer, MelPreprocessor, MultilingualTokenizer, RNNTDecoder, RNNTJoint, RelPositionalEncoding, SentencePieceTokenizer, create_masks, decode_hypothesis, pack_hypotheses , ChunkedData , padding_audio , make_srt
+from shruti.torch_weight_conversion import torch_weight_conversion
+from shruti.utils import BLANK_ID, ChunkedData, ConvSubsampling, MelPreprocessor, create_masks, make_srt, padding_audio , GreedyBatchedRNNTInfer ,  RNNTDecoder, RNNTJoint
 import torch
 from safetensors.torch import load_file
-from huggingface_hub import snapshot_download
+from huggingface_hub import hf_hub_download
 import srt
 from torch.utils.data import DataLoader
+from transformers.models.wav2vec2_conformer.modeling_wav2vec2_conformer import Wav2Vec2ConformerEncoder , Wav2Vec2ConformerConfig
+
+
+class MaskPad(nn.Module):
+    def __init__(self):
+        super().__init__()
+        self.pad_mask = None
+    def forward(self, hidden_states):
+        if self.pad_mask is None:
+            return hidden_states
+        return hidden_states.float().masked_fill(self.pad_mask.unsqueeze(1), 0.0)
+
 class ShrutiASR(nn.Module):
     def __init__(self):
         super().__init__()
-        model_path = Path(snapshot_download("shethjenil/shruti"))
-        d_model = 1024
+        self.d_model = d_model  = 1024
         ff_expansion_factor = 4
         n_layers = 24
         n_heads = 8
-        conv_kernel_size = 9
+        self.conv_kernel_size = conv_kernel_size = 9
         pred_hidden = 640
         pred_rnn_layers = 2
         joint_hidden = 640
@@ -25,49 +36,67 @@ class ShrutiASR(nn.Module):
         conv_channels = 256
         subsampling_factor = 8
         feat_in = 80
-        # TODO bhaai aa real preprocessor nathi FilterbankFeatures aa real chhe teni args joi levi
         self.preprocessor = MelPreprocessor()
-        self.pre_encode = ConvSubsampling('dw_striding',subsampling_factor,feat_in,d_model,conv_channels,activation=nn.ReLU(True))
-        self.pos_enc = RelPositionalEncoding(d_model,xscale=math.sqrt(d_model))
-        self.pos_enc.extend_pe(5000)
-        pos_bias_u = nn.Parameter(torch.Tensor(n_heads, d_model // n_heads))
-        pos_bias_v = nn.Parameter(torch.Tensor(n_heads, d_model // n_heads))
-        nn.init.zeros_(pos_bias_u)
-        nn.init.zeros_(pos_bias_v)
-        self.enc_layers = nn.ModuleList([ConformerLayer(d_model,d_model * ff_expansion_factor,n_heads,conv_kernel_size,conv_context_size=[4,4],pos_bias_u=pos_bias_u,pos_bias_v=pos_bias_v) for _ in range(n_layers)])
-        self.tokenizer = MultilingualTokenizer({i.name:SentencePieceTokenizer(str((i/"tokenizer.model").absolute())) for i in (model_path/"tokenizer").rglob("*/")})
-        self.decoder = RNNTDecoder({'pred_hidden': pred_hidden, 'pred_rnn_layers': pred_rnn_layers, 't_max': None, 'dropout': 0.2},self.tokenizer.vocab_size,multisoftmax=True)
-        self.joint = RNNTJoint(
-            {'joint_hidden': joint_hidden, 'activation': 'relu', 'dropout': 0.2, 'encoder_hidden': d_model, 'pred_hidden': pred_hidden},
-            self.tokenizer.vocab_size,
-            vocabulary=self.tokenizer.vocabulary,
-            multilingual=True,
-            token_id_offsets=self.tokenizer.token_id_offset,
-            language_keys=self.tokenizer.langs,
-            language_masks={lang: [(token_lang == lang) for _, token_lang in self.tokenizer.langs_by_token_id.items()] + [True] for lang in self.tokenizer.tokenizers_dict},
-            offset_token_ids_by_token_id = self.tokenizer.offset_token_ids_by_token_id
-            )
-        self.greedy_decoder = GreedyBatchedRNNTInfer(self.decoder,self.joint,BLANK_ID,max_symbols,confidence_method_cfg={'name': 'entropy', 'entropy_type': 'tsallis', 'alpha': 0.33, 'entropy_norm': 'exp', 'temperature': 'DEPRECATED'},)
-        self.load_state_dict(load_file(model_path/"model.safetensors"),strict=False)
-    def encoder(self,audio_tensor,length_tensor):
+        self.pre_encode = ConvSubsampling(subsampling_factor,feat_in,d_model,conv_channels)
+        self.encoder = Wav2Vec2ConformerEncoder(Wav2Vec2ConformerConfig(None,d_model,n_layers,n_heads,d_model*ff_expansion_factor,"swish",conv_depthwise_kernel_size=conv_kernel_size))
+        self.vocab = json.load(open(hf_hub_download("shethjenil/IndicConformer","vocab.json")))
+        vocab_size = sum([len(v) for v in self.vocab.values()])
+        self.decoder = RNNTDecoder({'pred_hidden': pred_hidden, 'pred_rnn_layers': pred_rnn_layers},vocab_size,multisoftmax=True)
+        self.joint = RNNTJoint({'joint_hidden': joint_hidden, 'activation': 'relu', 'encoder_hidden': d_model, 'pred_hidden': pred_hidden},vocab_size,multilingual=True,language_keys=list(self.vocab.keys()),
+            preserve_memory=True, # check experiment
+        )
+        self.greedy_decoder = GreedyBatchedRNNTInfer(self.decoder,self.joint,BLANK_ID,max_symbols)
+        self.load_state_dict(self.model_preprocess(load_file(hf_hub_download("shethjenil/IndicConformer","model.safetensors"))))
+        self.eval()
+
+    def encoder_fn(self,audio_tensor,length_tensor):
         audio_tensor,length_tensor = self.preprocessor.forward(audio_tensor,length_tensor)
         audio_tensor,length_tensor = self.pre_encode.forward(audio_tensor.transpose(1, 2),length_tensor)
         length_tensor = length_tensor.to(torch.int64)
-        audio_tensor , pos_emb = self.pos_enc.forward(audio_tensor)
-        pad_mask, att_mask = create_masks(length_tensor,audio_tensor.size(1))
-        for i in tqdm(self.enc_layers):
-            audio_tensor = i.forward(audio_tensor,att_mask,pos_emb,pad_mask)
-        return audio_tensor , length_tensor
-    def decoding_with_lang(self,audio_tensor,length_tensor,language):
-        l_id = [language] * len(audio_tensor)
-        # return decode_hypothesis(self.tokenizer,pack_hypotheses(self.greedy_decoder._greedy_decode_blank_as_pad_loop_frames(audio_tensor, length_tensor, l_id), length_tensor),l_id)
-        return self.greedy_decoder._greedy_decode_blank_as_pad_loop_frames(audio_tensor, length_tensor, l_id)
+        audio_tensor = audio_tensor * math.sqrt(self.d_model)
+        self.mask_layer.pad_mask = ~torch.arange(0, audio_tensor.size(1)).expand(length_tensor.size(0), -1) < length_tensor.unsqueeze(-1)
+        return self.encoder.forward(audio_tensor).last_hidden_state , length_tensor
+
+    def model_preprocess(self,state_dict):
+        change_config = """
+preprocessor.featurizer,preprocessor
+encoder.pre_encode,pre_encode
+norm_feed_forward1,ffn1_layer_norm
+norm_feed_forward2,ffn2_layer_norm
+feed_forward1.linear1,ffn1.intermediate_dense
+feed_forward1.linear2,ffn1.output_dense
+feed_forward2.linear1,ffn2.intermediate_dense
+feed_forward2.linear2,ffn2.output_dense
+norm_self_att,self_attn_layer_norm
+norm_out,final_layer_norm
+norm_conv,conv_module.layer_norm
+fb,mel_fb
+.conv.,.conv_module.
+pre_encode.conv_module,pre_encode.conv
+depthwise_conv,depthwise_conv.1
+joint_net.2,joint_net.1
+dec_rnn.lstm.,dec_rnn.
+"""
+        d_model = self.d_model
+        conv_kernel_size = self.conv_kernel_size
+        del self.encoder.pos_conv_embed
+        self.mask_layer = MaskPad()
+        for i in range(len(self.encoder.layers)):
+            self.encoder.layers[i].conv_module.depthwise_conv = nn.Sequential(self.mask_layer,nn.Conv1d(d_model,d_model,conv_kernel_size,1,(conv_kernel_size - 1) // 2,1,d_model))
+            self.encoder.layers[i].conv_module.pointwise_conv1 = nn.Conv1d(d_model,2*d_model,1)
+            self.encoder.layers[i].conv_module.pointwise_conv2 = nn.Conv1d(d_model,d_model,1)
+        self.encoder.layer_norm = nn.Identity()
+        state_dict:dict[str,torch.Tensor] =  torch_weight_conversion(state_dict,change_config)
+        state_dict['preprocessor.mel_fb'] = state_dict['preprocessor.mel_fb'].squeeze(0)
+        del state_dict['ctc_decoder.decoder_layers.0.bias']
+        del state_dict['ctc_decoder.decoder_layers.0.weight']
+        return state_dict
     @torch.inference_mode()
     def forward(self,audio_path,batch_size=2,language="hi"):
         subtitles = []
-        for batch, lengths, timestamp in DataLoader(ChunkedData(audio_path),batch_size,shuffle=True,collate_fn=padding_audio):
-            batch, lengths = self.encoder(batch, lengths)
-            subtitles.extend(make_srt(self.decoding_with_lang(batch,lengths,language),timestamp,self.tokenizer.tokenizers_dict.get(language)))
+        for batch, lengths, timestamp in DataLoader(ChunkedData(audio_path),batch_size,shuffle=False,collate_fn=padding_audio):
+            batch, lengths = self.encoder_fn(batch, lengths)
+            subtitles.extend(make_srt(self.greedy_decoder(batch, lengths, [language] * len(lengths)),timestamp,self.vocab.get(language)))
             torch.cuda.empty_cache()
             gc.collect()
         return srt.compose(subtitles)

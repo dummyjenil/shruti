@@ -9,7 +9,7 @@ authors = [
 dependencies = [
     'librosa',
     'numpy',
-    'sentencepiece',
+    'torchcodec',
     'torch',
     'torchaudio',
     'tqdm',
@@ -17,6 +17,7 @@ dependencies = [
     'webrtcvad',
     'srt',
     'safetensors',
+    'transformers',
 ]
 
 [project.optional-dependencies]
@@ -59,5 +60,5 @@ nemo = [
 ]
 
 [build-system]
-requires = ["uv_build>=0.8.17,<0.9.0"]
+requires = ["uv_build"]
 build-backend = "uv_build"
