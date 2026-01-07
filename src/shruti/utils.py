@@ -10,20 +10,207 @@ import srt
 from torch.utils.data import Dataset
 import torchaudio.functional as F_torchaudio
 import math
-from shruti.rnnt_utils import Hypothesis
 from shruti.spleeter import Spleeter
-CONSTANT = 1e-5
+from dataclasses import dataclass, field
+from typing import List, Optional, Tuple, Union
 
-def calc_length(lengths, all_paddings, kernel_size, stride, ceil_mode, repeat_num=1):
-    add_pad: float = all_paddings - kernel_size
-    one: float = 1.0
-    for _ in range(repeat_num):
-        lengths = torch.div(lengths.to(dtype=torch.float) + add_pad, stride) + one
-        if ceil_mode:
-            lengths = torch.ceil(lengths)
+@dataclass
+class Hypothesis:
+    y_sequence: Union[List[int], torch.Tensor]
+    timestep: Union[List[int], torch.Tensor] = field(default_factory=list)
+
+def label_collate(labels):
+    if isinstance(labels, torch.Tensor):
+        return labels.type(torch.int64)
+    if not isinstance(labels, (list, tuple)):
+        raise ValueError(f"`labels` should be a list or tensor not {type(labels)}")
+    batch_size = len(labels)
+    max_len = max(len(label) for label in labels)
+    cat_labels = np.full((batch_size, max_len), fill_value=0.0, dtype=np.int32)
+    for e, l in enumerate(labels):
+        if isinstance(l, torch.Tensor):
+            l = l.squeeze().cpu().numpy()
+            if l.ndim == 0:
+                l = [l.item()]
+        cat_labels[e, : len(l)] = l
+    return torch.tensor(cat_labels, dtype=torch.int64)
+
+class RNNTDecoder(nn.Module):
+    def __init__(
+        self,
+        pred_hidden:int,
+        pred_rnn_layers:int,
+        vocab_size: int,
+    ):
+        super().__init__()
+        rnn_hidden_size = -1
+        self.pred_hidden = pred_hidden
+        self.embed = nn.Embedding(vocab_size + 1, self.pred_hidden, padding_idx=vocab_size)
+        self.lstm = nn.LSTM(self.pred_hidden,rnn_hidden_size if rnn_hidden_size > 0 else self.pred_hidden,pred_rnn_layers)
+    def forward(self, targets, target_length, states=None):
+        g, states = self.predict(label_collate(targets), state=states)
+        return g.transpose(1, 2), target_length, states
+    def predict(
+        self,
+        y: Optional[torch.Tensor] = None,
+        state: Optional[List[torch.Tensor]] = None,
+        batch_size: Optional[int] = None,
+    ) -> Tuple[torch.Tensor, List[torch.Tensor]]:
+        _p = next(self.parameters())
+        device = _p.device
+        dtype = _p.dtype
+        if y is not None:
+            if y.device != device:
+                y = y.to(device)
+            y = self.embed(y)
         else:
-            lengths = torch.floor(lengths)
-    return lengths.to(dtype=torch.int)
+            if batch_size is None:
+                B = 1 if state is None else state[0].size(1)
+            else:
+                B = batch_size
+            y = torch.zeros((B, 1, self.pred_hidden), device=device, dtype=dtype)
+        B, U, H = y.shape
+        start = torch.zeros((B, 1, H), device=y.device, dtype=y.dtype)
+        y = torch.cat([start, y], dim=1).contiguous()  
+        y = y.transpose(0, 1)  
+        g, hid = self.lstm(y, state)
+        g = g.transpose(0, 1)  
+        del y, start, state
+        return g, hid
+
+    def batch_copy_states(
+        self,
+        old_states: List[torch.Tensor],
+        new_states: List[torch.Tensor],
+        ids: List[int],
+        value: Optional[float] = None,
+    ) -> List[torch.Tensor]:
+        for state_id in range(len(old_states)):
+            if value is None:
+                old_states[state_id][:, ids, :] = new_states[state_id][:, ids, :]
+            else:
+                old_states[state_id][:, ids, :] *= 0.0
+                old_states[state_id][:, ids, :] += value
+        return old_states
+
+class RNNTJoint(nn.Module):
+    def __init__(
+        self,
+        pred_hidden:int,
+        encoder_hidden:int,
+        joint_hidden:int,
+        num_classes: int,
+    ):
+        super().__init__()
+        self.pred = nn.Linear(pred_hidden, joint_hidden)
+        self.enc = nn.Linear(encoder_hidden, joint_hidden)
+        self.relu = nn.ReLU(inplace=True)
+        self.joint_net = nn.Linear(joint_hidden, num_classes + 1)
+        self.temperature = 1.0
+    def forward(self,encoder_outputs: torch.Tensor,decoder_outputs: Optional[torch.Tensor]) -> Union[torch.Tensor, List[Optional[torch.Tensor]]]:
+        encoder_outputs = encoder_outputs.transpose(1, 2)
+        decoder_outputs = decoder_outputs.transpose(1, 2)
+        x = self.enc(encoder_outputs).unsqueeze(dim=2) + self.pred(decoder_outputs).unsqueeze(dim=1)
+        x = self.relu(x)
+        x = self.joint_net(x)
+        if not x.is_cuda:  
+            if self.temperature != 1.0:
+                x = (x / self.temperature).log_softmax(dim=-1)
+            else:
+                x = x.log_softmax(dim=-1)
+        return x
+
+class GreedyRNNTInfer(nn.Module):
+    def __init__(self,pred_hidden,pred_rnn_layers,vocab_size,lang_vocab_size,d_model,joint_hidden,blank_id,max_symbols):
+        super().__init__()
+        self.decoder = RNNTDecoder(pred_hidden,pred_rnn_layers,vocab_size)
+        self.joint = RNNTJoint(pred_hidden,d_model,joint_hidden,lang_vocab_size)
+        self._blank_index = blank_id
+        self._SOS = blank_id
+        self.max_symbols = max_symbols
+
+    def _pred_step(
+        self,
+        label: Union[torch.Tensor, int],
+        hidden: Optional[torch.Tensor],
+        batch_size: Optional[int] = None,
+    ) -> Tuple[torch.Tensor, torch.Tensor]:
+        if isinstance(label, torch.Tensor):
+            if label.dtype != torch.long:
+                label = label.long()
+            return self.decoder.predict(label, hidden, batch_size=batch_size)
+        else:
+            if label == self._SOS:
+                return self.decoder.predict(None, hidden, batch_size=batch_size)
+            label = label_collate([[label]])
+            return self.decoder.predict(label, hidden, batch_size=batch_size)
+
+    def _joint_step(self, enc, pred):
+        logits = self.joint(enc.transpose(1, 2), pred.transpose(1, 2))
+        if not logits.is_cuda:
+            logits = logits.log_softmax(dim=len(logits.shape) - 1)
+        return logits
+
+    def forward(
+        self,
+        x: torch.Tensor,
+        out_len: torch.Tensor,
+        device: torch.device,
+    ):
+        batchsize = x.shape[0]
+        hypotheses = [Hypothesis(y_sequence=[], timestep=[]) for _ in range(batchsize)]
+        hidden = None
+        last_label = torch.full([batchsize, 1], fill_value=self._blank_index, dtype=torch.long, device=device)
+        blank_mask = torch.full([batchsize], fill_value=0, dtype=torch.bool, device=device)
+        blank_mask_prev = None
+        max_out_len = out_len.max()
+        for time_idx in range(max_out_len):
+            f = x.narrow(dim=1, start=time_idx, length=1)  
+            not_blank = True
+            symbols_added = 0
+            blank_mask.mul_(False)
+            blank_mask = time_idx >= out_len
+            blank_mask_prev = blank_mask.clone()
+            while not_blank and (self.max_symbols is None or symbols_added < self.max_symbols):
+                if time_idx == 0 and symbols_added == 0 and hidden is None:
+                    g, hidden_prime = self._pred_step(self._SOS, hidden, batch_size=batchsize)
+                else:
+                    g, hidden_prime = self._pred_step(last_label, hidden, batch_size=batchsize)
+                logp = self._joint_step(f, g)[
+                    :, 0, 0, :
+                ]
+                if logp.dtype != torch.float32:
+                    logp = logp.float()
+                v, k = logp.max(1)
+                del g
+                k_is_blank = k == self._blank_index
+                blank_mask.bitwise_or_(k_is_blank)
+                del k_is_blank
+                del logp
+                blank_mask_prev.bitwise_or_(blank_mask)
+                if blank_mask.all():
+                    not_blank = False
+                else:
+                    blank_indices = (blank_mask == 1).nonzero(as_tuple=False)
+                    if hidden is not None:
+                        hidden_prime = self.decoder.batch_copy_states(hidden_prime, hidden, blank_indices)
+                    elif len(blank_indices) > 0 and hidden is None:
+                        hidden_prime = self.decoder.batch_copy_states(hidden_prime, None, blank_indices, value=0.0)
+                    k[blank_indices] = last_label[blank_indices, 0]
+                    last_label = k.clone().view(-1, 1)
+                    hidden = hidden_prime
+                    for kidx, ki in enumerate(k):
+                        if blank_mask[kidx] == 0:
+                            hypotheses[kidx].y_sequence.append(ki)
+                            hypotheses[kidx].timestep.append(time_idx)
+                    symbols_added += 1
+        return hypotheses
+
+def calc_length(lengths, all_paddings, kernel_size, stride, repeat_num=1):
+    add_pad = all_paddings - kernel_size
+    for _ in range(repeat_num):
+        lengths = torch.floor(torch.div(lengths.to(dtype=torch.float) + add_pad, stride) + 1.0)
+    return lengths
 
 class MelPreprocessor(nn.Module):
     def __init__(
@@ -55,7 +242,7 @@ class MelPreprocessor(nn.Module):
         self.pad_to = pad_to
         self.pad_value = pad_value
         self.mag_power = mag_power
-
+        self.constant = 1e-5
         # Window (NeMo uses periodic=False)
         window = torch.hann_window(self.win_length, periodic=False)
         self.register_buffer("window", window)
@@ -101,7 +288,7 @@ class MelPreprocessor(nn.Module):
 
         # Magnitude
         spec = torch.view_as_real(spec)
-        mag = torch.sqrt(spec.pow(2).sum(-1) + CONSTANT)
+        mag = torch.sqrt(spec.pow(2).sum(-1) + self.constant)
 
         # Power
         if self.mag_power != 1.0:
@@ -130,7 +317,7 @@ class MelPreprocessor(nn.Module):
             feats = feats.masked_fill(mask.unsqueeze(1), 0.0)
             mean = feats.sum(-1) / feat_lens.unsqueeze(1)
             var = ((feats - mean.unsqueeze(-1)) ** 2).sum(-1) / (feat_lens.unsqueeze(1) - 1)
-            std = torch.sqrt(var + CONSTANT)
+            std = torch.sqrt(var + self.constant)
 
             feats = (feats - mean.unsqueeze(-1)) / std.unsqueeze(-1)
             feats = feats.masked_fill(mask.unsqueeze(1), 0.0)
@@ -148,14 +335,12 @@ class MelPreprocessor(nn.Module):
         return feats, feat_lens
 
 class ConvSubsampling(nn.Module):
-
     def __init__(
         self,
         subsampling_factor,
         feat_in,
         feat_out,
-        conv_channels,
-        activation=nn.ReLU(True),
+        conv_channels
     ):
         super().__init__()
         self._conv_channels = conv_channels
@@ -165,37 +350,37 @@ class ConvSubsampling(nn.Module):
         if subsampling_factor % 2 != 0:
             raise ValueError("Sampling factor should be a multiply of 2!")
         self._sampling_num = int(math.log(subsampling_factor, 2))
-        self.subsampling_factor = subsampling_factor
         in_channels = 1
         layers = []
         self._stride = 2
         self._kernel_size = 3
-        self._ceil_mode = False
         self._left_padding = (self._kernel_size - 1) // 2
         self._right_padding = (self._kernel_size - 1) // 2
-        self._max_cache_len = 0
         layers.append(nn.Conv2d(in_channels,conv_channels,self._kernel_size,self._stride,self._left_padding))
         in_channels = conv_channels
-        layers.append(activation)
+        layers.append(nn.ReLU(True))
         for _ in range(self._sampling_num - 1):
-            layers.extend([nn.Conv2d(in_channels,in_channels,self._kernel_size,self._stride,self._left_padding,groups=in_channels,),nn.Conv2d(in_channels,conv_channels,1,1),activation])
+            layers.extend([nn.Conv2d(in_channels,in_channels,self._kernel_size,self._stride,self._left_padding,groups=in_channels,),
+                           nn.Conv2d(in_channels,conv_channels,1,1),
+                           nn.ReLU(True)])
             in_channels = conv_channels
-        self.out = nn.Linear(conv_channels * int(calc_length(
-            lengths=torch.tensor(feat_in, dtype=torch.float),
-            all_paddings=self._left_padding + self._right_padding,
-            kernel_size=self._kernel_size,
-            stride=self._stride,
-            ceil_mode=self._ceil_mode,
-            repeat_num=self._sampling_num,
-        )), feat_out)
+        self.out = nn.Linear(conv_channels * int(calc_length(torch.tensor(feat_in, dtype=torch.float),self._left_padding + self._right_padding,self._kernel_size,self._stride,repeat_num=self._sampling_num)), feat_out)
         self.conv = nn.Sequential(*layers)
 
     def forward(self, x:torch.Tensor, lengths:torch.Tensor):
-        x = x.unsqueeze(1)
-        x = self.conv(x)
+        x = self.conv(x.transpose(1, 2).unsqueeze(1))
         b, c, t, f = x.size()
         x = self.out(x.transpose(1, 2).reshape(b, t, -1))
-        return x, calc_length(lengths,self._left_padding + self._right_padding,self._kernel_size,self._stride,self._ceil_mode,self._sampling_num,)
+        return x, calc_length(lengths,self._left_padding + self._right_padding,self._kernel_size,self._stride,self._sampling_num,).to(torch.int64)
+
+class MaskPad(nn.Module):
+    def __init__(self):
+        super().__init__()
+        self.pad_mask = None
+    def forward(self, hidden_states):
+        if self.pad_mask is None:
+            return hidden_states
+        return hidden_states.float().masked_fill(self.pad_mask.unsqueeze(1), 0.0)
 
 def make_chunks(wav,sr,aggressiveness=2,min_chunk_sec=10,max_chunk_sec=15,frame_ms=30):
    
@@ -290,23 +475,17 @@ def padding_audio(batch):
 class ChunkedData(Dataset):
     def __init__(self, audio_path,spleeter:Spleeter):
         wav, sr = torchaudio.load(audio_path)
-        stem = spleeter.separate_audio_in_chunks(wav,sr)
-        # self.music = stem['instruments']
-        self.vocal = stem['vocal']
-        del stem
-        self.data,self.ts = make_chunks(self.vocal,44100)
+        if spleeter:
+            stem = spleeter.separate_audio_in_chunks(wav,sr)
+            # self.music = stem['instruments']
+            self.vocal = torchaudio.functional.resample(stem['vocal'], 44100, 16000)
+            del stem
+        else:
+            self.vocal = torchaudio.functional.resample(wav, sr, 16000)
+
+        self.data,self.ts = make_chunks(self.vocal,16000)
     def __len__(self):
         return len(self.data)
     
     def __getitem__(self, idx):
         return self.data[idx],self.ts[idx]
-
-
-class MaskPad(nn.Module):
-    def __init__(self):
-        super().__init__()
-        self.pad_mask = None
-    def forward(self, hidden_states):
-        if self.pad_mask is None:
-            return hidden_states
-        return hidden_states.float().masked_fill(self.pad_mask.unsqueeze(1), 0.0)

@@ -5,7 +5,6 @@ from torch.nn import functional as F
 import torch
 import torchaudio
 import math
-
 import gc
 def batchify(tensor: Tensor, T: int) -> Tensor:
     orig_size = tensor.size(-1)
@@ -237,9 +236,3 @@ class Spleeter(nn.Module):
         }
 
         return final_outputs
-
-CONFIG = {
-    2:['2_other', '2_vocals'],
-    4:['4_bass', '4_drums', '4_other', '4_vocals'],
-    5:['5_bass', '5_drums', '5_other', '5_piano', '5_vocals']
-}
