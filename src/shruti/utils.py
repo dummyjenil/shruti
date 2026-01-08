@@ -98,10 +98,8 @@ class RNNTJoint(nn.Module):
         self.relu = nn.ReLU(inplace=True)
         self.joint_net = nn.Linear(joint_hidden, vocab_size + 1)
         self.temperature = 1.0
-    def forward(self, encoder_outputs, decoder_outputs,language_ids=None):
-        encoder_outputs = encoder_outputs.transpose(1, 2)
-        decoder_outputs = decoder_outputs.transpose(1, 2)
-        x = self.joint_net(self.relu(self.enc(encoder_outputs).unsqueeze(2) + self.pred(decoder_outputs).unsqueeze(1)))
+    def forward(self, g, f):
+        x = self.joint_net(self.relu(self.enc(g).unsqueeze(2) + self.pred(f).unsqueeze(1)))
         if not x.is_cuda:  
             if self.temperature != 1.0:
                 x = (x / self.temperature).log_softmax(dim=-1)
@@ -146,13 +144,8 @@ class MelPreprocessor(nn.Module):
         self.pad_value = pad_value
         self.mag_power = mag_power
         self.constant = 1e-5
-        # Window (NeMo uses periodic=False)
-        window = torch.hann_window(self.win_length, periodic=False)
-        self.register_buffer("window", window)
-
-        # Precomputed NeMo mel filterbank (librosa-based)
-        mel_fb = torch.tensor(librosa.filters.mel(sr=sample_rate,n_fft=n_fft,n_mels=n_mels), dtype=torch.float32)
-        self.register_buffer("mel_fb", mel_fb)
+        self.window = nn.Parameter(torch.hann_window(self.win_length, periodic=False))
+        self.mel_fb = nn.Parameter(torch.tensor(librosa.filters.mel(sr=sample_rate,n_fft=n_fft,n_mels=n_mels), dtype=torch.float32))
 
     def _preemphasis(self, x):
         if self.preemph == 0.0:
@@ -346,7 +339,7 @@ def make_chunks(wav,sr,aggressiveness=2,min_chunk_sec=10,max_chunk_sec=15,frame_
 def make_srt(h: list[Hypothesis], ts: torch.Tensor, tokenizer, denormalizer: int=0.08): # 0.08 is making because of subsampling_factor * window stride = 8 * 0.01
     timestamp = []
     for hyp, (s, e) in zip(h, ts):
-        starts = s + np.array(hyp.timestep) * denormalizer
+        starts = s.cpu() + np.array(hyp.timestep) * denormalizer
         for y, st, en in zip(hyp.y_sequence,starts,list(starts[1:]) + [e]):
             timestamp.append({"text": tokenizer[int(y)],"start": float(st),"end": float(en)})
         timestamp.append({"text": "<line>","start": float(e),"end": float(e + 0.005)})
@@ -376,10 +369,10 @@ def padding_audio(batch):
     return padded, lengths, times
 
 class ChunkedData(Dataset):
-    def __init__(self, audio_path,spleeter:nn.Module):
+    def __init__(self, audio_path,spleeter:nn.Module,batch_size=2,chunk_duration_sec=30):
         wav, sr = torchaudio.load(audio_path)
         if spleeter:
-            stem = spleeter.separate_audio_in_chunks(wav,sr)
+            stem = spleeter.separate_audio_in_chunks(wav,sr,batch_size=batch_size,chunk_duration_sec=chunk_duration_sec)
             # self.music = stem['instruments']
             self.vocal = torchaudio.functional.resample(stem['vocal'], 44100, 16000)
             del stem
@@ -392,24 +385,6 @@ class ChunkedData(Dataset):
     
     def __getitem__(self, idx):
         return self.data[idx],self.ts[idx]
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 class GreedyRNNTInfer(nn.Module):
@@ -439,7 +414,7 @@ class GreedyRNNTInfer(nn.Module):
         return self.decoder.predict(label, hidden, add_sos=add_sos, batch_size=batch_size)
 
     def _joint_step(self, enc, pred, log_normalize: Optional[bool] = None, language_ids=None): 
-        logits = self.joint(encoder_outputs=enc.transpose(1, 2), decoder_outputs=pred.transpose(1, 2), language_ids=language_ids)
+        logits = self.joint(enc, pred)
         if not logits.is_cuda:  
             logits = logits.log_softmax(dim=len(logits.shape) - 1)
         return logits

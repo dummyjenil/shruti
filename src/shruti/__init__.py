@@ -106,17 +106,19 @@ joint.joint_net.2,lang_joint_net
         if self.spleeter:
             state_dict.update({"spleeter.stems.vocal."+i:v for i,v in load_file(hf_hub_download("shethjenil/spleeter","2_vocals.safetensors")).items()})
             state_dict.update({"spleeter.stems.instruments."+i:v for i,v in load_file(hf_hub_download("shethjenil/spleeter","2_other.safetensors")).items()})
+            state_dict['spleeter.win'] = self.spleeter.win            
         return state_dict
 
     @torch.inference_mode()
-    def forward(self, audio_path, batch_size=2, language="hi",streaming=True):
+    def forward(self, audio_path, batch_size=2, language="hi",streaming=True,chunk_duration_sec=30):
         self.decoder.joint.joint_net = self.lang_joint_net[language]
         device = next(self.parameters()).device
-        loader = DataLoader(ChunkedData(audio_path,self.spleeter), batch_size, shuffle=False,collate_fn=padding_audio)
+        self.speaker_diarization.to(device)
+        loader = DataLoader(ChunkedData(audio_path,self.spleeter,chunk_duration_sec=chunk_duration_sec), batch_size, shuffle=False,collate_fn=padding_audio)
         subtitles = []
         for batch, lengths, timestamp in tqdm(loader):
-            batch, lengths = self.encoder_fn(batch, lengths)
-            subtitles.extend(make_srt(self.decoder(batch, lengths,device), timestamp, self.vocab[language]))
+            batch, lengths = self.encoder_fn(batch.to(device), lengths.to(device))
+            subtitles.extend(make_srt(self.decoder(batch, lengths,device), timestamp.to(device), self.vocab[language]))
             torch.cuda.empty_cache()
             gc.collect()
             if streaming:

@@ -85,7 +85,8 @@ class Spleeter(nn.Module):
         self.T = 512
         self.win_length = 4096
         self.hop_length = 1024
-        self.win = torch.hann_window(self.win_length)
+        win = nn.Parameter(torch.hann_window(self.win_length))
+        self.register_buffer("win", win)
         self.stems = nn.ModuleDict({name: UNet() for name in instrument_models})
         self.eval()
 
