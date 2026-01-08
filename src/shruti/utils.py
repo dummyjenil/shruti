@@ -10,14 +10,15 @@ import srt
 from torch.utils.data import Dataset
 import torchaudio.functional as F_torchaudio
 import math
-from shruti.spleeter import Spleeter
 from dataclasses import dataclass, field
 from typing import List, Optional, Tuple, Union
 
 @dataclass
 class Hypothesis:
-    y_sequence: Union[List[int], torch.Tensor]
-    timestep: Union[List[int], torch.Tensor] = field(default_factory=list)
+    score:float
+    y_sequence: List[int] = field(default_factory=list)
+    timestep: List[int] = field(default_factory=list)
+    dec_state: Optional[Tuple] = None
 
 def label_collate(labels):
     if isinstance(labels, torch.Tensor):
@@ -36,24 +37,17 @@ def label_collate(labels):
     return torch.tensor(cat_labels, dtype=torch.int64)
 
 class RNNTDecoder(nn.Module):
-    def __init__(
-        self,
-        pred_hidden:int,
-        pred_rnn_layers:int,
-        vocab_size: int,
-    ):
+    def __init__(self, pred_hidden, pred_rnn_layers, vocab_size):
         super().__init__()
-        rnn_hidden_size = -1
         self.pred_hidden = pred_hidden
-        self.embed = nn.Embedding(vocab_size + 1, self.pred_hidden, padding_idx=vocab_size)
-        self.lstm = nn.LSTM(self.pred_hidden,rnn_hidden_size if rnn_hidden_size > 0 else self.pred_hidden,pred_rnn_layers)
-    def forward(self, targets, target_length, states=None):
-        g, states = self.predict(label_collate(targets), state=states)
-        return g.transpose(1, 2), target_length, states
+        self.pred_rnn_layers = pred_rnn_layers
+        self.embed = nn.Embedding(vocab_size + 1, pred_hidden, padding_idx=vocab_size)
+        self.lstm = nn.LSTM(pred_hidden,pred_hidden,pred_rnn_layers)
     def predict(
         self,
         y: Optional[torch.Tensor] = None,
         state: Optional[List[torch.Tensor]] = None,
+        add_sos: bool = True,
         batch_size: Optional[int] = None,
     ) -> Tuple[torch.Tensor, List[torch.Tensor]]:
         _p = next(self.parameters())
@@ -69,9 +63,12 @@ class RNNTDecoder(nn.Module):
             else:
                 B = batch_size
             y = torch.zeros((B, 1, self.pred_hidden), device=device, dtype=dtype)
-        B, U, H = y.shape
-        start = torch.zeros((B, 1, H), device=y.device, dtype=y.dtype)
-        y = torch.cat([start, y], dim=1).contiguous()  
+        if add_sos:
+            B, U, H = y.shape
+            start = torch.zeros((B, 1, H), device=y.device, dtype=y.dtype)
+            y = torch.cat([start, y], dim=1).contiguous()  
+        else:
+            start = None  
         y = y.transpose(0, 1)  
         g, hid = self.lstm(y, state)
         g = g.transpose(0, 1)  
@@ -94,117 +91,23 @@ class RNNTDecoder(nn.Module):
         return old_states
 
 class RNNTJoint(nn.Module):
-    def __init__(
-        self,
-        pred_hidden:int,
-        encoder_hidden:int,
-        joint_hidden:int,
-        num_classes: int,
-    ):
+    def __init__(self, pred_hidden, enc_hidden, joint_hidden, vocab_size):
         super().__init__()
         self.pred = nn.Linear(pred_hidden, joint_hidden)
-        self.enc = nn.Linear(encoder_hidden, joint_hidden)
+        self.enc = nn.Linear(enc_hidden, joint_hidden)
         self.relu = nn.ReLU(inplace=True)
-        self.joint_net = nn.Linear(joint_hidden, num_classes + 1)
+        self.joint_net = nn.Linear(joint_hidden, vocab_size + 1)
         self.temperature = 1.0
-    def forward(self,encoder_outputs: torch.Tensor,decoder_outputs: Optional[torch.Tensor]) -> Union[torch.Tensor, List[Optional[torch.Tensor]]]:
+    def forward(self, encoder_outputs, decoder_outputs,language_ids=None):
         encoder_outputs = encoder_outputs.transpose(1, 2)
         decoder_outputs = decoder_outputs.transpose(1, 2)
-        x = self.enc(encoder_outputs).unsqueeze(dim=2) + self.pred(decoder_outputs).unsqueeze(dim=1)
-        x = self.relu(x)
-        x = self.joint_net(x)
+        x = self.joint_net(self.relu(self.enc(encoder_outputs).unsqueeze(2) + self.pred(decoder_outputs).unsqueeze(1)))
         if not x.is_cuda:  
             if self.temperature != 1.0:
                 x = (x / self.temperature).log_softmax(dim=-1)
             else:
                 x = x.log_softmax(dim=-1)
         return x
-
-class GreedyRNNTInfer(nn.Module):
-    def __init__(self,pred_hidden,pred_rnn_layers,vocab_size,lang_vocab_size,d_model,joint_hidden,blank_id,max_symbols):
-        super().__init__()
-        self.decoder = RNNTDecoder(pred_hidden,pred_rnn_layers,vocab_size)
-        self.joint = RNNTJoint(pred_hidden,d_model,joint_hidden,lang_vocab_size)
-        self._blank_index = blank_id
-        self._SOS = blank_id
-        self.max_symbols = max_symbols
-
-    def _pred_step(
-        self,
-        label: Union[torch.Tensor, int],
-        hidden: Optional[torch.Tensor],
-        batch_size: Optional[int] = None,
-    ) -> Tuple[torch.Tensor, torch.Tensor]:
-        if isinstance(label, torch.Tensor):
-            if label.dtype != torch.long:
-                label = label.long()
-            return self.decoder.predict(label, hidden, batch_size=batch_size)
-        else:
-            if label == self._SOS:
-                return self.decoder.predict(None, hidden, batch_size=batch_size)
-            label = label_collate([[label]])
-            return self.decoder.predict(label, hidden, batch_size=batch_size)
-
-    def _joint_step(self, enc, pred):
-        logits = self.joint(enc.transpose(1, 2), pred.transpose(1, 2))
-        if not logits.is_cuda:
-            logits = logits.log_softmax(dim=len(logits.shape) - 1)
-        return logits
-
-    def forward(
-        self,
-        x: torch.Tensor,
-        out_len: torch.Tensor,
-        device: torch.device,
-    ):
-        batchsize = x.shape[0]
-        hypotheses = [Hypothesis(y_sequence=[], timestep=[]) for _ in range(batchsize)]
-        hidden = None
-        last_label = torch.full([batchsize, 1], fill_value=self._blank_index, dtype=torch.long, device=device)
-        blank_mask = torch.full([batchsize], fill_value=0, dtype=torch.bool, device=device)
-        blank_mask_prev = None
-        max_out_len = out_len.max()
-        for time_idx in range(max_out_len):
-            f = x.narrow(dim=1, start=time_idx, length=1)  
-            not_blank = True
-            symbols_added = 0
-            blank_mask.mul_(False)
-            blank_mask = time_idx >= out_len
-            blank_mask_prev = blank_mask.clone()
-            while not_blank and (self.max_symbols is None or symbols_added < self.max_symbols):
-                if time_idx == 0 and symbols_added == 0 and hidden is None:
-                    g, hidden_prime = self._pred_step(self._SOS, hidden, batch_size=batchsize)
-                else:
-                    g, hidden_prime = self._pred_step(last_label, hidden, batch_size=batchsize)
-                logp = self._joint_step(f, g)[
-                    :, 0, 0, :
-                ]
-                if logp.dtype != torch.float32:
-                    logp = logp.float()
-                v, k = logp.max(1)
-                del g
-                k_is_blank = k == self._blank_index
-                blank_mask.bitwise_or_(k_is_blank)
-                del k_is_blank
-                del logp
-                blank_mask_prev.bitwise_or_(blank_mask)
-                if blank_mask.all():
-                    not_blank = False
-                else:
-                    blank_indices = (blank_mask == 1).nonzero(as_tuple=False)
-                    if hidden is not None:
-                        hidden_prime = self.decoder.batch_copy_states(hidden_prime, hidden, blank_indices)
-                    elif len(blank_indices) > 0 and hidden is None:
-                        hidden_prime = self.decoder.batch_copy_states(hidden_prime, None, blank_indices, value=0.0)
-                    k[blank_indices] = last_label[blank_indices, 0]
-                    last_label = k.clone().view(-1, 1)
-                    hidden = hidden_prime
-                    for kidx, ki in enumerate(k):
-                        if blank_mask[kidx] == 0:
-                            hypotheses[kidx].y_sequence.append(ki)
-                            hypotheses[kidx].timestep.append(time_idx)
-                    symbols_added += 1
-        return hypotheses
 
 def calc_length(lengths, all_paddings, kernel_size, stride, repeat_num=1):
     add_pad = all_paddings - kernel_size
@@ -473,7 +376,7 @@ def padding_audio(batch):
     return padded, lengths, times
 
 class ChunkedData(Dataset):
-    def __init__(self, audio_path,spleeter:Spleeter):
+    def __init__(self, audio_path,spleeter:nn.Module):
         wav, sr = torchaudio.load(audio_path)
         if spleeter:
             stem = spleeter.separate_audio_in_chunks(wav,sr)
@@ -489,3 +392,114 @@ class ChunkedData(Dataset):
     
     def __getitem__(self, idx):
         return self.data[idx],self.ts[idx]
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+class GreedyRNNTInfer(nn.Module):
+    def __init__(
+        self,
+        pred_hidden,pred_rnn_layers,vocab_size,lang_vocab_size,d_model,joint_hidden,blank_id,max_symbols):
+        super().__init__()
+        self.decoder = RNNTDecoder(pred_hidden,pred_rnn_layers,vocab_size)
+        self.joint = RNNTJoint(pred_hidden,d_model,joint_hidden,lang_vocab_size)
+        self._blank_index = blank_id
+        self._SOS = blank_id  
+        self.max_symbols = max_symbols
+    def _pred_step(
+        self,
+        label: Union[torch.Tensor, int],
+        hidden: Optional[torch.Tensor],
+        add_sos: bool = False,
+        batch_size: Optional[int] = None,
+    ) -> Tuple[torch.Tensor, torch.Tensor]:
+        if isinstance(label, torch.Tensor):
+            if label.dtype != torch.long:
+                label = label.long()
+        else:
+            if label == self._SOS:
+                return self.decoder.predict(None, hidden, add_sos=add_sos, batch_size=batch_size)
+            label = label_collate([[label]])
+        return self.decoder.predict(label, hidden, add_sos=add_sos, batch_size=batch_size)
+
+    def _joint_step(self, enc, pred, log_normalize: Optional[bool] = None, language_ids=None): 
+        logits = self.joint(encoder_outputs=enc.transpose(1, 2), decoder_outputs=pred.transpose(1, 2), language_ids=language_ids)
+        if not logits.is_cuda:  
+            logits = logits.log_softmax(dim=len(logits.shape) - 1)
+        return logits
+
+    def forward(
+        self,
+        x: torch.Tensor,
+        out_len: torch.Tensor,
+        device: torch.device,
+        language_ids=None,
+    ):
+        with torch.inference_mode():
+            batchsize = x.shape[0]
+            hypotheses = [
+                Hypothesis(score=0.0, y_sequence=[], timestep=[], dec_state=None) for _ in range(batchsize)
+            ]
+            hidden = None
+            last_label = torch.full([batchsize, 1], fill_value=self._blank_index, dtype=torch.long, device=device)
+            blank_mask = torch.full([batchsize], fill_value=0, dtype=torch.bool, device=device)
+            blank_mask_prev = None
+            max_out_len = out_len.max()
+            for time_idx in range(max_out_len):
+                f = x.narrow(dim=1, start=time_idx, length=1)  
+                not_blank = True
+                symbols_added = 0
+                blank_mask.mul_(False)
+                blank_mask = time_idx >= out_len
+                blank_mask_prev = blank_mask.clone()
+                while not_blank and (self.max_symbols is None or symbols_added < self.max_symbols):
+                    if time_idx == 0 and symbols_added == 0 and hidden is None:
+                        g, hidden_prime = self._pred_step(self._SOS, hidden, batch_size=batchsize)
+                    else:
+                        g, hidden_prime = self._pred_step(last_label, hidden, batch_size=batchsize)
+                    logp = self._joint_step(f, g, log_normalize=None, language_ids=language_ids)[
+                        :, 0, 0, :
+                    ]
+                    if logp.dtype != torch.float32:
+                        logp = logp.float()
+                    v, k = logp.max(1)
+                    del g
+                    k_is_blank = k == self._blank_index
+                    blank_mask.bitwise_or_(k_is_blank)
+                    del k_is_blank
+                    del logp
+                    blank_mask_prev.bitwise_or_(blank_mask)
+                    if blank_mask.all():
+                        not_blank = False
+                    else:
+                        blank_indices = (blank_mask == 1).nonzero(as_tuple=False)
+                        if hidden is not None:
+                            hidden_prime = self.decoder.batch_copy_states(hidden_prime, hidden, blank_indices)
+                        elif len(blank_indices) > 0 and hidden is None:
+                            hidden_prime = self.decoder.batch_copy_states(hidden_prime, None, blank_indices, value=0.0)
+                        k[blank_indices] = last_label[blank_indices, 0]
+                        last_label = k.clone().view(-1, 1)
+                        hidden = hidden_prime
+                        for kidx, ki in enumerate(k):
+                            if blank_mask[kidx] == 0:
+                                hypotheses[kidx].y_sequence.append(ki)
+                                hypotheses[kidx].timestep.append(time_idx)
+                                hypotheses[kidx].score += float(v[kidx])
+                        symbols_added += 1
+        return hypotheses
