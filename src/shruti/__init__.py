@@ -113,7 +113,7 @@ joint.joint_net.2,lang_joint_net
     def forward(self, audio_path, batch_size=2, language="hi",streaming=True,chunk_duration_sec=30):
         self.decoder.joint.joint_net = self.lang_joint_net[language]
         device = next(self.parameters()).device
-        self.speaker_diarization.to(device)
+
         loader = DataLoader(ChunkedData(audio_path,self.spleeter,chunk_duration_sec=chunk_duration_sec), batch_size, shuffle=False,collate_fn=padding_audio)
         subtitles = []
         for batch, lengths, timestamp in tqdm(loader):
@@ -125,6 +125,7 @@ joint.joint_net.2,lang_joint_net
                 yield srt.compose(subtitles)
         if self.speaker_diarization:
             output = self.speaker_diarization({"waveform":loader.dataset.vocal,"sample_rate":16000})
+            self.speaker_diarization.to(device)
             return srt.compose(subtitles),{
                 "diarization":[[i['start'],i['end'],int(i['speaker'].lstrip("SPEAKER_"))] for i in output.serialize()['diarization']],
                 "exclusive_diarization":[[i['start'],i['end'],int(i['speaker'].lstrip("SPEAKER_"))] for i in output.serialize()['exclusive_diarization']],
