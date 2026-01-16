@@ -2,11 +2,13 @@
 
 ```python
 from shruti import ShrutiASR
+import gradio as gr
 asr = ShrutiASR()
-srt = asr("path_of_audio")
-print("".join(srt.splitlines()[2::4]).replace("▁"," ").replace("<line>","\n"))
+def fn(x):
+    for srt in asr(x):
+        yield "".join(srt.splitlines()[2::4]).replace("▁"," ").replace("<line>","\n")
+gr.Interface(fn,gr.Audio(),gr.TextArea()).launch()
 ```
-
 <!-- ```python
 import shruti.nemo_backend
 import safetensors.torch
