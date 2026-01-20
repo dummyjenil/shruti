@@ -18,41 +18,36 @@ from transformers.models.wav2vec2_conformer.modeling_wav2vec2_conformer import W
 
 
 class ShrutiASR(nn.Module):
-    def __init__(self,use_music_sep=False,use_speaker_identify=False,language=None):
+    def __init__(self,language=None):
         super().__init__()
+        langs = ['as', 'bn', 'brx', 'doi', 'gu', 'hi', 'kn', 'kok', 'ks', 'mai', 'ml', 'mni', 'mr', 'ne', 'or', 'pa', 'sa', 'sat', 'sd', 'ta', 'te', 'ur']
+        assert language in langs + [None]
         self.d_model = d_model = 512 if language else 1024
         n_layers = 17 if language else 24
         pred_rnn_layers = 1 if language else 2
         conv_channels = 512 if language else 256
         self.conv_kernel_size = conv_kernel_size = 31 if language else 9
-        subsampling_factor = 8
-        n_heads = 8
+        subsampling_factor = 4 if language else 8
         pred_hidden = 640
         self.joint_hidden = joint_hidden = 640
         blank_id = 256
-        self.vocab = json.load(open(hf_hub_download("shethjenil/IndicConformer", "vocab.json")))
-        vocab_size = sum([len(v) for v in self.vocab.values()])
-        self.lang_vocab_size = int(vocab_size / len(self.vocab.keys()))
+        vocab_size = 5632
+        lang_vocab_size = 256
         self.preprocessor = MelPreprocessor()
         self.pre_encode = ConvSubsampling(int(math.log(subsampling_factor, 2)), d_model, conv_channels,not(language))
-        self.encoder = Wav2Vec2ConformerEncoder(Wav2Vec2ConformerConfig(None, d_model, n_layers, n_heads, d_model*4, "swish", conv_depthwise_kernel_size=conv_kernel_size))
-        self.lang_joint_net = nn.ModuleDict({i:nn.Linear(joint_hidden,self.lang_vocab_size+1) for i in self.vocab})
-        self.decoder = GreedyRNNTInfer(RNNTDecoder(vocab_size,pred_hidden,pred_rnn_layers),RNNTJoint(d_model,pred_hidden,joint_hidden,self.lang_vocab_size+1),blank_id)
-        if use_music_sep:
-            from shruti.spleeter import Spleeter
-            self.spleeter = Spleeter(['vocal','instruments'])
+        self.encoder = Wav2Vec2ConformerEncoder(Wav2Vec2ConformerConfig(None, d_model, n_layers, 8, d_model*4, "swish", conv_depthwise_kernel_size=conv_kernel_size))
+
+        if not language:
+            self.vocab = {lang:["<unk>"]+[i.lstrip("##") if i.startswith("##") else "▁"+i for i in open(hf_hub_download("shethjenil/IndicConformer", f"all/tokenizer/{lang}/vocab.txt")).read().split("\n")] for lang in langs}
+            self.lang_joint_net = nn.ModuleDict({i:nn.Linear(joint_hidden,lang_vocab_size+1) for i in langs})
         else:
-            self.spleeter = None
-        if use_speaker_identify:
-            from pyannote.audio import Pipeline
-            import os
-            os.environ['PYANNOTE_SKIP_DEPENDENCY_CHECK'] = '1'
-            self.speaker_diarization = Pipeline.from_pretrained("shethjenil/speaker-diarization-community-1")
-        else:
-            self.speaker_diarization = None
+            self.vocab = {language:["<unk>"]+[i.lstrip("##") if i.startswith("##") else "▁"+i for i in open(hf_hub_download("shethjenil/IndicConformer", f"{language}/tokenizer/{language}/vocab.txt")).read().split("\n")]}
+
+        self.decoder = GreedyRNNTInfer(RNNTDecoder(vocab_size,pred_hidden,pred_rnn_layers),RNNTJoint(d_model,pred_hidden,joint_hidden,lang_vocab_size+1),blank_id)
         self.scaler = math.sqrt(self.d_model)
-        self.denormalizer = 8 * self.preprocessor.hop_length / self.preprocessor.sr
-        self.load_state_dict(self.model_preprocess(load_file(hf_hub_download("shethjenil/IndicConformer", f"{language if language else "all"}.safetensors"))))
+        self.denormalizer = subsampling_factor * self.preprocessor.hop_length / self.preprocessor.sr
+        self.language = language
+        self.load_state_dict(self.model_preprocess(load_file(hf_hub_download("shethjenil/IndicConformer", f"{language if language else "all"}/model.safetensors"))))
         self.eval()
 
     def asr_fn(self, audio_tensor, length_tensor):
@@ -63,6 +58,15 @@ class ShrutiASR(nn.Module):
         return self.decoder(self.encoder(audio_tensor).last_hidden_state, length_tensor)
 
     def model_preprocess(self, state_dict):
+        d_model = self.d_model
+        conv_kernel_size = self.conv_kernel_size
+        self.mask_layer = MaskPad()
+        for i in range(len(self.encoder.layers)):
+            self.encoder.layers[i].conv_module.depthwise_conv = nn.Sequential(self.mask_layer,nn.Conv1d(d_model, d_model, conv_kernel_size, 1, (conv_kernel_size - 1) // 2, 1, d_model))
+            self.encoder.layers[i].conv_module.pointwise_conv1 = nn.Conv1d(d_model, 2*d_model, 1)
+            self.encoder.layers[i].conv_module.pointwise_conv2 = nn.Conv1d(d_model, d_model, 1)
+        self.encoder.layer_norm = nn.Identity()
+        del self.encoder.pos_conv_embed
         change_config = """
 preprocessor.featurizer,preprocessor
 encoder.pre_encode,pre_encode
@@ -85,41 +89,29 @@ joint.enc,decoder.joint.enc_proj
 joint.pred,decoder.joint.pred_proj
 joint.joint_net.2,lang_joint_net
 """
-        d_model = self.d_model
-        conv_kernel_size = self.conv_kernel_size
-        del self.encoder.pos_conv_embed
-        self.mask_layer = MaskPad()
-        for i in range(len(self.encoder.layers)):
-            self.encoder.layers[i].conv_module.depthwise_conv = nn.Sequential(self.mask_layer,nn.Conv1d(d_model, d_model, conv_kernel_size, 1, (conv_kernel_size - 1) // 2, 1, d_model))
-            self.encoder.layers[i].conv_module.pointwise_conv1 = nn.Conv1d(d_model, 2*d_model, 1)
-            self.encoder.layers[i].conv_module.pointwise_conv2 = nn.Conv1d(d_model, d_model, 1)
-        
-        self.encoder.layer_norm = nn.Identity()
         state_dict: dict[str, torch.Tensor] = state_bridge(state_dict, change_config)
+        if not self.language:
+            state_dict["decoder.joint.joint_net.weight"] = self.decoder.joint.joint_net.weight
+            state_dict["decoder.joint.joint_net.bias"] = self.decoder.joint.joint_net.bias
+        else:
+            state_dict["decoder.joint.joint_net.weight"] = state_dict.get('lang_joint_net.gu.weight')
+            state_dict["decoder.joint.joint_net.bias"] = state_dict.get('lang_joint_net.gu.bias')
+            state_dict = {k: v for k, v in state_dict.items() if "lang_joint_net" not in k}
         state_dict['preprocessor.mel_fb'] = state_dict['preprocessor.mel_fb'].squeeze(0)
+
         del state_dict['ctc_decoder.decoder_layers.0.bias']
         del state_dict['ctc_decoder.decoder_layers.0.weight']
-        state_dict["decoder.joint.joint_net.weight"] = torch.zeros(self.lang_vocab_size+1,self.joint_hidden)
-        state_dict["decoder.joint.joint_net.bias"] = torch.zeros(self.lang_vocab_size+1)
         
-        if self.spleeter:
-            state_dict.update({"spleeter.stems.vocal."+i:v for i,v in load_file(hf_hub_download("shethjenil/spleeter","2_vocals.safetensors")).items()})
-            state_dict.update({"spleeter.stems.instruments."+i:v for i,v in load_file(hf_hub_download("shethjenil/spleeter","2_other.safetensors")).items()})
-            state_dict['spleeter.win'] = self.spleeter.win            
         return state_dict
 
     @torch.inference_mode()
-    def forward(self, audio_path, batch_size=2, language="hi",chunk_duration_sec=30,spleeter_batch=2,use_tqdm=False):
-        self.decoder.joint.joint_net = self.lang_joint_net[language]
+    def forward(self, audio_path, batch_size=2, language=None,use_tqdm=False):
+        if not self.language:
+            self.decoder.joint.joint_net.load_state_dict(self.lang_joint_net[language].state_dict())
+
         device = next(self.parameters()).device
         wav, sr = torchaudio.load(audio_path)
-        if self.spleeter:
-            stem = self.spleeter.separate_audio_in_chunks(wav,sr,batch_size=spleeter_batch,chunk_duration_sec=chunk_duration_sec)
-            # music = stem['instruments']
-            wav = torchaudio.functional.resample(stem['vocal'], 44100, self.preprocessor.sr)
-            del stem
-        else:
-            wav = torchaudio.functional.resample(wav, sr, self.preprocessor.sr)
+        wav = torchaudio.functional.resample(wav, sr, self.preprocessor.sr)
         subtitles = []
         loader = DataLoader(ChunkedData(wav,self.preprocessor.sr), batch_size, shuffle=False,collate_fn=padding_audio)
         if use_tqdm:
@@ -129,19 +121,10 @@ joint.joint_net.2,lang_joint_net
 
         for batch, lengths, timestamp in loader:
             hyp = self.asr_fn(batch.to(device), lengths.to(device))
-            subtitles.extend(make_srt(hyp, timestamp.to(device), self.vocab[language],self.denormalizer))
+            subtitles.extend(make_srt(hyp, timestamp.to(device), self.vocab[self.language],self.denormalizer))
             torch.cuda.empty_cache()
             gc.collect()
             yield srt.compose(subtitles)
         if use_tqdm:
             for h in hooks:h.remove()
             pbar.close()
-
-        if self.speaker_diarization:
-            output = self.speaker_diarization({"waveform":wav,"sample_rate":16000})
-            self.speaker_diarization.to(device)
-            yield srt.compose(subtitles),{
-                "diarization":[[i['start'],i['end'],int(i['speaker'].lstrip("SPEAKER_"))] for i in output.serialize()['diarization']],
-                "exclusive_diarization":[[i['start'],i['end'],int(i['speaker'].lstrip("SPEAKER_"))] for i in output.serialize()['exclusive_diarization']],
-                "embedding":output.speaker_embeddings.tolist()
-            }

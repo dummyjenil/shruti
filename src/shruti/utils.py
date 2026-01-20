@@ -37,7 +37,7 @@ class RNNTDecoder(nn.Module):
         super().__init__()
         self.hidden_dim = hidden_dim
         self.embed = nn.Embedding(vocab_size + 1, hidden_dim,padding_idx=vocab_size)
-        self.lstm = nn.LSTM(hidden_dim,hidden_dim,num_layers=num_layers,batch_first=True)
+        self.lstm = nn.LSTM(hidden_dim,hidden_dim,num_layers,batch_first=True)
     def forward(self,y: torch.Tensor,state: Optional[Tuple[torch.Tensor]]):
         return self.lstm(self.embed(y), state)
 
@@ -133,12 +133,10 @@ class ConvSubsampling(nn.Module):
                 layers.append(nn.ReLU(True))
                 in_channels = conv_channels
         else:
-            for _ in range(self._sampling_num - 1):
+            for _ in range(self._sampling_num):
                 layers.append(nn.Conv2d(in_channels,conv_channels,3,2,1))
                 layers.append(nn.ReLU(True))
                 in_channels = conv_channels
-
-
         self.conv = nn.Sequential(*layers)
         self.out = nn.Linear(conv_channels * int(calc_length(torch.tensor(80, dtype=torch.float),2,3,2,self._sampling_num)), feat_out)
 
@@ -251,7 +249,6 @@ class GreedyRNNTInfer(nn.Module):
         self.blank_id = blank_id
         self.max_symbols = max_symbols_per_step
 
-    @torch.no_grad()
     def forward(self, x, out_len):
         B, T, _ = x.shape
         device = x.device
