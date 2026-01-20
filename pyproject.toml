@@ -18,6 +18,7 @@ dependencies = [
     'srt',
     'safetensors',
     'transformers',
+    'torch_state_bridge',
 ]
 
 [project.optional-dependencies]
