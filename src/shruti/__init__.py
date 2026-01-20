@@ -90,8 +90,8 @@ joint.joint_net.2,lang_joint_net
             state_dict["decoder.joint.joint_net.weight"] = self.decoder.joint.joint_net.weight
             state_dict["decoder.joint.joint_net.bias"] = self.decoder.joint.joint_net.bias
         else:
-            state_dict["decoder.joint.joint_net.weight"] = state_dict.get('lang_joint_net.gu.weight')
-            state_dict["decoder.joint.joint_net.bias"] = state_dict.get('lang_joint_net.gu.bias')
+            state_dict["decoder.joint.joint_net.weight"] = state_dict.get(f'lang_joint_net.{self.language}.weight').clone()
+            state_dict["decoder.joint.joint_net.bias"] = state_dict.get(f'lang_joint_net.{self.language}.bias').clone()
             state_dict = {k: v for k, v in state_dict.items() if "lang_joint_net" not in k}
         state_dict['preprocessor.mel_fb'] = state_dict['preprocessor.mel_fb'].squeeze(0)
 
