@@ -12,9 +12,6 @@ import srt
 from torch.utils.data import DataLoader
 from transformers.models.wav2vec2_conformer.modeling_wav2vec2_conformer import Wav2Vec2ConformerEncoder, Wav2Vec2ConformerConfig
 
-# 'git+https://github.com/dummyjenil/torch-state-bridge.git',
-# 'git+https://github.com/dummyjenil/pyannote-audio.git'
-
 
 class ShrutiASR(nn.Module):
     def __init__(self,language=None):
