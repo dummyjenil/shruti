@@ -117,7 +117,7 @@ joint.joint_net.2,lang_joint_net
 
         for batch, lengths, timestamp in loader:
             hyp = self.asr_fn(batch.to(device), lengths.to(device))
-            subtitles.extend(make_srt(hyp, timestamp.to(device), self.vocab[self.language],self.denormalizer))
+            subtitles.extend(make_srt(hyp, timestamp.to(device), self.vocab[self.language if self.language else language],self.denormalizer))
             torch.cuda.empty_cache()
             gc.collect()
             yield srt.compose(subtitles)
